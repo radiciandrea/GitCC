@@ -224,16 +224,16 @@ for(year in years){
   for(id in 1:nReg){
     WDT<- data.table(
       ID = id,
-      lon = domainPop[i, lon],
-      lat = domainPop[i, lat],
-      pop = domainPop[i, pop],
+      lon = domainPop[id, lon],
+      lat = domainPop[id, lat],
+      pop = domainPop[id, pop],
       year = year,
-      DOS = as.numeric(strftime(date[index_year], format = "%j")),
-      date = date[index_year],
-      pr = prTot[domainPop[i, positionX]+1, domainPop[i, positionY]+1, index_year], # correct UM later
-      tas = tas[domainPop[i, positionX]+1, domainPop[i, positionY]+1, index_year], # correct later
-      tasMax = tasMax[domainPop[i, positionX]+1, domainPop[i, positionY]+1, index_year], # correct later
-      tasMin = tasMin[domainPop[i, positionX]+1, domainPop[i, positionY]+1, index_year] # correct later
+      DOS = as.numeric(strftime(date[indexYear], format = "%j")),
+      date = date[indexYear],
+      pr = prTot[domainPop[id, positionX]+1, domainPop[id, positionY]+1, indexYear], # correct UM later
+      tas = tas[domainPop[id, positionX]+1, domainPop[id, positionY]+1, indexYear], # correct later
+      tasMax = tasMax[domainPop[id, positionX]+1, domainPop[id, positionY]+1, indexYear], # correct later
+      tasMin = tasMin[domainPop[id, positionX]+1, domainPop[id, positionY]+1, indexYear] # correct later
     )
     
     WList[[id]]<-WDT
