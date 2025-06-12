@@ -279,11 +279,11 @@ domain = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dat
 
 GPWSSP2_2055 <- rast("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/WANG2024/SSP2_2055.tif")
 
-GPWCrop <- crop(GPWSSP2_2055, ext(domain)) # France only
+GPWCropSSP2_2055 <- crop(GPWSSP2_2055, ext(domain)) # France only
 
-# writeRaster(GPW_crop, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/GPW_4/Global_2000_PopulationDensity30sec_GPWv4_France.tiff")
+writeRaster(GPWCropSSP2_2055, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/WANG2024/CropSSP2_2055.tiff")
 
-GPWCropExtract <- raster::extract(GPWCrop, domain) %>%
+GPWCropExtract <- raster::extract(GPWCropSSP2_2055, domain) %>%
   group_by(ID) %>%
   summarise(pop = mean(SSP2_2055, na.rm = T)) %>%
   ungroup()
@@ -299,7 +299,7 @@ dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DR
 folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_ELAB/"
 
 years = 2050:2059
-name = "SSP245"
+name = "ssp245"
 
 # read domainPop
 
@@ -311,7 +311,7 @@ nReg = nrow(domainPopDT)
 
 tasNCDF <- nc_open(paste0(dataFolder, "tasAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20500101-20591231.nc"))
 
-time = ncvar_get(tasHistNCDF, "time") # days since 1950-01-01 00:00:00
+time = ncvar_get(tasNCDF, "time") # days since 1950-01-01 00:00:00
 date = as.Date(time, origin=as.Date("1950-01-01"))
 yearRep = sapply(date, function(x){substr(x, 1, 4)})
 
@@ -384,11 +384,11 @@ domain = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dat
 
 GPWSSP2_2085 <- rast("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/WANG2024/SSP2_2085.tif")
 
-GPWCrop <- crop(GPWSSP2_2085, ext(domain)) # France only
+GPWCropSSP2_2085 <- crop(GPWSSP2_2085, ext(domain)) # France only
 
-# writeRaster(GPW_crop, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/GPW_4/Global_2000_PopulationDensity30sec_GPWv4_France.tiff")
+writeRaster(GPWCropSSP2_2085, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/WANG2024/CropSSP2_2085.tiff")
 
-GPWCropExtract <- raster::extract(GPWCrop, domain) %>%
+GPWCropExtract <- raster::extract(GPWCropSSP2_2085, domain) %>%
   group_by(ID) %>%
   summarise(pop = mean(SSP2_2085, na.rm = T)) %>%
   ungroup()
@@ -397,7 +397,7 @@ domainPopSSP2_2085 <- left_join(domain, GPWCropExtract)
 
 st_write(domainPopSSP2_2085, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP2_2085.shp")
 
-### Download Safran SSP2 2080-2089 ----
+### Download Safran RCP 4.5 2080-2089 ----
 # format: ncdf
 
 dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS/"
@@ -416,7 +416,7 @@ nReg = nrow(domainPopDT)
 
 tasNCDF <- nc_open(paste0(dataFolder, "tasAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20800101-20891231.nc"))
 
-time = ncvar_get(tasHistNCDF, "time") # days since 1950-01-01 00:00:00
+time = ncvar_get(tasNCDF, "time") # days since 1950-01-01 00:00:00
 date = as.Date(time, origin=as.Date("1950-01-01"))
 yearRep = sapply(date, function(x){substr(x, 1, 4)})
 
@@ -489,11 +489,11 @@ domain = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dat
 
 GPWSSP5_2055 <- rast("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/WANG2024/SSP5_2055.tif")
 
-GPWCrop <- crop(GPWSSP5_2055, ext(domain)) # France only
+GPWCropSSP5_2055 <- crop(GPWSSP5_2055, ext(domain)) # France only
 
-# writeRaster(GPW_crop, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/GPW_4/Global_2000_PopulationDensity30sec_GPWv4_France.tiff")
+ writeRaster(GPWCropSSP5_2055, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/WANG2024/CropSSP5_2055.tiff")
 
-GPWCropExtract <- raster::extract(GPWCrop, domain) %>%
+GPWCropExtract <- raster::extract(GPWCropSSP5_2055, domain) %>%
   group_by(ID) %>%
   summarise(pop = mean(SSP5_2055, na.rm = T)) %>%
   ungroup()
@@ -502,7 +502,7 @@ domainPopSSP5_2055 <- left_join(domain, GPWCropExtract)
 
 st_write(domainPopSSP5_2055, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP5_2055.shp")
 
-### Download Safran SSP2 2050-2059 ----
+### Download Safran RCP 8.5 2050-2059 ----
 # format: ncdf
 
 dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS/"
@@ -521,7 +521,7 @@ nReg = nrow(domainPopDT)
 
 tasNCDF <- nc_open(paste0(dataFolder, "tasAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20500101-20591231.nc"))
 
-time = ncvar_get(tasHistNCDF, "time") # days since 1950-01-01 00:00:00
+time = ncvar_get(tasNCDF, "time") # days since 1950-01-01 00:00:00
 date = as.Date(time, origin=as.Date("1950-01-01"))
 yearRep = sapply(date, function(x){substr(x, 1, 4)})
 
@@ -594,20 +594,20 @@ domain = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dat
 
 GPWSSP5_2085 <- rast("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/WANG2024/SSP5_2085.tif")
 
-GPWCrop <- crop(GPWSSP5_2085, ext(domain)) # France only
+GPWCropSSP5_2085 <- crop(GPWSSP5_2085, ext(domain)) # France only
 
-# writeRaster(GPW_crop, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/GPW_4/Global_2000_PopulationDensity30sec_GPWv4_France.tiff")
+writeRaster(GPWCropSSP5_2085, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/WANG2024/CropSSP5_2085.tiff")
 
-GPWCropExtract <- raster::extract(GPWCrop, domain) %>%
+GPWCropExtract <- raster::extract(GPWCropSSP5_2085, domain) %>%
   group_by(ID) %>%
   summarise(pop = mean(SSP5_2085, na.rm = T)) %>%
   ungroup()
 
-domainPopSSP2_2085 <- left_join(domain, GPWCropExtract)
+domainPopSSP5_2085 <- left_join(domain, GPWCropExtract)
 
 st_write(domainPopSSP5_2085, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP5_2085.shp")
 
-### Download Safran SSP2 2080-2089 ----
+### Download Safran RCP 8.5 2080-2089 ----
 # format: ncdf
 
 dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS/"
@@ -626,7 +626,7 @@ nReg = nrow(domainPopDT)
 
 tasNCDF <- nc_open(paste0(dataFolder, "tasAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20800101-20891231.nc"))
 
-time = ncvar_get(tasHistNCDF, "time") # days since 1950-01-01 00:00:00
+time = ncvar_get(tasNCDF, "time") # days since 1950-01-01 00:00:00
 date = as.Date(time, origin=as.Date("1950-01-01"))
 yearRep = sapply(date, function(x){substr(x, 1, 4)})
 
