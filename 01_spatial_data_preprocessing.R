@@ -175,8 +175,9 @@ name = "Hist"
 
 # read domainPop
 
-domainPop = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPop2000.shp")
-nReg = nrow(domainPop)
+domainPopDF = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPop2000.shp")
+domainPopDT = as.data.table(domainPopDF)
+nReg = nrow(domainPopDT)
 
 # load tas (temperature)
 
@@ -222,14 +223,14 @@ for(year in years){
   for(id in 1:nReg){
     WDT<- data.table(
       ID = id,
-      lat = domainPop[id, lat],
-      pop = domainPop[id, pop],
+      lat = domainPopDT[id, lat],
+      pop = domainPopDT[id, pop],
       DOS = as.numeric(strftime(date[indexYear], format = "%j")),
       date = date[indexYear],
-      pr = prTot[domainPop[id, positionX]+1, domainPop[id, positionY]+1, indexYear], # correct UM later
-      tas = tas[domainPop[id, positionX]+1, domainPop[id, positionY]+1, indexYear], # correct later
-      tasMax = tasMax[domainPop[id, positionX]+1, domainPop[id, positionY]+1, indexYear], # correct later
-      tasMin = tasMin[domainPop[id, positionX]+1, domainPop[id, positionY]+1, indexYear] # correct later
+      pr = prTot[domainPopDT[id, positionX]+1, domainPopDT[id, positionY]+1, indexYear], # correct UM later
+      tas = tas[domainPopDT[id, positionX]+1, domainPopDT[id, positionY]+1, indexYear], # correct later
+      tasMax = tasMax[domainPopDT[id, positionX]+1, domainPopDT[id, positionY]+1, indexYear], # correct later
+      tasMin = tasMin[domainPopDT[id, positionX]+1, domainPopDT[id, positionY]+1, indexYear] # correct later
     )
     
     WList[[id]]<-WDT
@@ -249,7 +250,7 @@ for(year in years){
   
   #save
   saveRDS(WTotDT,
-       file = paste0(folderOut, "_", year, "_df", name, ".rds")) 
+       file = paste0(folderOut, "Drias", year, name, ".rds")) 
   
 }
 
