@@ -9,6 +9,17 @@
 
 # After meeting Cyril Pachka Paul
 
+## Load libraries ----
+
+library(sf)
+library(terra)
+library(ncdf4)
+library(lubridate)
+library(xlsx)
+library(dplyr)
+library(data.table)
+library(ggplot2)
+library(leaflet)
 
 ## Settings ----
 
@@ -38,12 +49,6 @@
 # safran: https://www.drias-climat.fr/drias_prod/_composantsHTML/simulations/refGeoSimulations/aide_safran_drias2021.html
 
 ### Extract safran grid ----
-
-library(xlsx)
-library(dplyr)
-library(data.table)
-library(ggplot2)
-library(leaflet)
 
 SafranFolder <- "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/SAFRAN/"
 
@@ -161,11 +166,6 @@ st_write(domainPop, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/
 # years: 1996-2005
 # (8981 points) details in grilleSafran_complete_drias2021
 # variables: temperature (max, min, mean), in K, precipitations, in kg/m^2/s
-
-library(sf)
-library(terra)
-library(ncdf4)
-library(lubridate)
 
 dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS/"
 folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_ELAB/"
