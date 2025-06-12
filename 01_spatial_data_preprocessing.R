@@ -175,8 +175,7 @@ name = "Hist"
 
 # read domainPop
 
-domainPop = as.data.table(st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPop2000.shp"))
-
+domainPop = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPop2000.shp")
 nReg = nrow(domainPop)
 
 # load tas (temperature)
@@ -214,7 +213,6 @@ rm(tasHistNCDF, tasMaxHistNCDF, tasMinHistNCDF, prTotHistNCDF)
 # m <- abs(lat - IdomainPop$lat[1])
 # which(m == min(m, na.rm = T), arr.ind =  TRUE) # ok
 
-
 for(year in years){
   
   indexYear = which(yearRep == year)
@@ -224,10 +222,8 @@ for(year in years){
   for(id in 1:nReg){
     WDT<- data.table(
       ID = id,
-      lon = domainPop[id, lon],
       lat = domainPop[id, lat],
       pop = domainPop[id, pop],
-      year = year,
       DOS = as.numeric(strftime(date[indexYear], format = "%j")),
       date = date[indexYear],
       pr = prTot[domainPop[id, positionX]+1, domainPop[id, positionY]+1, indexYear], # correct UM later
@@ -253,6 +249,13 @@ for(year in years){
   
   #save
   saveRDS(WTotDT,
-       file = paste0(folderOut, "_", year, "_", name, ".RDS")) 
+       file = paste0(folderOut, "_", year, "_df", name, ".rds")) 
   
 }
+
+# check 
+
+# WTotDT_sum <- WTotDT[,.("tasAv"=mean(tas), "prCum"=sum(pr)), by = .(ID)]
+# 
+# ggplot(domainPop, aes(fill = WTotDT_sum$pr))+
+#   geom_sf()
