@@ -48,7 +48,7 @@ library(leaflet)
 
 # safran: https://www.drias-climat.fr/drias_prod/_composantsHTML/simulations/refGeoSimulations/aide_safran_drias2021.html
 
-### Extract safran grid ----
+## Extract safran grid ----
 
 SafranFolder <- "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/SAFRAN/"
 
@@ -129,6 +129,8 @@ safranGridGeom <- safranGridGeom %>%
   mutate(ID = rank(point))
 
 st_write(safranGridGeom, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomain.shp")
+
+## Historic ----
 
 ### Download GPW Historic 2000 ----
 
@@ -260,3 +262,424 @@ for(year in years){
 # 
 # ggplot(domainPop, aes(fill = WTotDT_sum$pr))+
 #   geom_sf()
+
+## SSP2 2050-2059 ----
+
+### Download GPW SSP2 2055 ----
+
+# website https://figshare.com/articles/dataset/Projecting_1_km-grid_population_distributions_from_2020_to_2100_globally_under_shared_socioeconomic_pathways/19608594/3
+ 
+# article by Wang et al https://www.nature.com/articles/s41597-022-01675-x
+
+# read domain
+
+domain = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomain.shp")
+
+# read 2055 Griddedpop(number of persons per square kilometer)
+
+GPWSSP2_2055 <- rast("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/WANG2024/SSP2_2055.tif")
+
+GPWCrop <- crop(GPWSSP2_2055, ext(domain)) # France only
+
+# writeRaster(GPW_crop, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/GPW_4/Global_2000_PopulationDensity30sec_GPWv4_France.tiff")
+
+GPWCropExtract <- raster::extract(GPWCrop, domain) %>%
+  group_by(ID) %>%
+  summarise(pop = mean(SSP2_2055, na.rm = T)) %>%
+  ungroup()
+
+domainPopSSP2_2055 <- left_join(domain, GPWCropExtract)
+
+st_write(domainPopSSP2_2055, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP2_2055.shp")
+
+### Download Safran RCP 4.5 2050-2059 ----
+# format: ncdf
+
+dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS/"
+folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_ELAB/"
+
+years = 2050:2059
+name = "SSP245"
+
+# read domainPop
+
+domainPopDF = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP2_2055.shp")
+domainPopDT = as.data.table(domainPopDF)
+nReg = nrow(domainPopDT)
+
+# load tas (temperature)
+
+tasNCDF <- nc_open(paste0(dataFolder, "tasAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20500101-20591231.nc"))
+
+time = ncvar_get(tasHistNCDF, "time") # days since 1950-01-01 00:00:00
+date = as.Date(time, origin=as.Date("1950-01-01"))
+yearRep = sapply(date, function(x){substr(x, 1, 4)})
+
+tasMaxNCDF <- nc_open(paste0(dataFolder, "tasmaxAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20500101-20591231.nc"))
+tasMinNCDF <- nc_open(paste0(dataFolder, "tasminAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20500101-20591231.nc"))
+prTotNCDF <- nc_open(paste0(dataFolder, "prtotAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20500101-20591231.nc"))
+
+#extract 3Dmatrices with ncvar_get
+
+tas <- ncvar_get(tasNCDF, attributes(tasNCDF$var)$names[5])
+tasMax <- ncvar_get(tasMaxNCDF, attributes(tasMaxNCDF$var)$names[5])
+tasMin <- ncvar_get(tasMinNCDF, attributes(tasMinNCDF$var)$names[5])
+prTot <- ncvar_get(prTotNCDF, attributes(prTotNCDF$var)$names[5])
+
+rm(tasNCDF, tasMaxNCDF, tasMinNCDF, prTotNCDF)
+
+for(year in years){
+  
+  indexYear = which(yearRep == year)
+  
+  WList <- vector(mode = "list", nReg*length(indexYear))
+  
+  for(id in 1:nReg){
+    WDT<- data.table(
+      ID = id,
+      lat = domainPopDT[id, lat],
+      pop = domainPopDT[id, pop],
+      DOS = as.numeric(strftime(date[indexYear], format = "%j")),
+      date = date[indexYear],
+      pr = prTot[domainPopDT[id, positionX]+1, domainPopDT[id, positionY]+1, indexYear], # correct UM later
+      tas = tas[domainPopDT[id, positionX]+1, domainPopDT[id, positionY]+1, indexYear], # correct later
+      tasMax = tasMax[domainPopDT[id, positionX]+1, domainPopDT[id, positionY]+1, indexYear], # correct later
+      tasMin = tasMin[domainPopDT[id, positionX]+1, domainPopDT[id, positionY]+1, indexYear] # correct later
+    )
+    
+    WList[[id]]<-WDT
+    
+    cat(id, "\n")
+  }
+  
+  cat("YEAR:", year, "\n")
+  
+  WTotDT <- data.table::rbindlist(WList)
+  
+  #correct UM
+  WTotDT[, tas:=tas-273.15] # from K to °C
+  WTotDT[, tasMax:=tasMax-273.15] # from K to °C
+  WTotDT[, tasMin:=tasMin-273.15] # from K to °C
+  WTotDT[, pr:=pr*24*3600] # from kg/m2/s to mm/d
+  
+  #save
+  saveRDS(WTotDT,
+          file = paste0(folderOut, "Drias", year, name, ".rds")) 
+  
+}
+
+## SSP2 2080-2089 ----
+
+### Download GPW SSP2 2085 ----
+
+# website https://figshare.com/articles/dataset/Projecting_1_km-grid_population_distributions_from_2020_to_2100_globally_under_shared_socioeconomic_pathways/19608594/3
+
+# article by Wang et al https://www.nature.com/articles/s41597-022-01675-x
+
+# read domain
+
+domain = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomain.shp")
+
+# read 2055 Griddedpop(number of persons per square kilometer)
+
+GPWSSP2_2085 <- rast("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/WANG2024/SSP2_2085.tif")
+
+GPWCrop <- crop(GPWSSP2_2085, ext(domain)) # France only
+
+# writeRaster(GPW_crop, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/GPW_4/Global_2000_PopulationDensity30sec_GPWv4_France.tiff")
+
+GPWCropExtract <- raster::extract(GPWCrop, domain) %>%
+  group_by(ID) %>%
+  summarise(pop = mean(SSP2_2085, na.rm = T)) %>%
+  ungroup()
+
+domainPopSSP2_2085 <- left_join(domain, GPWCropExtract)
+
+st_write(domainPopSSP2_2085, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP2_2085.shp")
+
+### Download Safran SSP2 2080-2089 ----
+# format: ncdf
+
+dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS/"
+folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_ELAB/"
+
+years = 2080:2089
+name = "ssp245"
+
+# read domainPop
+
+domainPopDF = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP2_2085.shp")
+domainPopDT = as.data.table(domainPopDF)
+nReg = nrow(domainPopDT)
+
+# load tas (temperature)
+
+tasNCDF <- nc_open(paste0(dataFolder, "tasAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20800101-20891231.nc"))
+
+time = ncvar_get(tasHistNCDF, "time") # days since 1950-01-01 00:00:00
+date = as.Date(time, origin=as.Date("1950-01-01"))
+yearRep = sapply(date, function(x){substr(x, 1, 4)})
+
+tasMaxNCDF <- nc_open(paste0(dataFolder, "tasmaxAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20800101-20891231.nc"))
+tasMinNCDF <- nc_open(paste0(dataFolder, "tasminAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20800101-20891231.nc"))
+prTotNCDF <- nc_open(paste0(dataFolder, "prtotAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20800101-20891231.nc"))
+
+#extract 3Dmatrices with ncvar_get
+
+tas <- ncvar_get(tasNCDF, attributes(tasNCDF$var)$names[5])
+tasMax <- ncvar_get(tasMaxNCDF, attributes(tasMaxNCDF$var)$names[5])
+tasMin <- ncvar_get(tasMinNCDF, attributes(tasMinNCDF$var)$names[5])
+prTot <- ncvar_get(prTotNCDF, attributes(prTotNCDF$var)$names[5])
+
+rm(tasNCDF, tasMaxNCDF, tasMinNCDF, prTotNCDF)
+
+for(year in years){
+  
+  indexYear = which(yearRep == year)
+  
+  WList <- vector(mode = "list", nReg*length(indexYear))
+  
+  for(id in 1:nReg){
+    WDT<- data.table(
+      ID = id,
+      lat = domainPopDT[id, lat],
+      pop = domainPopDT[id, pop],
+      DOS = as.numeric(strftime(date[indexYear], format = "%j")),
+      date = date[indexYear],
+      pr = prTot[domainPopDT[id, positionX]+1, domainPopDT[id, positionY]+1, indexYear], # correct UM later
+      tas = tas[domainPopDT[id, positionX]+1, domainPopDT[id, positionY]+1, indexYear], # correct later
+      tasMax = tasMax[domainPopDT[id, positionX]+1, domainPopDT[id, positionY]+1, indexYear], # correct later
+      tasMin = tasMin[domainPopDT[id, positionX]+1, domainPopDT[id, positionY]+1, indexYear] # correct later
+    )
+    
+    WList[[id]]<-WDT
+    
+    cat(id, "\n")
+  }
+  
+  cat("YEAR:", year, "\n")
+  
+  WTotDT <- data.table::rbindlist(WList)
+  
+  #correct UM
+  WTotDT[, tas:=tas-273.15] # from K to °C
+  WTotDT[, tasMax:=tasMax-273.15] # from K to °C
+  WTotDT[, tasMin:=tasMin-273.15] # from K to °C
+  WTotDT[, pr:=pr*24*3600] # from kg/m2/s to mm/d
+  
+  #save
+  saveRDS(WTotDT,
+          file = paste0(folderOut, "Drias", year, name, ".rds")) 
+  
+}
+
+## SSP5 2050-2059 ----
+
+### Download GPW SSP5 2055 ----
+
+# website https://figshare.com/articles/dataset/Projecting_1_km-grid_population_distributions_from_2020_to_2100_globally_under_shared_socioeconomic_pathways/19608594/3
+
+# article by Wang et al https://www.nature.com/articles/s41597-022-01675-x
+
+# read domain
+
+domain = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomain.shp")
+
+# read 2055 Griddedpop(number of persons per square kilometer)
+
+GPWSSP5_2055 <- rast("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/WANG2024/SSP5_2055.tif")
+
+GPWCrop <- crop(GPWSSP5_2055, ext(domain)) # France only
+
+# writeRaster(GPW_crop, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/GPW_4/Global_2000_PopulationDensity30sec_GPWv4_France.tiff")
+
+GPWCropExtract <- raster::extract(GPWCrop, domain) %>%
+  group_by(ID) %>%
+  summarise(pop = mean(SSP5_2055, na.rm = T)) %>%
+  ungroup()
+
+domainPopSSP5_2055 <- left_join(domain, GPWCropExtract)
+
+st_write(domainPopSSP5_2055, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP5_2055.shp")
+
+### Download Safran SSP2 2050-2059 ----
+# format: ncdf
+
+dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS/"
+folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_ELAB/"
+
+years = 2050:2059
+name = "ssp585"
+
+# read domainPop
+
+domainPopDF = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP5_2055.shp")
+domainPopDT = as.data.table(domainPopDF)
+nReg = nrow(domainPopDT)
+
+# load tas (temperature)
+
+tasNCDF <- nc_open(paste0(dataFolder, "tasAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20500101-20591231.nc"))
+
+time = ncvar_get(tasHistNCDF, "time") # days since 1950-01-01 00:00:00
+date = as.Date(time, origin=as.Date("1950-01-01"))
+yearRep = sapply(date, function(x){substr(x, 1, 4)})
+
+tasMaxNCDF <- nc_open(paste0(dataFolder, "tasmaxAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20500101-20591231.nc"))
+tasMinNCDF <- nc_open(paste0(dataFolder, "tasminAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20500101-20591231.nc"))
+prTotNCDF <- nc_open(paste0(dataFolder, "prtotAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20500101-20591231.nc"))
+
+#extract 3Dmatrices with ncvar_get
+
+tas <- ncvar_get(tasNCDF, attributes(tasNCDF$var)$names[5])
+tasMax <- ncvar_get(tasMaxNCDF, attributes(tasMaxNCDF$var)$names[5])
+tasMin <- ncvar_get(tasMinNCDF, attributes(tasMinNCDF$var)$names[5])
+prTot <- ncvar_get(prTotNCDF, attributes(prTotNCDF$var)$names[5])
+
+rm(tasNCDF, tasMaxNCDF, tasMinNCDF, prTotNCDF)
+
+for(year in years){
+  
+  indexYear = which(yearRep == year)
+  
+  WList <- vector(mode = "list", nReg*length(indexYear))
+  
+  for(id in 1:nReg){
+    WDT<- data.table(
+      ID = id,
+      lat = domainPopDT[id, lat],
+      pop = domainPopDT[id, pop],
+      DOS = as.numeric(strftime(date[indexYear], format = "%j")),
+      date = date[indexYear],
+      pr = prTot[domainPopDT[id, positionX]+1, domainPopDT[id, positionY]+1, indexYear], # correct UM later
+      tas = tas[domainPopDT[id, positionX]+1, domainPopDT[id, positionY]+1, indexYear], # correct later
+      tasMax = tasMax[domainPopDT[id, positionX]+1, domainPopDT[id, positionY]+1, indexYear], # correct later
+      tasMin = tasMin[domainPopDT[id, positionX]+1, domainPopDT[id, positionY]+1, indexYear] # correct later
+    )
+    
+    WList[[id]]<-WDT
+    
+    cat(id, "\n")
+  }
+  
+  cat("YEAR:", year, "\n")
+  
+  WTotDT <- data.table::rbindlist(WList)
+  
+  #correct UM
+  WTotDT[, tas:=tas-273.15] # from K to °C
+  WTotDT[, tasMax:=tasMax-273.15] # from K to °C
+  WTotDT[, tasMin:=tasMin-273.15] # from K to °C
+  WTotDT[, pr:=pr*24*3600] # from kg/m2/s to mm/d
+  
+  #save
+  saveRDS(WTotDT,
+          file = paste0(folderOut, "Drias", year, name, ".rds")) 
+  
+}
+
+## SSP2 2080-2089 ----
+
+### Download GPW SSP5 2085 ----
+
+# website https://figshare.com/articles/dataset/Projecting_1_km-grid_population_distributions_from_2020_to_2100_globally_under_shared_socioeconomic_pathways/19608594/3
+
+# article by Wang et al https://www.nature.com/articles/s41597-022-01675-x
+
+# read domain
+
+domain = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomain.shp")
+
+# read 2055 Griddedpop(number of persons per square kilometer)
+
+GPWSSP5_2085 <- rast("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/WANG2024/SSP5_2085.tif")
+
+GPWCrop <- crop(GPWSSP5_2085, ext(domain)) # France only
+
+# writeRaster(GPW_crop, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/GPW_4/Global_2000_PopulationDensity30sec_GPWv4_France.tiff")
+
+GPWCropExtract <- raster::extract(GPWCrop, domain) %>%
+  group_by(ID) %>%
+  summarise(pop = mean(SSP5_2085, na.rm = T)) %>%
+  ungroup()
+
+domainPopSSP2_2085 <- left_join(domain, GPWCropExtract)
+
+st_write(domainPopSSP5_2085, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP5_2085.shp")
+
+### Download Safran SSP2 2080-2089 ----
+# format: ncdf
+
+dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS/"
+folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_ELAB/"
+
+years = 2080:2089
+name = "ssp585"
+
+# read domainPop
+
+domainPopDF = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP5_2085.shp")
+domainPopDT = as.data.table(domainPopDF)
+nReg = nrow(domainPopDT)
+
+# load tas (temperature)
+
+tasNCDF <- nc_open(paste0(dataFolder, "tasAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20800101-20891231.nc"))
+
+time = ncvar_get(tasHistNCDF, "time") # days since 1950-01-01 00:00:00
+date = as.Date(time, origin=as.Date("1950-01-01"))
+yearRep = sapply(date, function(x){substr(x, 1, 4)})
+
+tasMaxNCDF <- nc_open(paste0(dataFolder, "tasmaxAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20800101-20891231.nc"))
+tasMinNCDF <- nc_open(paste0(dataFolder, "tasminAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20800101-20891231.nc"))
+prTotNCDF <- nc_open(paste0(dataFolder, "prtotAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20800101-20891231.nc"))
+
+#extract 3Dmatrices with ncvar_get
+
+tas <- ncvar_get(tasNCDF, attributes(tasNCDF$var)$names[5])
+tasMax <- ncvar_get(tasMaxNCDF, attributes(tasMaxNCDF$var)$names[5])
+tasMin <- ncvar_get(tasMinNCDF, attributes(tasMinNCDF$var)$names[5])
+prTot <- ncvar_get(prTotNCDF, attributes(prTotNCDF$var)$names[5])
+
+rm(tasNCDF, tasMaxNCDF, tasMinNCDF, prTotNCDF)
+
+for(year in years){
+  
+  indexYear = which(yearRep == year)
+  
+  WList <- vector(mode = "list", nReg*length(indexYear))
+  
+  for(id in 1:nReg){
+    WDT<- data.table(
+      ID = id,
+      lat = domainPopDT[id, lat],
+      pop = domainPopDT[id, pop],
+      DOS = as.numeric(strftime(date[indexYear], format = "%j")),
+      date = date[indexYear],
+      pr = prTot[domainPopDT[id, positionX]+1, domainPopDT[id, positionY]+1, indexYear], # correct UM later
+      tas = tas[domainPopDT[id, positionX]+1, domainPopDT[id, positionY]+1, indexYear], # correct later
+      tasMax = tasMax[domainPopDT[id, positionX]+1, domainPopDT[id, positionY]+1, indexYear], # correct later
+      tasMin = tasMin[domainPopDT[id, positionX]+1, domainPopDT[id, positionY]+1, indexYear] # correct later
+    )
+    
+    WList[[id]]<-WDT
+    
+    cat(id, "\n")
+  }
+  
+  cat("YEAR:", year, "\n")
+  
+  WTotDT <- data.table::rbindlist(WList)
+  
+  #correct UM
+  WTotDT[, tas:=tas-273.15] # from K to °C
+  WTotDT[, tasMax:=tasMax-273.15] # from K to °C
+  WTotDT[, tasMin:=tasMin-273.15] # from K to °C
+  WTotDT[, pr:=pr*24*3600] # from kg/m2/s to mm/d
+  
+  #save
+  saveRDS(WTotDT,
+          file = paste0(folderOut, "Drias", year, name, ".rds")) 
+  
+}
+
