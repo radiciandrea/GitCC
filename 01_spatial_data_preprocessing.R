@@ -156,12 +156,13 @@ GPWCrop <- crop(GPW, ext(domain)) # France only
 
 GPWCropExtract <- raster::extract(GPWCrop, domain) %>%
   group_by(ID) %>%
-  summarise(pop = mean(Global_2000_PopulationDensity30sec_GPWv4, na.rm = T)) %>%
+  summarise(pop = sum(Global_2000_PopulationDensity30sec_GPWv4, na.rm = T)/
+              n()) %>%
   ungroup()
 
 domainPop <- left_join(domain, GPWCropExtract)
 
-st_write(domainPop, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPop2000.shp")
+st_write(domainPop, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopHist_2000.shp")
 
 ### Download Safran Historic 1996-2005 ----
 # format: ncdf
@@ -252,7 +253,7 @@ for(year in years){
   
   #save
   saveRDS(WTotDT,
-       file = paste0(folderOut, "Drias", year, name, ".rds")) 
+       file = paste0(folderOut, "Drias_", name, "_", year, ".rds"))
   
 }
 
@@ -285,7 +286,8 @@ writeRaster(GPWCropSSP2_2055, "C:/Users/2024ar003/Desktop/Alcuni file permanenti
 
 GPWCropExtract <- raster::extract(GPWCropSSP2_2055, domain) %>%
   group_by(ID) %>%
-  summarise(pop = mean(SSP2_2055, na.rm = T)) %>%
+  summarise(pop = sum(SSP2_2055, na.rm = T)/
+              n()) %>%
   ungroup()
 
 domainPopSSP2_2055 <- left_join(domain, GPWCropExtract)
@@ -364,7 +366,7 @@ for(year in years){
   
   #save
   saveRDS(WTotDT,
-          file = paste0(folderOut, "Drias", year, name, ".rds")) 
+          file = paste0(folderOut, "Drias_", name, "_", year, ".rds"))
   
 }
 
@@ -390,7 +392,8 @@ writeRaster(GPWCropSSP2_2085, "C:/Users/2024ar003/Desktop/Alcuni file permanenti
 
 GPWCropExtract <- raster::extract(GPWCropSSP2_2085, domain) %>%
   group_by(ID) %>%
-  summarise(pop = mean(SSP2_2085, na.rm = T)) %>%
+  summarise(pop = sum(SSP2_2085, na.rm = T)/
+              n()) %>%
   ungroup()
 
 domainPopSSP2_2085 <- left_join(domain, GPWCropExtract)
@@ -574,7 +577,7 @@ for(year in years){
   
   #save
   saveRDS(WTotDT,
-          file = paste0(folderOut, "Drias", year, name, ".rds")) 
+          file = paste0(folderOut, "Drias_", name, "_", year, ".rds"))
   
 }
 
@@ -600,7 +603,8 @@ writeRaster(GPWCropSSP5_2085, "C:/Users/2024ar003/Desktop/Alcuni file permanenti
 
 GPWCropExtract <- raster::extract(GPWCropSSP5_2085, domain) %>%
   group_by(ID) %>%
-  summarise(pop = mean(SSP5_2085, na.rm = T)) %>%
+  summarise(pop = sum(SSP5_2085, na.rm = T)/
+              n()) %>%
   ungroup()
 
 domainPopSSP5_2085 <- left_join(domain, GPWCropExtract)
@@ -679,7 +683,7 @@ for(year in years){
   
   #save
   saveRDS(WTotDT,
-          file = paste0(folderOut, "Drias", year, name, ".rds")) 
+          file = paste0(folderOut, "Drias_", name, "_", year, ".rds"))
   
 }
 
