@@ -26,8 +26,8 @@ library(sf)
 #load T and P
 
 name = "Hist"
-
 years = 1996:2005
+setToFirstN = 5 # put to compute only a subset of N simulation
 
 # folder names
 
@@ -41,17 +41,14 @@ if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codi
 
 dir.create(folderOut)
 
-# Getting weather from DRIAS
-WTotDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", years[1], ".rds")) 
-
-# distinct space
-IDsDT <- WTotDT %>% 
+# get ID, lat, lon
+IDsDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", years[1], ".rds")) %>%
   distinct(ID, .keep_all = TRUE) %>%
-  dplyr::select(c("ID", "lat", "lon", "pop"))
-rm(WTotDT)
+  dplyr::select(c("ID", "lat", "lon", "pop")) %>%
+  filter(ID <= setToFirstN)
 
-IDs = IDsDT$ID
-nIDs = length(IDs) 
+nIDs = max(IDsDT$ID)
+IDs = 1:nIDs
 
 # lat and lon
 LAT = IDsDT$lat
@@ -91,16 +88,14 @@ iS = 1/48
 tic()
 for (year in years){
   
-  #getting weather from EOBS <- previous year
-  WTotDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", max(year, years[1]), ".rds"))
-  
-  #Extract only tas in December
-  WdDT <- WTotDT %>%
-    filter(DOS >= (max(DOS)-30))
-  rm(WTotDT)
+  #Extract only tas in December -getting weather from previous year
+  WdDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", max(year, years[1]), ".rds")) %>%
+    filter(DOS >= (max(DOS)-30)) %>%
+    filter(ID <= setToFirstN)
   
   #Getting weather from DRIAS
-  WTotDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", year, ".rds")) 
+  WTotDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", year, ".rds")) %>%
+    filter(ID <= setToFirstN) 
   
   #Create a matrix over which integrate; each colums is a city, each row is a date
   DOSy = unique(WTotDT$DOS)
