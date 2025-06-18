@@ -99,7 +99,7 @@ for (year in years){
   rm(WTotDT)
   
   #Getting weather from DRIAS
-  WTotDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", years[1], ".rds")) 
+  WTotDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", year, ".rds")) 
   
   #Create a matrix over which integrate; each colums is a city, each row is a date
   DOSy = unique(WTotDT$DOS)
