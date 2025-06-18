@@ -1,11 +1,17 @@
-# I try to code the model by Metelmann 2019
-# Running on matrix EOBS SEl
-# Here the model works with day-varying temperature 
+# model by Metelmann 2019 to estimate E0 ----
+# Running on SAFRAN
 
-# LOAD EOBS AS MATRIX + PARAMETERS IN SOLVER
-# codice che scorre di anno in anno.
+# Notes from "Esperimenti/Scenari climatici"
 
-# rk both before and after august; log trans after august
+# inspired by ModelMetelmann_pis_matrix_EOBS_cycle
+
+# per scenarios:
+
+# Hist 1996-2005
+# SSP 2 2050-2059
+# SSP 2 2080-2089
+# SSP 5 2050-2059
+# SSP 5 2050-2059
 
 rm(list = ls())
 
@@ -19,26 +25,23 @@ library(sf)
 
 #load T and P
 
-name = "W_EU"
-#years = 2005:2023
+name = "Hist"
 
-years = 2006:2023
+years = 1996:2005
 
 #load first EOBS to get lon lat
 if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
-  folder_eobs = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/EOBS_elab"
-  folder_out = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/EOBS_sim"
+  folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
+  folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim"
 } else {
-  folder_eobs = "EOBS_elab"
-  folder_out = "EOBS_sim"
+  folderDrias = "DRIAS_elab"
+  folderOut = "DRIAS_sim"
 }
 
-dir.create(folder_out)
-
-type = "01"
+dir.create(folderOut)
 
 #Getting weather from EOBS
-load(paste0(folder_eobs, "/EOBS_sel_", type, "_", years[1], "_", name, ".RData")) #EOBS W_EU #Occitanie #France
+load(paste0(folderDrias, "/EOBS_sel_", type, "_", years[1], "_", name, ".RData")) #EOBS W_EU #Occitanie #France
 
 # distinct space
 regions_df <- W_tot_df %>% 
@@ -88,7 +91,7 @@ is_2 = 1/72
 for (year in years){
   
   #getting weather from EOBS <- previous year
-  load(paste0(folder_eobs, "/EOBS_sel_", type, "_", year-1, "_", name, ".RData")) #EOBS W_EU #Occitanie #France
+  load(paste0(folderDrias, "/EOBS_sel_", type, "_", year-1, "_", name, ".RData")) #EOBS W_EU #Occitanie #France
   
   #Extract only temp in December
   W_D_df <- W_tot_df %>%
@@ -96,7 +99,7 @@ for (year in years){
   rm(W_tot_df)
   
   #Getting weather from EOBS
-  load(paste0(folder_eobs, "/EOBS_sel_", type, "_", year, "_", name, ".RData")) #EOBS W_EU #Occitanie #France
+  load(paste0(folderDrias, "/EOBS_sel_", type, "_", year, "_", name, ".RData")) #EOBS W_EU #Occitanie #France
   
   #Create a matrix over which integrate; each colums is a city, each row is a date
   DOS_y = unique(W_tot_df$DOS)
@@ -212,6 +215,6 @@ for (year in years){
   Sim = rbind(Sim_y_1, Sim_y_2)
   E0_v = pmax(Sim[nrow(Sim), 1+(n_r*4+1):(n_r*5)], 0)/E_d_0
   
-  save(Sim, E0_v, file = paste0(folder_out, "/Sim_EOBS_", type, "_", name, "_", year, ".RData"))
+  save(Sim, E0_v, file = paste0(folderOut, "/Sim_EOBS_", type, "_", name, "_", year, ".RData"))
   toc()
 }
