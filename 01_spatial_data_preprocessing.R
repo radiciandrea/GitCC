@@ -53,11 +53,11 @@ library(leaflet)
 SafranFolder <- "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/SAFRAN/"
 
 safranGrid <- read.xlsx2(paste0(SafranFolder, "grilleSafran_utile_drias2021.xls"),
-                        sheetName = "grilleSafran",
-                        startRow = 8,
-                        endRow = 8988,
-                        colIndex = 1:10,
-                        header = FALSE)
+                         sheetName = "grilleSafran",
+                         startRow = 8,
+                         endRow = 8988,
+                         colIndex = 1:10,
+                         header = FALSE)
 
 safranGrid <- lapply(safranGrid, as.numeric)
 
@@ -220,7 +220,7 @@ rm(tasHistNCDF, tasMaxHistNCDF, tasMinHistNCDF, prTotHistNCDF)
 for(year in years){
   
   indexYear = which(yearRep == year)
-   
+  
   WList <- vector(mode = "list", nReg*length(indexYear))
   
   for(id in 1:nReg){
@@ -253,7 +253,7 @@ for(year in years){
   
   #save
   saveRDS(WTotDT,
-       file = paste0(folderOut, "Drias_", name, "_", year, ".rds"))
+          file = paste0(folderOut, "Drias_", name, "_", year, ".rds"))
   
 }
 
@@ -269,8 +269,12 @@ for(year in years){
 ### GPW SSP2 2055 ----
 
 # website https://figshare.com/articles/dataset/Projecting_1_km-grid_population_distributions_from_2020_to_2100_globally_under_shared_socioeconomic_pathways/19608594/3
- 
+
 # article by Wang et al https://www.nature.com/articles/s41597-022-01675-x
+
+# BEWARE it is a pop count
+
+# BEWARE it uses old pop projections (IIASA 2018)
 
 # read domain
 
@@ -282,15 +286,16 @@ GPWSSP2_2055 <- rast("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc
 
 GPWCropSSP2_2055 <- crop(GPWSSP2_2055, ext(domain)) # France only
 
-writeRaster(GPWCropSSP2_2055, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/WANG2024/CropSSP2_2055.tiff")
+# writeRaster(GPWCropSSP2_2055, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/WANG2024/CropSSP2_2055.tiff")
 
 GPWCropExtract <- raster::extract(GPWCropSSP2_2055, domain) %>%
   group_by(ID) %>%
-  summarise(pop = sum(SSP2_2055, na.rm = T)/
-              n()) %>%
+  summarise(pop = sum(SSP2_2055, na.rm = T)) %>%
   ungroup()
 
 domainPopSSP2_2055 <- left_join(domain, GPWCropExtract)
+
+domainPopSSP2_2055$pop = 10^6*domainPopSSP2_2055$pop/as.numeric(st_area(domainPopSSP2_2055))
 
 st_write(domainPopSSP2_2055, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP2_2055.shp")
 
@@ -384,15 +389,16 @@ GPWSSP2_2085 <- rast("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc
 
 GPWCropSSP2_2085 <- crop(GPWSSP2_2085, ext(domain)) # France only
 
-writeRaster(GPWCropSSP2_2085, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/WANG2024/CropSSP2_2085.tiff")
+# writeRaster(GPWCropSSP2_2085, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/WANG2024/CropSSP2_2085.tiff")
 
 GPWCropExtract <- raster::extract(GPWCropSSP2_2085, domain) %>%
   group_by(ID) %>%
-  summarise(pop = sum(SSP2_2085, na.rm = T)/
-              n()) %>%
+  summarise(pop = sum(SSP2_2085, na.rm = T)) %>%
   ungroup()
 
 domainPopSSP2_2085 <- left_join(domain, GPWCropExtract)
+
+domainPopSSP2_2085$pop = 10^6*domainPopSSP2_2085$pop/as.numeric(st_area(domainPopSSP2_2085))
 
 st_write(domainPopSSP2_2085, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP2_2085.shp")
 
@@ -486,14 +492,16 @@ GPWSSP5_2055 <- rast("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc
 
 GPWCropSSP5_2055 <- crop(GPWSSP5_2055, ext(domain)) # France only
 
- writeRaster(GPWCropSSP5_2055, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/WANG2024/CropSSP5_2055.tiff")
+# writeRaster(GPWCropSSP5_2055, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/WANG2024/CropSSP5_2055.tiff")
 
 GPWCropExtract <- raster::extract(GPWCropSSP5_2055, domain) %>%
   group_by(ID) %>%
-  summarise(pop = mean(SSP5_2055, na.rm = T)) %>%
+  summarise(pop = sum(SSP5_2055, na.rm = T)) %>%
   ungroup()
 
 domainPopSSP5_2055 <- left_join(domain, GPWCropExtract)
+
+domainPopSSP5_2055$pop = 10^6*domainPopSSP5_2055$pop/as.numeric(st_area(domainPopSSP5_2055))
 
 st_write(domainPopSSP5_2055, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP5_2055.shp")
 
@@ -587,15 +595,16 @@ GPWSSP5_2085 <- rast("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc
 
 GPWCropSSP5_2085 <- crop(GPWSSP5_2085, ext(domain)) # France only
 
-writeRaster(GPWCropSSP5_2085, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/WANG2024/CropSSP5_2085.tiff")
+# writeRaster(GPWCropSSP5_2085, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/WANG2024/CropSSP5_2085.tiff")
 
 GPWCropExtract <- raster::extract(GPWCropSSP5_2085, domain) %>%
   group_by(ID) %>%
-  summarise(pop = sum(SSP5_2085, na.rm = T)/
-              n()) %>%
+  summarise(pop = sum(SSP5_2085, na.rm = T)) %>%
   ungroup()
 
 domainPopSSP5_2085 <- left_join(domain, GPWCropExtract)
+
+domainPopSSP5_2085$pop = 10^6*domainPopSSP5_2085$pop/as.numeric(st_area(domainPopSSP5_2085))
 
 st_write(domainPopSSP5_2085, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP5_2085.shp")
 
