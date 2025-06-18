@@ -25,7 +25,7 @@ library(leaflet)
 
 ShpFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab"
 dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS/"
-folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_ELAB/"
+folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab/"
 
 ## Settings ----
 
@@ -471,7 +471,7 @@ for(year in years){
   
   #save
   saveRDS(WTotDT,
-          file = paste0(folderOut, "Drias", year, name, ".rds")) 
+          file = paste0(folderOut, "Drias_", name, "_", year, ".rds"))
   
 }
 
