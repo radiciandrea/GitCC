@@ -18,7 +18,7 @@
 # https://stackoverflow.com/questions/47401678/solving-odes-only-positive-solutions
 # https://stackoverflow.com/questions/41648878/replacing-negative-values-in-a-model-system-of-odes-with-zero
 
-df_log1 <- function(t, x, parms) {
+dfLog1 <- function(t, x, parms) {
   
   # initial conditions and parameters
   with(parms, { 
