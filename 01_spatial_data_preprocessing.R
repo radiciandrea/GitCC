@@ -132,7 +132,7 @@ st_write(safranGridGeom, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post
 
 ## Historic ----
 
-### Download GPW Historic 2000 ----
+### GPW Historic 2000 ----
 
 # website 0 https://www.earthdata.nasa.gov/data/projects/gpw
 # website 1 https://sedac.ciesin.columbia.edudatacollectiongpw-v4
@@ -140,7 +140,7 @@ st_write(safranGridGeom, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post
 
 # documentation  http://sedac.ciesin.columbia.edu/data/collection/gpw-v4/documentation
 
-# inactive: doin it here
+# inactive: doing it here
 
 # read domain
 
@@ -164,7 +164,7 @@ domainPop <- left_join(domain, GPWCropExtract)
 
 st_write(domainPop, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopHist_2000.shp")
 
-### Download Safran Historic 1996-2005 ----
+### Safran Historic 1996-2005 ----
 # format: ncdf
 # years: 1996-2005
 # (8981 points) details in grilleSafran_complete_drias2021
@@ -266,7 +266,7 @@ for(year in years){
 
 ## SSP2 2050-2059 ----
 
-### Download GPW SSP2 2055 ----
+### GPW SSP2 2055 ----
 
 # website https://figshare.com/articles/dataset/Projecting_1_km-grid_population_distributions_from_2020_to_2100_globally_under_shared_socioeconomic_pathways/19608594/3
  
@@ -276,7 +276,7 @@ for(year in years){
 
 domain = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomain.shp")
 
-# read 2055 Griddedpop(number of persons per square kilometer)
+# read 2055 
 
 GPWSSP2_2055 <- rast("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/WANG2024/SSP2_2055.tif")
 
@@ -294,7 +294,7 @@ domainPopSSP2_2055 <- left_join(domain, GPWCropExtract)
 
 st_write(domainPopSSP2_2055, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP2_2055.shp")
 
-### Download Safran RCP 4.5 2050-2059 ----
+### Safran RCP 4.5 2050-2059 ----
 # format: ncdf
 
 dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS/"
@@ -372,17 +372,13 @@ for(year in years){
 
 ## SSP2 2080-2089 ----
 
-### Download GPW SSP2 2085 ----
-
-# website https://figshare.com/articles/dataset/Projecting_1_km-grid_population_distributions_from_2020_to_2100_globally_under_shared_socioeconomic_pathways/19608594/3
-
-# article by Wang et al https://www.nature.com/articles/s41597-022-01675-x
+### GPW SSP2 2085 ----
 
 # read domain
 
 domain = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomain.shp")
 
-# read 2055 Griddedpop(number of persons per square kilometer)
+# read 2085 
 
 GPWSSP2_2085 <- rast("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/WANG2024/SSP2_2085.tif")
 
@@ -400,7 +396,7 @@ domainPopSSP2_2085 <- left_join(domain, GPWCropExtract)
 
 st_write(domainPopSSP2_2085, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP2_2085.shp")
 
-### Download Safran RCP 4.5 2080-2089 ----
+### Safran RCP 4.5 2080-2089 ----
 # format: ncdf
 
 dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS/"
@@ -478,17 +474,13 @@ for(year in years){
 
 ## SSP5 2050-2059 ----
 
-### Download GPW SSP5 2055 ----
-
-# website https://figshare.com/articles/dataset/Projecting_1_km-grid_population_distributions_from_2020_to_2100_globally_under_shared_socioeconomic_pathways/19608594/3
-
-# article by Wang et al https://www.nature.com/articles/s41597-022-01675-x
+### GPW SSP5 2055 ----
 
 # read domain
 
 domain = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomain.shp")
 
-# read 2055 Griddedpop(number of persons per square kilometer)
+# read 2055 
 
 GPWSSP5_2055 <- rast("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/WANG2024/SSP5_2055.tif")
 
@@ -505,7 +497,7 @@ domainPopSSP5_2055 <- left_join(domain, GPWCropExtract)
 
 st_write(domainPopSSP5_2055, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP5_2055.shp")
 
-### Download Safran RCP 8.5 2050-2059 ----
+### Safran RCP 8.5 2050-2059 ----
 # format: ncdf
 
 dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS/"
@@ -583,17 +575,13 @@ for(year in years){
 
 ## SSP2 2080-2089 ----
 
-### Download GPW SSP5 2085 ----
-
-# website https://figshare.com/articles/dataset/Projecting_1_km-grid_population_distributions_from_2020_to_2100_globally_under_shared_socioeconomic_pathways/19608594/3
-
-# article by Wang et al https://www.nature.com/articles/s41597-022-01675-x
+### GPW SSP5 2085 ----
 
 # read domain
 
 domain = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomain.shp")
 
-# read 2055 Griddedpop(number of persons per square kilometer)
+# read 2085
 
 GPWSSP5_2085 <- rast("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/WANG2024/SSP5_2085.tif")
 
@@ -611,7 +599,7 @@ domainPopSSP5_2085 <- left_join(domain, GPWCropExtract)
 
 st_write(domainPopSSP5_2085, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP5_2085.shp")
 
-### Download Safran RCP 8.5 2080-2089 ----
+### Safran RCP 8.5 2080-2089 ----
 # format: ncdf
 
 dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS/"
