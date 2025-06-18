@@ -63,7 +63,7 @@ LON = IDsDT$lon
 CTTs = 11 #critical temperature over one week in spring (°C )
 CPPs = 11.25 #critical photoperiod in spring
 CPPa = 10.058 + 0.08965 * LAT # critical photperiod in autumn
-delta_E = 1/7.1 #normal egg development rate (1/day)
+deltaE = 1/7.1 #normal egg development rate (1/day)
 lambda = 10^6 # capacity parameter (larvae/day/ha)
 
 # advanced parameter for carrying capacity
@@ -86,8 +86,7 @@ A0 = rep(0, nIDs)
 Ed_0 = 1*rep(1, nIDs) # at 1st of January (10^6)
 
 #integration step
-is_1 = 1/48
-is_2 = 1/72
+iS = 1/48
 
 for (year in years){
   
@@ -165,49 +164,30 @@ for (year in years){
                                          sapply(DOSy, function(x){return(sum(alphaEvap^(x:1-1) * (alphaDens*prec[1:x,y] + alphaRain*H[x,y])))}))
   }) 
   
-  X_0 = c(E0, J0, I0, A0, Ed_0)
+  X0 = c(E0, J0, I0, A0, Ed_0)
   
-  source("MM_integration_functions.R")
+  source("02b_MM_integration_functions.R")
   
   tic() #previous cycle
   parms = list(omega = omega,
                h = h,
                K = K,
                muA = muA,
-               delta_E = delta_E,
+               deltaE = deltaE,
                sigma = sigma,
                gamma = gamma,
                tasMax = tasMax,
                tasMin = tasMin)
   
-  #break at 1/8 to zero diapausing eggs, even for odd years
-  #DOSy_1 = DOSy[1:(max(DOSy)-153)]
-  #Sim_y_1<- ode(X_0, DOSy_1, df, parms)
+
+  X0log1 = log(X0+1)
+  DOSiS = seq(tS, tEnd, by = iS)
+  SimLog1DOSiS<- deSolve::rk4(X0log1, DOSysim, dfLog1, parms)
+  SimLog1 <-SimLog1DOSiS[1+(0:(tEnd-tS+1))/iS,]
+  Sim = exp(Sim_y_2[, 1+1:(nIDs*4)])-1
+
+  E0v = pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 0)/Ed_0
   
-  DOSy_1_sim = seq(1, (max(DOSy)-153), by = is_1)
-  Sim_y_1_sim<- deSolve::rk4(X_0, DOSy_1_sim, df, parms)
-  Sim_y_1 <-Sim_y_1_sim[1+(0:(max(DOSy)-154))/is_1,]
-  
-  X_0 = c(Sim_y_1[nrow(Sim_y_1), 1+1:(nIDs*4)], rep(0, nIDs))
-  
-  
-  #uncomment to run as lsoda instead of rk
-  # DOSy_2 = DOSy[(max(DOSy)-152): max(DOSy)]
-  # Sim_y_2<- ode(X_0, DOSy_2, df, parms)
-  # X_0 = c(rep(0, nIDs*4), Sim_y_2[nrow(Sim_y_2), 1+(nIDs*4+1):(nIDs*5)])
-  
-  X_0_log = X_0
-  X_0_log[1:(nIDs*4)] = log(X_0[1:(nIDs*4)])
-  DOSy_2_sim = seq((max(DOSy)-152), max(DOSy), by = is_2)
-  Sim_y_2_sim<- deSolve::rk4(X_0_log, DOSy_2_sim, df_log, parms)
-  Sim_y_2 <-Sim_y_2_sim[1+(0:152)/is_2,]
-  Sim_y_2[, 1+1:(nIDs*4)] = exp(Sim_y_2[, 1+1:(nIDs*4)])
-  
-  
-  #break at 31/12 to zero everything except diapausing eggs
-  Sim = rbind(Sim_y_1, Sim_y_2)
-  E0_v = pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 0)/Ed_0
-  
-  save(Sim, E0_v, file = paste0(folderOut, "/Sim_EOBS_", type, "_", name, "_", year, ".RData"))
+  save(Sim, E0v, file = paste0(folderOut, "/Sim_EOBS_", type, "_", name, "_", year, ".RData"))
   toc()
 }
