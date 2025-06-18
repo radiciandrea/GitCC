@@ -88,6 +88,7 @@ Ed_0 = 1*rep(1, nIDs) # at 1st of January (10^6)
 #integration step
 iS = 1/48
 
+tic()
 for (year in years){
   
   #getting weather from EOBS <- previous year
@@ -168,7 +169,6 @@ for (year in years){
   
   source("02b_MM_integration_functions.R")
   
-  tic() #previous cycle
   parms = list(omega = omega,
                h = h,
                K = K,
@@ -199,6 +199,8 @@ for (year in years){
   #compute E0
   E0v = pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 0)/Ed_0
   
-  save(Sim, E0v, file = paste0(folderOut, "/Sim_EOBS_", type, "_", name, "_", year, ".RData"))
+  save(Sim, file = paste0(folderOut, "/Sim_Drias_", name, "_", year, ".rds"))
+  save(E0v, file = paste0(folderOut, "/E0_Drias_", name, "_", year, ".rds"))
+  
   toc()
 }
