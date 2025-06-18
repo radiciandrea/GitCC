@@ -29,7 +29,8 @@ name = "Hist"
 
 years = 1996:2005
 
-#load first EOBS to get lon lat
+# folder names
+
 if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
   folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
   folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim"
@@ -40,49 +41,49 @@ if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codi
 
 dir.create(folderOut)
 
-#Getting weather from EOBS
-load(paste0(folderDrias, "/EOBS_sel_", type, "_", years[1], "_", name, ".RData")) #EOBS W_EU #Occitanie #France
+# Getting weather from DRIAS
+WTotDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", years[1], ".rds")) 
 
 # distinct space
-regions_df <- W_tot_df %>% 
-  distinct(region, .keep_all = TRUE) %>%
-  dplyr::select(c("region","r_i","r_j", "lon", "lat", "pop"))
-rm(W_tot_df)
+IDsDT <- WTotDT %>% 
+  distinct(ID, .keep_all = TRUE) %>%
+  dplyr::select(c("ID", "lat", "lon", "pop"))
+rm(WTotDT)
 
-regions = regions_df$region
-n_r = length(regions) # number of regions/locations (added; 1 for no dimension)
+IDs = IDsDT$ID
+nIDs = length(IDs) 
 
 # lat and lon
-LAT = regions_df$lat
-LON = regions_df$lon
+LAT = IDsDT$lat
+LON = IDsDT$lon
 
 # Model time independent parameters
 
 #parameters (Metelmann 2019)
-CTT_s = 11 #critical temperature over one week in spring (°C )
-CPP_s = 11.25 #critical photoperiod in spring
-CPP_a = 10.058 + 0.08965 * LAT # critical photperiod in autumn
+CTTs = 11 #critical temperature over one week in spring (°C )
+CPPs = 11.25 #critical photoperiod in spring
+CPPa = 10.058 + 0.08965 * LAT # critical photperiod in autumn
 delta_E = 1/7.1 #normal egg development rate (1/day)
 lambda = 10^6 # capacity parameter (larvae/day/ha)
 
 # advanced parameter for carrying capacity
-alpha_evap = 0.9
-alpha_dens = 0.001
-alpha_rain = 0.00001
+alphaEvap = 0.9
+alphaDens = 0.001
+alphaRain = 0.00001
 
-eps_rat = 0.2
-eps_0 = 1.5
-eps_var = 0.05
-eps_opt = 8
-eps_dens = 0.01
-eps_fac = 0.01
+epsRat = 0.2
+eps0 = 1.5
+epsVar = 0.05
+epsOpt = 8
+epsDens = 0.01
+epsFac = 0.01
 
 # System initialization
-E0 = rep(0, n_r)
-J0 = rep(0, n_r)
-I0 = rep(0, n_r)
-A0 = rep(0, n_r)
-E_d_0 = 1*rep(1, n_r) # at 1st of January (10^6)
+E0 = rep(0, nIDs)
+J0 = rep(0, nIDs)
+I0 = rep(0, nIDs)
+A0 = rep(0, nIDs)
+Ed_0 = 1*rep(1, nIDs) # at 1st of January (10^6)
 
 #integration step
 is_1 = 1/48
@@ -91,88 +92,80 @@ is_2 = 1/72
 for (year in years){
   
   #getting weather from EOBS <- previous year
-  load(paste0(folderDrias, "/EOBS_sel_", type, "_", year-1, "_", name, ".RData")) #EOBS W_EU #Occitanie #France
+  WTotDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", max(year, years[1]), ".rds"))
   
-  #Extract only temp in December
-  W_D_df <- W_tot_df %>%
-    filter(DOY >= (max(DOY)-30))
-  rm(W_tot_df)
+  #Extract only tas in December
+  WdDT <- WTotDT %>%
+    filter(DOS >= (max(DOS)-30))
+  rm(WTotDT)
   
-  #Getting weather from EOBS
-  load(paste0(folderDrias, "/EOBS_sel_", type, "_", year, "_", name, ".RData")) #EOBS W_EU #Occitanie #France
+  #Getting weather from DRIAS
+  WTotDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", years[1], ".rds")) 
   
   #Create a matrix over which integrate; each colums is a city, each row is a date
-  DOS_y = unique(W_tot_df$DOS)
-  DOY_y = unique(W_tot_df$DOY)
+  DOSy = unique(WTotDT$DOS)
   
-  # set simualtion horizon
-  t_s = DOS_y[1] # simulate multiple year
-  t_end = tail(DOS_y, n = 1)
+  # set simulation horizon
+  tS = DOSy[1] 
+  tEnd = tail(DOSy, n = 1)
   
-  date = W_tot_df$date
+  date = WTotDT$date
   
   #dimensions
-  n_d = length(DOS_y) # simulation length
+  nD = length(DOSy) # simulation length
   
   #exctract params
-  temp = matrix(W_tot_df$T_av, nrow = n_d)
-  prec = matrix(W_tot_df$P, nrow = n_d)
-  temp_DJF = rbind(matrix(W_D_df$T_m, nrow = 31),
-                   matrix(W_tot_df$T_m[which(W_tot_df$DOY <= (max(DOY_y)-306))], nrow = (max(DOY_y)-306)))
+  tas = matrix(WTotDT$T_av, nrow = nD)
+  prec = matrix(WTotDT$P, nrow = nD)
+  tas_DJF = rbind(matrix(WdDT$T_m, nrow = 31),
+                   matrix(WTotDT$T_m[which(WTotDT$DOY <= (max(DOSy)-306))], nrow = (max(DOSy)-306)))
   
-  if (any(names(W_tot_df)=="T_M")){
-    temp_M <- matrix(W_tot_df$T_M, nrow = n_d)
-    temp_m <- matrix(W_tot_df$T_m, nrow = n_d)
+  if (any(names(WTotDT)=="T_M")){
+    tasMax <- matrix(WTotDT$tasMax, nrow = nD)
+    tasMin <- matrix(WTotDT$T_m, nrow = nD)
   } else {
     cat("T_M and T_m are not available, repaced by T_av")
-    temp_M <- temp
-    temp_m <- temp
+    tasMax <- tas
+    tasMin <- tas
   }
   
   #rehape human matrix
-  H =   matrix(rep(regions_df$pop, n_d), nrow = n_d, byrow = T ) 
+  H =   matrix(rep(IDsDT$pop, nD), nrow = nD, byrow = T ) 
   
-  #elaborate temp and prec + sapply transpose matrices: need to t()
-  temp_7 = temp[1,]
-  temp_7 = rbind(temp_7, t(sapply(2:n_d,
-                                  function(x){return(colMeans(temp[max(1,(x-7)):x,]))}))) # temp of precedent 7 days
-  temp_min_DJF = apply(temp_DJF, 2, function(x){min(x)}) #min temp of last winter (daily or hours?)
+  #elaborate tas and prec + sapply transpose matrices: need to t()
+  tas7 = tas[1,]
+  tas7 = rbind(tas7, t(sapply(2:nD,
+                                  function(x){return(colMeans(tas[max(1,(x-7)):x,]))}))) # tas of precedent 7 days
+  tasMinDJF = apply(tas_DJF, 2, function(x){min(x)}) #min tas of last winter (daily or hours?)
   
-  #photoperiod Ph_P (which variables should I take? sunrise - sunset): to be modified in the future
-  SunTimes_df<- getSunlightTimes(data = data.frame("date" = as.Date(W_tot_df$date), "lat"= rep(LAT, n_d), "lon" = rep(LON, n_d)), keep = c("sunrise", "sunset"))# lat= 44.5, lon = 11.5 about all Emilia Romagna; # lat= 43.7, lon = 7.3 in Nice
-  Ph_P = as.numeric(SunTimes_df$sunset - SunTimes_df$sunrise)
-  t_sr = as.numeric(SunTimes_df$sunrise- as.POSIXct(SunTimes_df$date) +2) # time of sunrise: correction needed since time is in UTC
+  #photoperiod PhP (which variables should I take? sunrise - sunset): to be modified in the future
+  SunTimesDF<- getSunlightTimes(data = data.frame("date" = as.Date(WTotDT$date), "lat"= rep(LAT, nD), "lon" = rep(LON, nD)), keep = c("sunrise", "sunset"))# lat= 44.5, lon = 11.5 about all Emilia Romagna; # lat= 43.7, lon = 7.3 in Nice
+  PhP = as.numeric(SunTimesDF$sunset - SunTimesDF$sunrise)
+  tSr = as.numeric(SunTimesDF$sunrise- as.POSIXct(SunTimesDF$date) +2) # time of sunrise: correction needed since time is in UTC
   
-  # Daylight model from SI Metelmann: faster
-  # theta = 0.2163108 + 2*atan(0.9671396*tan(0.0086*(W_tot_df$DOY - 186))) 
-  # phi = asin(0.39795 *cos(theta)) 
-  # 
-  # Ph_P = 24-24/pi*acos(sin(pi*rep(LAT,n_d)/180)*sin(phi)/(cos(pi*rep(LAT,n_d)/180)*cos(phi)))
-  # t_sr = 12/pi*acos(sin(pi*rep(LAT,n_d)/180)*sin(phi)/(cos(pi*rep(LAT,n_d)/180)*cos(phi)))
+  PhP = matrix(PhP, nrow = nD, byrow = T)
+  tSr = matrix(tSr, nrow = nD, byrow = T)
   
-  Ph_P = matrix(Ph_P, nrow = n_d, byrow = T)
-  t_sr = matrix(t_sr, nrow = n_d, byrow = T)
-  
-  rm(W_tot_df)
+  rm(WTotDT)
   
   #parameters (Metelmann 2019)
-  sigma = 0.1 *(temp_7 > CTT_s)*(Ph_P > CPP_s) # spring hatching rate (1/day)
-  omega = 0.5 *(Ph_P < CPP_a)*(matrix(rep(DOY_y, n_r), ncol = n_r) > 183) # fraction of eggs going into diapause
-  mu_A = -log(0.677 * exp(-0.5*((temp-20.9)/13.2)^6)*temp^0.1) # adult mortality rate
-  mu_A[which(temp<=0)] = -log(0.677 * exp(-0.5*((temp[which(temp<=0)]-20.9)/13.2)^6))  #correct the problems due to negative values from SI
+  sigma = 0.1 *(tas7 > CTTs)*(PhP > CPPs) # spring hatching rate (1/day)
+  omega = 0.5 *(PhP < CPPa)*(matrix(rep(DOSy, nIDs), ncol = nIDs) > 183) # fraction of eggs going into diapause
+  muA = -log(0.677 * exp(-0.5*((tas-20.9)/13.2)^6)*tas^0.1) # adult mortality rate
+  muA[which(tas<=0)] = -log(0.677 * exp(-0.5*((tas[which(tas<=0)]-20.9)/13.2)^6))  #correct the problems due to negative values from SI
   
-  gamma = 0.93*exp(-0.5*((temp_min_DJF -11.68)/15.67)^6) #survival probability of diapausing eggs (1:/inter) #at DOY = 10?
+  gamma = 0.93*exp(-0.5*((tasMinDJF -11.68)/15.67)^6) #survival probability of diapausing eggs (1:/inter) #at DOY = 10?
   
-  h = (1-eps_rat)*(1+eps_0)*exp(-eps_var*(prec-eps_opt)^2)/
-    (exp(-eps_var*(prec-eps_opt)^2)+ eps_0) +
-    eps_rat*eps_dens/(eps_dens + exp(-eps_fac*H))
+  h = (1-epsRat)*(1+eps0)*exp(-epsVar*(prec-epsOpt)^2)/
+    (exp(-epsVar*(prec-epsOpt)^2)+ eps0) +
+    epsRat*epsDens/(epsDens + exp(-epsFac*H))
   
   # Compute K
-  K = sapply(1:n_r, function(y){return(lambda * (1-alpha_evap)/(1 - alpha_evap^DOY_y)*
-                                         sapply(DOY_y, function(x){return(sum(alpha_evap^(x:1-1) * (alpha_dens*prec[1:x,y] + alpha_rain*H[x,y])))}))
+  K = sapply(1:nIDs, function(y){return(lambda * (1-alphaEvap)/(1 - alphaEvap^DOSy)*
+                                         sapply(DOSy, function(x){return(sum(alphaEvap^(x:1-1) * (alphaDens*prec[1:x,y] + alphaRain*H[x,y])))}))
   }) 
   
-  X_0 = c(E0, J0, I0, A0, E_d_0)
+  X_0 = c(E0, J0, I0, A0, Ed_0)
   
   source("MM_integration_functions.R")
   
@@ -180,40 +173,40 @@ for (year in years){
   parms = list(omega = omega,
                h = h,
                K = K,
-               mu_A = mu_A,
+               muA = muA,
                delta_E = delta_E,
                sigma = sigma,
                gamma = gamma,
-               temp_M = temp_M,
-               temp_m = temp_m)
+               tasMax = tasMax,
+               tasMin = tasMin)
   
   #break at 1/8 to zero diapausing eggs, even for odd years
-  #DOY_y_1 = DOY_y[1:(max(DOY_y)-153)]
-  #Sim_y_1<- ode(X_0, DOY_y_1, df, parms)
+  #DOSy_1 = DOSy[1:(max(DOSy)-153)]
+  #Sim_y_1<- ode(X_0, DOSy_1, df, parms)
   
-  DOY_y_1_sim = seq(1, (max(DOY_y)-153), by = is_1)
-  Sim_y_1_sim<- deSolve::rk4(X_0, DOY_y_1_sim, df, parms)
-  Sim_y_1 <-Sim_y_1_sim[1+(0:(max(DOY_y)-154))/is_1,]
+  DOSy_1_sim = seq(1, (max(DOSy)-153), by = is_1)
+  Sim_y_1_sim<- deSolve::rk4(X_0, DOSy_1_sim, df, parms)
+  Sim_y_1 <-Sim_y_1_sim[1+(0:(max(DOSy)-154))/is_1,]
   
-  X_0 = c(Sim_y_1[nrow(Sim_y_1), 1+1:(n_r*4)], rep(0, n_r))
+  X_0 = c(Sim_y_1[nrow(Sim_y_1), 1+1:(nIDs*4)], rep(0, nIDs))
   
   
   #uncomment to run as lsoda instead of rk
-  # DOY_y_2 = DOY_y[(max(DOY_y)-152): max(DOY_y)]
-  # Sim_y_2<- ode(X_0, DOY_y_2, df, parms)
-  # X_0 = c(rep(0, n_r*4), Sim_y_2[nrow(Sim_y_2), 1+(n_r*4+1):(n_r*5)])
+  # DOSy_2 = DOSy[(max(DOSy)-152): max(DOSy)]
+  # Sim_y_2<- ode(X_0, DOSy_2, df, parms)
+  # X_0 = c(rep(0, nIDs*4), Sim_y_2[nrow(Sim_y_2), 1+(nIDs*4+1):(nIDs*5)])
   
   X_0_log = X_0
-  X_0_log[1:(n_r*4)] = log(X_0[1:(n_r*4)])
-  DOY_y_2_sim = seq((max(DOY_y)-152), max(DOY_y), by = is_2)
-  Sim_y_2_sim<- deSolve::rk4(X_0_log, DOY_y_2_sim, df_log, parms)
+  X_0_log[1:(nIDs*4)] = log(X_0[1:(nIDs*4)])
+  DOSy_2_sim = seq((max(DOSy)-152), max(DOSy), by = is_2)
+  Sim_y_2_sim<- deSolve::rk4(X_0_log, DOSy_2_sim, df_log, parms)
   Sim_y_2 <-Sim_y_2_sim[1+(0:152)/is_2,]
-  Sim_y_2[, 1+1:(n_r*4)] = exp(Sim_y_2[, 1+1:(n_r*4)])
+  Sim_y_2[, 1+1:(nIDs*4)] = exp(Sim_y_2[, 1+1:(nIDs*4)])
   
   
   #break at 31/12 to zero everything except diapausing eggs
   Sim = rbind(Sim_y_1, Sim_y_2)
-  E0_v = pmax(Sim[nrow(Sim), 1+(n_r*4+1):(n_r*5)], 0)/E_d_0
+  E0_v = pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 0)/Ed_0
   
   save(Sim, E0_v, file = paste0(folderOut, "/Sim_EOBS_", type, "_", name, "_", year, ".RData"))
   toc()
