@@ -108,8 +108,9 @@ for (year in years){
   # set simulation horizon
   tS = DOSy[1] 
   tEnd = tail(DOSy, n = 1)
-  FoA = max(tEnd)-152 # first of august: last day of diapause hatching
-  FoJ = max(tEnd)-183 # first of july: first day of (possible) diapause entrance
+  FoA = tEnd-152 # first of august: last day of diapause hatching
+  FoJul = tEnd-183 # first of july: first day of (possible) diapause entrance
+  FoM = tEnd-306
   
   date = WTotDT$date
   
@@ -120,7 +121,7 @@ for (year in years){
   tas = matrix(WTotDT$tas, nrow = nD)
   prec = matrix(WTotDT$pr, nrow = nD)
   tasDJF = rbind(matrix(WdDT$tasMin, nrow = 31),
-                   matrix(WTotDT$tasMin[which(WTotDT$DOS <= (max(DOSy)-306))], nrow = (max(DOSy)-306)))
+                   matrix(WTotDT$tasMin[which(WTotDT$DOS <= FoM)], nrow = FoM))
   
   if (any(names(WTotDT)=="tasMax")){
     tasMax <- matrix(WTotDT$tasMax, nrow = nD)
@@ -145,14 +146,14 @@ for (year in years){
   PhP = as.numeric(SunTimesDF$sunset - SunTimesDF$sunrise)
   tSr = as.numeric(SunTimesDF$sunrise- as.POSIXct(SunTimesDF$date) +2) # time of sunrise: correction needed since time is in UTC
   
-  PhP = matrix(PhP, nrow = nD, byrow = T)
-  tSr = matrix(tSr, nrow = nD, byrow = T)
+  PhP = matrix(PhP, nrow = nD, byrow = F)
+  tSr = matrix(tSr, nrow = nD, byrow = F)
   
   rm(WTotDT)
   
   #parameters (Metelmann 2019)
   sigma = 0.1 *(tas7 > CTTs)*(PhP > CPPs)*(matrix(rep(DOSy, nIDs), ncol = nIDs) < FoA) # spring hatching rate (1/day) (correction sigma = 0 after august)
-  omega = 0.5 *(PhP < CPPa)*(matrix(rep(DOSy, nIDs), ncol = nIDs) > FoJ) # fraction of eggs going into diapause
+  omega = 0.5 *(PhP < CPPa)*(matrix(rep(DOSy, nIDs), ncol = nIDs) > FoJul) # fraction of eggs going into diapause
   muA = -log(0.677 * exp(-0.5*((tas-20.9)/13.2)^6)*tas^0.1) # adult mortality rate
   muA[which(tas<=0)] = -log(0.677 * exp(-0.5*((tas[which(tas<=0)]-20.9)/13.2)^6))  #correct the problems due to negative values from SI
   
