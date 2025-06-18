@@ -150,7 +150,7 @@ st_write(safranGridGeom, paste0(ShpFolder,"/SafranDomain.shp"))
 
 # read domain
 
-domain = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomain.shp")
+domain = st_read(paste0(ShpFolder,"/SafranDomain.shp"))
 
 # read 2000 GWv4 (number of persons per square kilometer)
 
@@ -181,7 +181,7 @@ name = "Hist"
 
 # read domainPop
 
-domainPopDF = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPop2000.shp")
+domainPopDF = st_read(paste0(ShpFolder,"/SafranDomainPopHist_2000.shp"))
 domainPopDT = as.data.table(domainPopDF)
 nReg = nrow(domainPopDT)
 
@@ -281,7 +281,7 @@ for(year in years){
 
 # read domain
 
-domain = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomain.shp")
+domain = st_read(paste0(ShpFolder,"/SafranDomain.shp"))
 
 # read 2055 
 
@@ -310,7 +310,7 @@ name = "ssp245"
 
 # read domainPop
 
-domainPopDF = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP2_2055.shp")
+domainPopDF = st_read(paste0(ShpFolder,"/SafranDomainPopSSP2_2055.shp"))
 domainPopDT = as.data.table(domainPopDF)
 nReg = nrow(domainPopDT)
 
@@ -381,7 +381,7 @@ for(year in years){
 
 # read domain
 
-domain = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomain.shp")
+domain = st_read(paste0(ShpFolder,"/SafranDomain.shp"))
 
 # read 2085 
 
@@ -410,7 +410,7 @@ name = "ssp245"
 
 # read domainPop
 
-domainPopDF = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP2_2085.shp")
+domainPopDF = st_read(paste0(ShpFolder,"/SafranDomainPopSSP2_2085.shp"))
 domainPopDT = as.data.table(domainPopDF)
 nReg = nrow(domainPopDT)
 
@@ -481,7 +481,7 @@ for(year in years){
 
 # read domain
 
-domain = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomain.shp")
+domain = st_read(paste0(ShpFolder,"/SafranDomain.shp"))
 
 # read 2055 
 
@@ -510,7 +510,7 @@ name = "ssp585"
 
 # read domainPop
 
-domainPopDF = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP5_2055.shp")
+domainPopDF = st_read(paste0(ShpFolder,"/SafranDomainPopSSP5_2055.shp"))
 domainPopDT = as.data.table(domainPopDF)
 nReg = nrow(domainPopDT)
 
@@ -581,7 +581,7 @@ for(year in years){
 
 # read domain
 
-domain = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomain.shp")
+domain = st_read(paste0(ShpFolder,"/Shp_elab/SafranDomain.shp"))
 
 # read 2085
 
