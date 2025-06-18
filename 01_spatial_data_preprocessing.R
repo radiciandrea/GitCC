@@ -21,7 +21,11 @@ library(data.table)
 library(ggplot2)
 library(leaflet)
 
+#folders
+
 ShpFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab"
+dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS/"
+folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_ELAB/"
 
 ## Settings ----
 
@@ -172,9 +176,6 @@ st_write(domainPop, paste0(ShpFolder,"/SafranDomainPopHist_2000.shp"))
 # (8981 points) details in grilleSafran_complete_drias2021
 # variables: temperature (max, min, mean), in K, precipitations, in kg/m^2/s
 
-dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS/"
-folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_ELAB/"
-
 years = 1996:2005
 name = "Hist"
 
@@ -304,9 +305,6 @@ st_write(domainPopSSP2_2055, paste0(ShpFolder,"/SafranDomainPopSSP2_2055.shp"))
 ### Safran RCP 4.5 2050-2059 ----
 # format: ncdf
 
-dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS/"
-folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_ELAB/"
-
 years = 2050:2059
 name = "ssp245"
 
@@ -406,9 +404,6 @@ st_write(domainPopSSP2_2085, paste0(ShpFolder,"/SafranDomainPopSSP2_2085.shp"))
 
 ### Safran RCP 4.5 2080-2089 ----
 # format: ncdf
-
-dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS/"
-folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_ELAB/"
 
 years = 2080:2089
 name = "ssp245"
@@ -510,9 +505,6 @@ st_write(domainPopSSP5_2055, paste0(ShpFolder,"/SafranDomainPopSSP5_2055.shp"))
 ### Safran RCP 8.5 2050-2059 ----
 # format: ncdf
 
-dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS/"
-folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_ELAB/"
-
 years = 2050:2059
 name = "ssp585"
 
@@ -612,9 +604,6 @@ st_write(domainPopSSP5_2085, paste0(ShpFolder,"/SafranDomainPopSSP5_2085.shp"))
 
 ### Safran RCP 8.5 2080-2089 ----
 # format: ncdf
-
-dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS/"
-folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_ELAB/"
 
 years = 2080:2089
 name = "ssp585"
