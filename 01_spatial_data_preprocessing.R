@@ -230,6 +230,7 @@ for(year in years){
     WDT<- data.table(
       ID = id,
       lat = domainPopDT[id, lat],
+      lon = domainPopDT[id, lon],
       pop = domainPopDT[id, pop],
       DOS = as.numeric(strftime(date[indexYear], format = "%j")),
       date = date[indexYear],
@@ -345,6 +346,7 @@ for(year in years){
     WDT<- data.table(
       ID = id,
       lat = domainPopDT[id, lat],
+      lon = domainPopDT[id, lon],
       pop = domainPopDT[id, pop],
       DOS = as.numeric(strftime(date[indexYear], format = "%j")),
       date = date[indexYear],
@@ -445,6 +447,7 @@ for(year in years){
     WDT<- data.table(
       ID = id,
       lat = domainPopDT[id, lat],
+      lon = domainPopDT[id, lon],
       pop = domainPopDT[id, pop],
       DOS = as.numeric(strftime(date[indexYear], format = "%j")),
       date = date[indexYear],
@@ -545,6 +548,7 @@ for(year in years){
     WDT<- data.table(
       ID = id,
       lat = domainPopDT[id, lat],
+      lon = domainPopDT[id, lon],
       pop = domainPopDT[id, pop],
       DOS = as.numeric(strftime(date[indexYear], format = "%j")),
       date = date[indexYear],
@@ -645,6 +649,7 @@ for(year in years){
     WDT<- data.table(
       ID = id,
       lat = domainPopDT[id, lat],
+      lon = domainPopDT[id, lon],
       pop = domainPopDT[id, pop],
       DOS = as.numeric(strftime(date[indexYear], format = "%j")),
       date = date[indexYear],
