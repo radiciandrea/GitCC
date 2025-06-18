@@ -23,17 +23,17 @@ dfLog1 <- function(t, x, parms) {
   # initial conditions and parameters
   with(parms, { 
     
-    logE1 = x[(1+n_r*0):(1*n_r)]
-    logJ1 = x[(1+n_r*1):(2*n_r)]
-    logI1 = x[(1+n_r*2):(3*n_r)]
-    logA1 = x[(1+n_r*3):(4*n_r)]
-    logEd1 = x[(1+n_r*4):(5*n_r)]
+    logE1 = x[(1+nIDs*0):(1*nIDs)]
+    logJ1 = x[(1+nIDs*1):(2*nIDs)]
+    logI1 = x[(1+nIDs*2):(3*nIDs)]
+    logA1 = x[(1+nIDs*3):(4*nIDs)]
+    logEd1 = x[(1+nIDs*4):(5*nIDs)]
     
     #tN = t[1]-t_s+1 # time of numerical integration to index matrix
     tN = t[1]
     tH = 24*(t - tN) #should put t and not t[1]
-    tasMax = temp_M[max(1,tN-1),]*(tH<tSr[tN, ]) + temp_M[tN,]*(tH>tSr[tN, ])
-    tasMin = temp_m[tN, ]*(tH<14) + temp_m[min(tN+1, length(temp_m))]*(tH>14)
+    tasMax = tasMax[max(1,tN-1),]*(tH<tSr[tN, ]) + tasMax[tN,]*(tH>tSr[tN, ])
+    tasMin = tasMin[tN, ]*(tH<14) + tasMin[min(tN+1, length(tasMin))]*(tH>14)
     
     tempH = ((tasMax+tasMin)/2 + (tasMax-tasMin)/2*cos(pi*(tH+10)/(10+tSr[tN, ])))*(tH<tSr[tN, ])+
       ((tasMax+tasMin)/2 - (tasMax-tasMin)/2*cos(pi*(tH-tSr[tN, ])/(14-tSr[tN, ])))*(tH>tSr[tN, ])*(tH<14)+

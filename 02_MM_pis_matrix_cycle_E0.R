@@ -114,28 +114,28 @@ for (year in years){
   nD = length(DOSy) # simulation length
   
   #exctract params
-  tas = matrix(WTotDT$T_av, nrow = nD)
-  prec = matrix(WTotDT$P, nrow = nD)
-  tas_DJF = rbind(matrix(WdDT$T_m, nrow = 31),
-                   matrix(WTotDT$T_m[which(WTotDT$DOY <= (max(DOSy)-306))], nrow = (max(DOSy)-306)))
+  tas = matrix(WTotDT$tas, nrow = nD)
+  prec = matrix(WTotDT$pr, nrow = nD)
+  tasDJF = rbind(matrix(WdDT$tasMin, nrow = 31),
+                   matrix(WTotDT$tasMin[which(WTotDT$DOS <= (max(DOSy)-306))], nrow = (max(DOSy)-306)))
   
-  if (any(names(WTotDT)=="T_M")){
+  if (any(names(WTotDT)=="tasMax")){
     tasMax <- matrix(WTotDT$tasMax, nrow = nD)
-    tasMin <- matrix(WTotDT$T_m, nrow = nD)
+    tasMin <- matrix(WTotDT$tasMin, nrow = nD)
   } else {
     cat("T_M and T_m are not available, repaced by T_av")
     tasMax <- tas
     tasMin <- tas
   }
   
-  #rehape human matrix
+  #reshape human matrix
   H =   matrix(rep(IDsDT$pop, nD), nrow = nD, byrow = T ) 
   
   #elaborate tas and prec + sapply transpose matrices: need to t()
   tas7 = tas[1,]
   tas7 = rbind(tas7, t(sapply(2:nD,
                                   function(x){return(colMeans(tas[max(1,(x-7)):x,]))}))) # tas of precedent 7 days
-  tasMinDJF = apply(tas_DJF, 2, function(x){min(x)}) #min tas of last winter (daily or hours?)
+  tasMinDJF = apply(tasDJF, 2, function(x){min(x)}) #min tas of last winter (daily or hours?)
   
   #photoperiod PhP (which variables should I take? sunrise - sunset): to be modified in the future
   SunTimesDF<- getSunlightTimes(data = data.frame("date" = as.Date(WTotDT$date), "lat"= rep(LAT, nD), "lon" = rep(LON, nD)), keep = c("sunrise", "sunset"))# lat= 44.5, lon = 11.5 about all Emilia Romagna; # lat= 43.7, lon = 7.3 in Nice
@@ -182,7 +182,7 @@ for (year in years){
 
   X0log1 = log(X0+1)
   DOSiS = seq(tS, tEnd, by = iS)
-  SimLog1DOSiS<- deSolve::rk4(X0log1, DOSysim, dfLog1, parms)
+  SimLog1DOSiS<- deSolve::rk4(X0log1, DOSiS, dfLog1, parms)
   SimLog1 <-SimLog1DOSiS[1+(0:(tEnd-tS+1))/iS,]
   Sim = exp(Sim_y_2[, 1+1:(nIDs*4)])-1
 
