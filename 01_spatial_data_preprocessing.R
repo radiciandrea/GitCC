@@ -581,7 +581,7 @@ for(year in years){
 
 # read domain
 
-domain = st_read(paste0(ShpFolder,"/Shp_elab/SafranDomain.shp"))
+domain = st_read(paste0(ShpFolder,"/SafranDomain.shp"))
 
 # read 2085
 
