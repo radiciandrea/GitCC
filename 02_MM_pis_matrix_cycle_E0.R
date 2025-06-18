@@ -108,6 +108,8 @@ for (year in years){
   # set simulation horizon
   tS = DOSy[1] 
   tEnd = tail(DOSy, n = 1)
+  FoA = max(tEnd)-152 # first of august: last day of diapause hatching
+  FoJ = max(tEnd)-183 # first of july: first day of (possible) diapause entrance
   
   date = WTotDT$date
   
@@ -136,9 +138,9 @@ for (year in years){
   tas7 = tas[1,]
   tas7 = rbind(tas7, t(sapply(2:nD,
                                   function(x){return(colMeans(tas[max(1,(x-7)):x,]))}))) # tas of precedent 7 days
-  tasMinDJF = apply(tasDJF, 2, function(x){min(x)}) #min tas of last winter (daily or hours?)
+  tasMinDJF = apply(tasDJF, 2, function(x){min(x)}) #min tas of last winter 
   
-  #photoperiod PhP (which variables should I take? sunrise - sunset): to be modified in the future
+  #photoperiod PhP 
   SunTimesDF<- getSunlightTimes(data = data.frame("date" = as.Date(WTotDT$date), "lat"= rep(LAT, nD), "lon" = rep(LON, nD)), keep = c("sunrise", "sunset"))# lat= 44.5, lon = 11.5 about all Emilia Romagna; # lat= 43.7, lon = 7.3 in Nice
   PhP = as.numeric(SunTimesDF$sunset - SunTimesDF$sunrise)
   tSr = as.numeric(SunTimesDF$sunrise- as.POSIXct(SunTimesDF$date) +2) # time of sunrise: correction needed since time is in UTC
@@ -149,8 +151,8 @@ for (year in years){
   rm(WTotDT)
   
   #parameters (Metelmann 2019)
-  sigma = 0.1 *(tas7 > CTTs)*(PhP > CPPs) # spring hatching rate (1/day)
-  omega = 0.5 *(PhP < CPPa)*(matrix(rep(DOSy, nIDs), ncol = nIDs) > 183) # fraction of eggs going into diapause
+  sigma = 0.1 *(tas7 > CTTs)*(PhP > CPPs)*(matrix(rep(DOSy, nIDs), ncol = nIDs) < FoA) # spring hatching rate (1/day) (correction sigma = 0 after august)
+  omega = 0.5 *(PhP < CPPa)*(matrix(rep(DOSy, nIDs), ncol = nIDs) > FoJ) # fraction of eggs going into diapause
   muA = -log(0.677 * exp(-0.5*((tas-20.9)/13.2)^6)*tas^0.1) # adult mortality rate
   muA[which(tas<=0)] = -log(0.677 * exp(-0.5*((tas[which(tas<=0)]-20.9)/13.2)^6))  #correct the problems due to negative values from SI
   
