@@ -177,7 +177,9 @@ for (year in years){
                sigma = sigma,
                gamma = gamma,
                tasMax = tasMax,
-               tasMin = tasMin)
+               tasMin = tasMin,
+               nIDs = nIDs,
+               tSr = tSr)
   
 
   X0log1 = log(X0+1)
