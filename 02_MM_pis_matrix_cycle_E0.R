@@ -27,7 +27,7 @@ library(sf)
 
 name = "Hist"
 years = 1996:2005
-setToFirstN = 10 # put to compute only a subset of N simulation
+setToFirstN = 1 # put to compute only a subset of N simulation
 
 # folder names
 
@@ -80,7 +80,7 @@ E0 = rep(0, nIDs)
 J0 = rep(0, nIDs)
 I0 = rep(0, nIDs)
 A0 = rep(0, nIDs)
-Ed_0 = 1*rep(1, nIDs) # at 1st of January (10^6)
+Ed_0 = 100*rep(1, nIDs) # at 1st of January (10^6)
 
 #integration step
 iS = 1/48
@@ -132,8 +132,15 @@ for (year in years){
   
   #elaborate tas and prec + sapply transpose matrices: need to t()
   tas7 = tas[1,]
-  tas7 = rbind(tas7, t(sapply(2:nD,
-                                  function(x){return(colMeans(tas[max(1,(x-7)):x,]))}))) # tas of precedent 7 days
+  
+  if(nIDs > 1){
+    tas7 = rbind(tas7, t(sapply(2:nD,
+                                function(x){return(colMeans(tas[max(1,(x-7)):x,]))}))) # tas of precedent 7 days
+  } else {
+    tas7 = c(tas7, sapply(2:nD,
+                                function(x){mean(tas[max(1,(x-7)):x,])})) # tas of precedent 7 days
+  }
+  
   tasMinDJF = apply(tasDJF, 2, function(x){min(x)}) #min tas of last winter 
   
   #photoperiod PhP 
