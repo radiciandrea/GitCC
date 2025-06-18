@@ -181,13 +181,22 @@ for (year in years){
                nIDs = nIDs,
                tSr = tSr)
   
-
+  #transform into log +1
   X0log1 = log(X0+1)
+  
+  # define finer integration grid
   DOSiS = seq(tS, tEnd, by = iS)
+  
+  #integrate
   SimLog1DOSiS<- deSolve::rk4(X0log1, DOSiS, dfLog1, parms)
-  SimLog1 <-SimLog1DOSiS[1+(0:(tEnd-tS+1))/iS,]
-  Sim = exp(Sim_y_2[, 1+1:(nIDs*4)])-1
-
+  
+  # extract values from finer grid
+  SimLog1 <-SimLog1DOSiS[1+(0:(tEnd-tS))/iS,]
+  
+  # untransform variables
+  Sim = cbind(SimLog1[,1], exp(SimLog1[, 1+1:(nIDs*5)])-1)
+  
+  #compute E0
   E0v = pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 0)/Ed_0
   
   save(Sim, E0v, file = paste0(folderOut, "/Sim_EOBS_", type, "_", name, "_", year, ".RData"))
