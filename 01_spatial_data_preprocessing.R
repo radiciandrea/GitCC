@@ -21,6 +21,8 @@ library(data.table)
 library(ggplot2)
 library(leaflet)
 
+ShpFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab"
+
 ## Settings ----
 
 ## climate model 
@@ -128,7 +130,7 @@ safranGridGeom <- safranGridGeom[, c("point", "positionX", "positionY", "lat", "
 safranGridGeom <- safranGridGeom %>%
   mutate(ID = rank(point))
 
-st_write(safranGridGeom, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomain.shp")
+st_write(safranGridGeom, paste0(ShpFolder,"/SafranDomain.shp"))
 
 ## Historic ----
 
@@ -162,7 +164,7 @@ GPWCropExtract <- raster::extract(GPWCrop, domain) %>%
 
 domainPop <- left_join(domain, GPWCropExtract)
 
-st_write(domainPop, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopHist_2000.shp")
+st_write(domainPop, paste0(ShpFolder,"/SafranDomainPopHist_2000.shp"))
 
 ### Safran Historic 1996-2005 ----
 # format: ncdf
@@ -297,7 +299,7 @@ domainPopSSP2_2055 <- left_join(domain, GPWCropExtract)
 
 domainPopSSP2_2055$pop = 10^6*domainPopSSP2_2055$pop/as.numeric(st_area(domainPopSSP2_2055))
 
-st_write(domainPopSSP2_2055, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP2_2055.shp")
+st_write(domainPopSSP2_2055, paste0(ShpFolder,"/SafranDomainPopSSP2_2055.shp"))
 
 ### Safran RCP 4.5 2050-2059 ----
 # format: ncdf
@@ -400,7 +402,7 @@ domainPopSSP2_2085 <- left_join(domain, GPWCropExtract)
 
 domainPopSSP2_2085$pop = 10^6*domainPopSSP2_2085$pop/as.numeric(st_area(domainPopSSP2_2085))
 
-st_write(domainPopSSP2_2085, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP2_2085.shp")
+st_write(domainPopSSP2_2085, paste0(ShpFolder,"/SafranDomainPopSSP2_2085.shp"))
 
 ### Safran RCP 4.5 2080-2089 ----
 # format: ncdf
@@ -503,7 +505,7 @@ domainPopSSP5_2055 <- left_join(domain, GPWCropExtract)
 
 domainPopSSP5_2055$pop = 10^6*domainPopSSP5_2055$pop/as.numeric(st_area(domainPopSSP5_2055))
 
-st_write(domainPopSSP5_2055, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP5_2055.shp")
+st_write(domainPopSSP5_2055, paste0(ShpFolder,"/SafranDomainPopSSP5_2055.shp"))
 
 ### Safran RCP 8.5 2050-2059 ----
 # format: ncdf
@@ -606,7 +608,7 @@ domainPopSSP5_2085 <- left_join(domain, GPWCropExtract)
 
 domainPopSSP5_2085$pop = 10^6*domainPopSSP5_2085$pop/as.numeric(st_area(domainPopSSP5_2085))
 
-st_write(domainPopSSP5_2085, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomainPopSSP5_2085.shp")
+st_write(domainPopSSP5_2085, paste0(ShpFolder,"/SafranDomainPopSSP5_2085.shp"))
 
 ### Safran RCP 8.5 2080-2089 ----
 # format: ncdf
