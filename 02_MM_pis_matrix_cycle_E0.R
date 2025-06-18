@@ -27,7 +27,7 @@ library(sf)
 
 name = "Hist"
 years = 1996:2005
-setToFirstN = 5 # put to compute only a subset of N simulation
+setToFirstN = 10 # put to compute only a subset of N simulation
 
 # folder names
 
@@ -197,7 +197,7 @@ for (year in years){
   #compute E0
   E0v = pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 0)/Ed_0
   
-  save(Sim, file = paste0(folderOut, "/Sim_Drias_", name, "_", year, ".rds"))
+  # save(Sim, file = paste0(folderOut, "/Sim_Drias_", name, "_", year, ".rds"))
   save(E0v, file = paste0(folderOut, "/E0_Drias_", name, "_", year, ".rds"))
   
   toc()
