@@ -29,7 +29,7 @@ library(sf)
 
 name = "Hist"
 years = 1996:1996 #:2005
-IDsSubSet = 1:2 # put to compute only a subset of cells (8981 in total)
+IDsSubSet = 1:1 # put to compute only a subset of cells (8981 in total)
 
 # folder names
 
@@ -82,10 +82,10 @@ E0 = rep(0, nIDs)
 J0 = rep(0, nIDs)
 I0 = rep(0, nIDs)
 A0 = rep(0, nIDs)
-Ed_0 = 10*rep(1, nIDs) # at 1st of January (10^6)
+Ed_0 = 1*rep(1, nIDs) # at 1st of January (10^6)
 
 #integration step
-iS = 1/72
+iS = 1/48
 
 tic()
 for (year in years){
@@ -189,6 +189,13 @@ for (year in years){
                nIDs = nIDs,
                tSr = tSr)
   
+  #set event: zeroing diapausing eggs on FoA
+  
+  eventZeroEd1 <- data.frame(var = "e", #c(1+(nIDs*4+1):(nIDs*5)
+                         time = FoA,
+                         value = 10,
+                         method = "mult")
+  
   #transform into log +1
   X0log1 = log(X0+1)
   
@@ -196,7 +203,11 @@ for (year in years){
   DOSiS = seq(tS, tEnd, by = iS)
   
   ## Integration  ----
-  SimLog1DOSiS<- deSolve::rk4(X0log1, DOSiS, dfLog1, parms)
+  SimLog1DOSiS<- deSolve::ode(y = X0log1, 
+                              times = DOSiS,
+                              func = dfLog1, 
+                              parms = parms,
+                              events = list(eventZeroEd1))
   
   # extract values from finer grid
   SimLog1 <-SimLog1DOSiS[1+(0:(tEnd-tS))/iS,]
