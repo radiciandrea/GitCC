@@ -29,7 +29,7 @@ library(sf)
 
 name = "Hist"
 years = 1996:1996 #:2005
-IDsSubSet = 1:1 # put to compute only a subset of cells (8981 in total)
+IDsSubSet = 1:8981 # put to compute only a subset of cells (8981 in total)
 
 # folder names
 
@@ -221,10 +221,10 @@ for (year in years){
   E0v = pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 0)/Ed_0
   
   ## Save results ----
-  # save(Sim, file = paste0(folderOut, "/Sim_Drias_", name, "_", year, ".rds"))
-  # save(E0v, file = paste0(folderOut, "/E0_Drias_", name, "_", year, ".rds"))
+  save(Sim, file = paste0(folderOut, "/Sim_Drias_", name, "_", year, ".rds"))
+  save(E0v, file = paste0(folderOut, "/E0_Drias_", name, "_", year, ".rds"))
   
-  cat(year, "\n", mean(E0v), "\n")
+  cat("UPDATE\nYear:", year, "\nAverage E0:", mean(E0v), "\nAnd")
   
   toc()
 }
