@@ -49,8 +49,8 @@ IDsDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", years[1], ".rds")) %>
   dplyr::select(c("ID", "lat", "lon", "pop")) %>%
   filter(ID %in% IDsSubSet)
 
-nIDs = max(IDsDT$ID)
-IDs = 1:nIDs
+nIDs = length(IDsSubSet)
+IDs = IDsSubSet
 
 # lat and lon
 LAT = IDsDT$lat
@@ -209,7 +209,7 @@ for (year in years){
                               times = DOSiS,
                               func = dfLog1, 
                               parms = parms,
-                              method = "euler",
+                              method = "rk4",
                               events = list(data = eventZeroEd1))
   
   # extract values from finer grid
