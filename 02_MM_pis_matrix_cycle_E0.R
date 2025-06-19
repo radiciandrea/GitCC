@@ -1,4 +1,6 @@
-# model by Metelmann 2019 to estimate E0 ----
+# Model by Metelmann 2019 ----
+# to estimate E0
+
 # Running on SAFRAN
 
 # Notes from "Esperimenti/Scenari climatici"
@@ -23,11 +25,11 @@ library(suncalc)
 library(pracma)
 library(sf)
 
-#load T and P
+## Simulation settings ----
 
 name = "Hist"
 years = 1996:1996 #:2005
-IDsSubSet = 1:1 # put to compute only a subset of cells (8981 in total)
+IDsSubSet = 1:2 # put to compute only a subset of cells (8981 in total)
 
 # folder names
 
@@ -54,7 +56,7 @@ IDs = 1:nIDs
 LAT = IDsDT$lat
 LON = IDsDT$lon
 
-# Model time independent parameters
+## Model time-independent parameters ----
 
 #parameters (Metelmann 2019)
 CTTs = 11 #critical temperature over one week in spring (°C )
@@ -75,15 +77,15 @@ epsOpt = 8
 epsDens = 0.01
 epsFac = 0.01
 
-# System initialization
+## System initialization ----
 E0 = rep(0, nIDs)
 J0 = rep(0, nIDs)
 I0 = rep(0, nIDs)
 A0 = rep(0, nIDs)
-Ed_0 = 100*rep(1, nIDs) # at 1st of January (10^6)
+Ed_0 = 10*rep(1, nIDs) # at 1st of January (10^6)
 
 #integration step
-iS = 1/48
+iS = 1/72
 
 tic()
 for (year in years){
@@ -112,7 +114,7 @@ for (year in years){
   #dimensions
   nD = length(DOSy) # simulation length
   
-  #exctract params
+  ### Extract weather ----
   tas = matrix(WTotDT$tas, nrow = nD)
   prec = matrix(WTotDT$pr, nrow = nD)
   tasDJF = rbind(matrix(WdDT$tasMin, nrow = 31),
@@ -143,7 +145,7 @@ for (year in years){
   
   tasMinDJF = apply(tasDJF, 2, function(x){min(x)}) #min tas of last winter 
   
-  #photoperiod PhP 
+  # photoperiod PhP 
   SunTimesDF<- getSunlightTimes(data = data.frame("date" = as.Date(WTotDT$date), "lat"= rep(LAT, nD), "lon" = rep(LON, nD)), keep = c("sunrise", "sunset"))# lat= 44.5, lon = 11.5 about all Emilia Romagna; # lat= 43.7, lon = 7.3 in Nice
   PhP = as.numeric(SunTimesDF$sunset - SunTimesDF$sunrise)
   tSr = as.numeric(SunTimesDF$sunrise- as.POSIXct(SunTimesDF$date) +2) # time of sunrise: correction needed since time is in UTC
@@ -153,7 +155,7 @@ for (year in years){
   
   rm(WTotDT)
   
-  #parameters (Metelmann 2019)
+  ## Compute parameters ----
   sigma = 0.1 *(tas7 > CTTs)*(PhP > CPPs)*(matrix(rep(DOSy, nIDs), ncol = nIDs) < FoA) # spring hatching rate (1/day) (correction sigma = 0 after august)
   omega = 0.5 *(PhP < CPPa)*(matrix(rep(DOSy, nIDs), ncol = nIDs) > FoJul) # fraction of eggs going into diapause
   muA = -log(0.677 * exp(-0.5*((tas-20.9)/13.2)^6)*tas^0.1) # adult mortality rate
@@ -172,6 +174,7 @@ for (year in years){
   
   X0 = c(E0, J0, I0, A0, Ed_0)
   
+  ## Call integration fucntion ----
   source("02b_MM_integration_functions.R")
   
   parms = list(omega = omega,
@@ -192,7 +195,7 @@ for (year in years){
   # define finer integration grid
   DOSiS = seq(tS, tEnd, by = iS)
   
-  #integrate
+  ## Integration  ----
   SimLog1DOSiS<- deSolve::rk4(X0log1, DOSiS, dfLog1, parms)
   
   # extract values from finer grid
@@ -204,6 +207,7 @@ for (year in years){
   #compute E0
   E0v = pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 0)/Ed_0
   
+  ## Save results ----
   # save(Sim, file = paste0(folderOut, "/Sim_Drias_", name, "_", year, ".rds"))
   # save(E0v, file = paste0(folderOut, "/E0_Drias_", name, "_", year, ".rds"))
   
