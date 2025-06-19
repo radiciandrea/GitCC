@@ -45,18 +45,26 @@ dfLog1 <- function(t, x, parms) {
     muJ = -log(0.977 * exp(-0.5*((tempH-21.8)/16.6)^6)) # juvenile mortality rate
     beta = (33.2*exp(-0.5*((tempH-70.3)/14.1)^2)*(38.8 - tempH)^1.5)*(tempH<= 38.8) #fertility rate
     
-    # ODE definition 
-    dlogE1 = beta*(1-omega[tN, ])*(exp(logA1)-1) - (h[tN, ]*deltaE + muE)*(exp(logE1)-1)
-    dlogJ1 = h[tN, ]*(deltaE*(exp(logE1)-1) + sigma[tN, ]*gamma*(exp(logEd1)-1)) - (deltaJ + muJ + (exp(logJ1)-1)/K[tN, ])*(exp(logJ1)-1)  
-    dlogI1 = 0.5*deltaJ*(exp(logJ1)-1) - (deltaI + muA[tN, ])*(exp(logI1)-1)
-    dlogA1 = deltaI*(exp(logI1)-1) - muA[tN, ]*(exp(logA1)-1)
-    dlogEd1 = beta*omega[tN, ]*(exp(logA1)-1) -  h[tN, ]*sigma[tN, ]*(exp(logE1)-1)
+    # supporting variable
+    E1 = (exp(logE1)-1)
+    J1 = (exp(logJ1)-1)
+    I1 = (exp(logI1)-1)
+    A1 = (exp(logA1)-1)
+    Ed1 = (exp(logEd1)-1)
     
-    dlogE1 = dlogE1/exp(logE1)
-    dlogJ1 = dlogJ1/exp(logJ1)
-    dlogI1 = dlogI1/exp(logI1)
-    dlogA1 = dlogA1/exp(logA1)
-    dlogEd1 = dlogEd1/exp(logEd1)
+    # ODE definition 
+    dlogE1 = beta*(1-omega[tN, ])*A1 - (h[tN, ]*deltaE + muE)*E1
+    dlogJ1 = h[tN, ]*(deltaE*E1 + sigma[tN, ]*gamma*Ed1) - (deltaJ + muJ + J1/K[tN, ])*J1  
+    dlogI1 = 0.5*deltaJ*J1 - (deltaI + muA[tN, ])*I1
+    dlogA1 = deltaI*I1 - muA[tN, ]*A1
+    dlogEd1 = beta*omega[tN, ]*A1 -  h[tN, ]*sigma[tN, ]*Ed1
+    
+    # and complete transformation
+    dlogE1 = dlogE1/(E1+1)
+    dlogJ1 = dlogJ1/(J1+1)
+    dlogI1 = dlogI1/(I1+1)
+    dlogA1 = dlogA1/(A1+1)
+    dlogEd1 = dlogEd1/(Ed1+1)
     
     dlog1x <- c(dlogE1, dlogJ1, dlogI1, dlogA1, dlogEd1)
     
