@@ -189,15 +189,17 @@ for (year in years){
                nIDs = nIDs,
                tSr = tSr)
   
+  #transform into log+1 AND giving names
+  X0log1 = log(X0+1)
+  
+  names(X0log1) =as.character(1:(length(X0)))
+    
   #set event: zeroing diapausing eggs on FoA
   
-  eventZeroEd1 <- data.frame(var = "e", #c(1+(nIDs*4+1):(nIDs*5)
-                         time = FoA,
-                         value = 10,
-                         method = "mult")
-  
-  #transform into log +1
-  X0log1 = log(X0+1)
+  eventZeroEd1 <- data.frame(var = names(X0log1)[(nIDs*4+1):(nIDs*5)], #1+(nIDs*4+1):(nIDs*5)
+                             time = FoA,
+                             value = 0,
+                             method = "rep")
   
   # define finer integration grid
   DOSiS = seq(tS, tEnd, by = iS)
@@ -207,7 +209,7 @@ for (year in years){
                               times = DOSiS,
                               func = dfLog1, 
                               parms = parms,
-                              events = list(eventZeroEd1))
+                              events = list(data = eventZeroEd1))
   
   # extract values from finer grid
   SimLog1 <-SimLog1DOSiS[1+(0:(tEnd-tS))/iS,]
