@@ -28,7 +28,7 @@ library(sf)
 ## Simulation settings ----
 
 name = "Hist"
-years = 1996:2005 #:2005
+years = 1996:1996 #:2005
 IDsSubSet = 1:8981 # put to compute only a subset of cells (8981 in total)
 
 # folder names
@@ -209,6 +209,7 @@ for (year in years){
                               times = DOSiS,
                               func = dfLog1, 
                               parms = parms,
+                              method = "euler",
                               events = list(data = eventZeroEd1))
   
   # extract values from finer grid
