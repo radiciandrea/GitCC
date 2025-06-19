@@ -29,7 +29,7 @@ library(sf)
 
 name = "Hist"
 years = 1996:1996 #:2005
-IDsSubSet = 1:8981 # put to compute only a subset of cells (8981 in total)
+IDsSubSet = 1:1 # put to compute only a subset of cells (8981 in total)
 
 # folder names
 
@@ -84,8 +84,8 @@ I0 = rep(0, nIDs)
 A0 = rep(0, nIDs)
 Ed_0 = 1*rep(1, nIDs) # at 1st of January (10^6)
 
-#integration step
-iS = 1/48
+#integration step (chould be 1/100)
+iS = 1/24
 
 tic()
 for (year in years){
