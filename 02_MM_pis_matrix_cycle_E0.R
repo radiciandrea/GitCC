@@ -28,8 +28,8 @@ library(sf)
 ## Simulation settings ----
 
 name = "Hist"
-years = 1996:1996 #:2005
-IDsSubSet = 1:1 # put to compute only a subset of cells (8981 in total)
+years = 1996:2005 #:2005
+IDsSubSet = 1:8981 # put to compute only a subset of cells (8981 in total)
 
 # folder names
 
