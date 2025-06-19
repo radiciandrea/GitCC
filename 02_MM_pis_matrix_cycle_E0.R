@@ -26,8 +26,8 @@ library(sf)
 #load T and P
 
 name = "Hist"
-years = 1996:2005
-setToFirstN = 1 # put to compute only a subset of N simulation
+years = 1996:1996 #:2005
+IDsSubSet = 1:1 # put to compute only a subset of cells (8981 in total)
 
 # folder names
 
@@ -45,7 +45,7 @@ dir.create(folderOut)
 IDsDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", years[1], ".rds")) %>%
   distinct(ID, .keep_all = TRUE) %>%
   dplyr::select(c("ID", "lat", "lon", "pop")) %>%
-  filter(ID <= setToFirstN)
+  filter(ID %in% IDsSubSet)
 
 nIDs = max(IDsDT$ID)
 IDs = 1:nIDs
@@ -91,11 +91,11 @@ for (year in years){
   #Extract only tas in December -getting weather from previous year
   WdDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", max(year, years[1]), ".rds")) %>%
     filter(DOS >= (max(DOS)-30)) %>%
-    filter(ID <= setToFirstN)
+    filter(ID %in% IDsSubSet)
   
   #Getting weather from DRIAS
   WTotDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", year, ".rds")) %>%
-    filter(ID <= setToFirstN) 
+    filter(ID %in% IDsSubSet) 
   
   #Create a matrix over which integrate; each colums is a city, each row is a date
   DOSy = unique(WTotDT$DOS)
@@ -205,7 +205,9 @@ for (year in years){
   E0v = pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 0)/Ed_0
   
   # save(Sim, file = paste0(folderOut, "/Sim_Drias_", name, "_", year, ".rds"))
-  save(E0v, file = paste0(folderOut, "/E0_Drias_", name, "_", year, ".rds"))
+  # save(E0v, file = paste0(folderOut, "/E0_Drias_", name, "_", year, ".rds"))
+  
+  cat(year, "\n", mean(E0v), "\n")
   
   toc()
 }
