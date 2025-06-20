@@ -27,9 +27,17 @@ library(sf)
 
 ## Simulation settings ----
 
-name = "Hist"
-years = 1996:2005 #:2005
-IDsSubSet = 1:8981 # put to compute only a subset of cells (8981 in total)
+if(!exists("name")){
+  name = "Hist"
+}
+
+if(!exists("years")){
+  years = 1996:2005 
+}
+
+if(!exists("IDsSubSet")){
+  IDsSubSet = 1:8981 # put to compute only a subset of cells (8981 in total)
+}
 
 # folder names
 
