@@ -1,5 +1,7 @@
 # metacycle to run cycle
 
+rm(list = ls())
+
 IDsSubSet = 1:8981 # put to compute only a subset of cells (8981 in total)
 
 ## HIST----
