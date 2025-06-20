@@ -68,7 +68,7 @@ dfLog1 <- function(t, x, parms) {
     
     dlog1x <- c(dlogE1, dlogJ1, dlogI1, dlogA1, dlogEd1)
     
-    cat("UPDATE from deSolve\nTime:", tN, "\n")
+    # cat("UPDATE from deSolve\nTime:", tN, "\n")
     
     return(list(dlog1x))})
 }
