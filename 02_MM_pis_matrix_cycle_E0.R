@@ -15,7 +15,7 @@
 # SSP 5 2050-2059
 # SSP 5 2050-2059
 
-rm(list = ls())
+# rm(list = ls())
 
 library(deSolve)
 library(ggplot2)
