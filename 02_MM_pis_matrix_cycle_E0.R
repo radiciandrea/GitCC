@@ -28,7 +28,7 @@ library(sf)
 ## Simulation settings ----
 
 name = "Hist"
-years = 1996:1996 #:2005
+years = 1996:2005 #:2005
 IDsSubSet = 1:8981 # put to compute only a subset of cells (8981 in total)
 
 # folder names
@@ -85,7 +85,7 @@ A0 = rep(0, nIDs)
 Ed_0 = 1*rep(1, nIDs) # at 1st of January (10^6)
 
 #integration step (chould be 1/100)
-iS = 1/24
+iS = 1/60
 
 tic()
 for (year in years){
@@ -222,8 +222,8 @@ for (year in years){
   E0v = pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 0)/Ed_0
   
   ## Save results ----
-  save(Sim, file = paste0(folderOut, "/Sim_Drias_", name, "_", year, ".rds"))
-  save(E0v, file = paste0(folderOut, "/E0_Drias_", name, "_", year, ".rds"))
+  saveRDS(Sim, file = paste0(folderOut, "/Sim_Drias_", name, "_", year, ".rds"))
+  saveRDS(E0v, file = paste0(folderOut, "/E0_Drias_", name, "_", year, ".rds"))
   
   cat("UPDATE\nYear:", year, "\nAverage E0:", mean(E0v), "\nAnd")
   
