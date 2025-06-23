@@ -43,7 +43,7 @@ cutPal = c(0, 10^(-3:3), 10^10)
 name = "Hist"
 years = 1996:2005 #:2005
 
-nR <- which((namesAll == name) & (years %in% yearsAll))
+nR <- which((namesAll == name) & (yearsAll %in% years))
 
 E0Sel <-  apply(E0m[nR,], 2,
                         function(x){exp(mean(log(x)))})
@@ -65,7 +65,7 @@ ggsave(file =
 name = "ssp245"
 years = 2050:2059
 
-nR <- which((namesAll == name) & (years %in% yearsAll))
+nR <- which((namesAll == name) & (yearsAll %in% years))
 
 E0Sel <-  apply(E0m[nR,], 2,
                       function(x){exp(mean(log(x)))})
@@ -87,7 +87,7 @@ ggsave(file =
 name = "ssp245"
 years = 2080:2089
 
-nR <- which((namesAll == name) & (years %in% yearsAll))
+nR <- which((namesAll == name) & (yearsAll %in% years))
 
 E0Sel <-  apply(E0m[nR,], 2,
                       function(x){exp(mean(log(x)))})
@@ -109,7 +109,7 @@ ggsave(file =
 name = "ssp585"
 years = 2050:2059
 
-nR <- which((namesAll == name) & (years %in% yearsAll))
+nR <- which((namesAll == name) & (yearsAll %in% years))
 
 E0Sel <-  apply(E0m[nR,], 2,
                       function(x){exp(mean(log(x)))})
@@ -131,7 +131,7 @@ ggsave(file =
 name = "ssp585"
 years = 2080:2089
 
-nR <- which((namesAll == name) & (years %in% yearsAll))
+nR <- which((namesAll == name) & (yearsAll %in% years))
 
 E0Sel <-  apply(E0m[nR,], 2,
                       function(x){exp(mean(log(x)))})
