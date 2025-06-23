@@ -24,6 +24,7 @@ library(dplyr)
 library(suncalc)
 library(pracma)
 library(sf)
+library(data.table)
 
 ## Simulation settings ----
 
