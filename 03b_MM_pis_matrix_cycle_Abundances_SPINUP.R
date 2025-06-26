@@ -1,5 +1,5 @@
 # Model by Metelmann 2019 ----
-# to estimate E0
+# to spinup abundance
 
 # Running on SAFRAN
 
@@ -91,7 +91,9 @@ E0 = rep(0, nIDs)
 J0 = rep(0, nIDs)
 I0 = rep(0, nIDs)
 A0 = rep(0, nIDs)
-Ed_0 = 1*rep(1, nIDs) # at 1st of January (10^6)
+Ed_0 = 10^3*rep(1, nIDs) # at 1st of January (10^6)
+
+X0 = c(E0, J0, I0, A0, Ed_0)
 
 #integration step (chould be 1/100)
 iS = 1/60
@@ -181,8 +183,6 @@ for (year in years){
                                           sapply(DOSy, function(x){return(sum(alphaEvap^(x:1-1) * (alphaDens*prec[1:x,y] + alphaRain*H[x,y])))}))
   }) 
   
-  X0 = c(E0, J0, I0, A0, Ed_0)
-  
   ## Call integration fucntion ----
   source("02b_MM_integration_functions.R")
   
@@ -227,14 +227,13 @@ for (year in years){
   # untransform variables
   Sim = cbind(SimLog1[,1], exp(SimLog1[, 1+1:(nIDs*5)])-1)
   
-  #compute E0
-  E0v = pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 0)/Ed_0
+  # update X0 (E0 are AT LEAST 1)
+  X0 = c(rep(0, 4*nIDs), pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 1))
   
-  ## Save results ----
-  saveRDS(Sim, file = paste0(folderOut, "/Sim_Drias_", name, "_", year, ".rds"))
-  saveRDS(E0v, file = paste0(folderOut, "/E0_Drias_", name, "_", year, ".rds"))
-  
-  cat("UPDATE\nYear:", year, "\nAverage E0:", mean(E0v), "\nAnd")
+  cat("UPDATE\nYear:", year, "\n")
   
   toc()
 }
+
+## Save results ----
+saveRDS(X0, file = paste0(folderOut, "/X0_Drias_", name, "_", year, ".rds"))
