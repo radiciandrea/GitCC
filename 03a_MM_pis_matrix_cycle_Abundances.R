@@ -1,5 +1,5 @@
 # Model by Metelmann 2019 ----
-# to spinup abundance
+# to simulate abundance
 
 # Running on SAFRAN
 
