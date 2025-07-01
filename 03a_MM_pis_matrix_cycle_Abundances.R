@@ -85,13 +85,15 @@ epsDens = 0.01
 epsFac = 0.01
 
 ## System initialization ----
-# E0 = rep(0, nIDs)
-# J0 = rep(0, nIDs)
-# I0 = rep(0, nIDs)
-# A0 = rep(0, nIDs)
-# Ed_0 = 10^3*rep(1, nIDs) # at 1st of January (10^6)
+X0 = readRDS(file = paste0(folderOut, "/X0_Drias_", name, "_", years[1], ".rds"))
 
-X0 = readRDS(X0, file = paste0(folderOut, "/X0_Drias_", name, "_", year, ".rds"))
+# and select subset:
+
+X0 = c(X0[0*8981+IDsSubSet],
+       X0[1*8981+IDsSubSet],
+       X0[2*8981+IDsSubSet],
+       X0[3*8981+IDsSubSet],
+       X0[4*8981+IDsSubSet])
 
 #integration step (chould be 1/100)
 iS = 1/60
@@ -228,10 +230,16 @@ for (year in years){
   # update X0 (E0 are AT LEAST 1)
   X0 = c(rep(0, 4*nIDs), pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 1))
   
+  # Compute betaApprox
+  betaApprox = (33.2*exp(-0.5*((tas-70.3)/14.1)^2)*(38.8 - tas)^1.5)*(tas<= 38.8) #fertility rate
+  
+  ## Save results ----
+  saveRDS(Sim, file = paste0(folderOut, "/Sim_Drias_", name, "_", year, ".rds"))
+  saveRDS(betaApprox, file = paste0(folderOut, "/Beta_Drias_", name, "_", year, ".rds"))
+  
   cat("UPDATE\nYear:", year, "\n")
   
   toc()
 }
 
-## Save results ----
-saveRDS(X0, file = paste0(folderOut, "/X0_Drias_", name, "_", year, ".rds"))
+
