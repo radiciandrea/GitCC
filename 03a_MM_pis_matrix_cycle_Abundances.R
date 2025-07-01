@@ -50,8 +50,6 @@ if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codi
   folderOut = "DRIAS_sim"
 }
 
-dir.create(folderOut)
-
 # get ID, lat, lon
 IDsDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", years[1], ".rds")) %>%
   distinct(ID, .keep_all = TRUE) %>%
@@ -87,13 +85,13 @@ epsDens = 0.01
 epsFac = 0.01
 
 ## System initialization ----
-E0 = rep(0, nIDs)
-J0 = rep(0, nIDs)
-I0 = rep(0, nIDs)
-A0 = rep(0, nIDs)
-Ed_0 = 10^3*rep(1, nIDs) # at 1st of January (10^6)
+# E0 = rep(0, nIDs)
+# J0 = rep(0, nIDs)
+# I0 = rep(0, nIDs)
+# A0 = rep(0, nIDs)
+# Ed_0 = 10^3*rep(1, nIDs) # at 1st of January (10^6)
 
-X0 = c(E0, J0, I0, A0, Ed_0)
+X0 = readRDS(X0, file = paste0(folderOut, "/X0_Drias_", name, "_", year, ".rds"))
 
 #integration step (chould be 1/100)
 iS = 1/60
