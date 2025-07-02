@@ -389,3 +389,10 @@ rm(IDsDT)
 
 AmjjasoMM[5,] <- colSums(AmjjasoM, na.rm =T)
 LTSdengueMM[5,] <- colSums(LTSdengueM, na.rm =T)
+
+## Save and load----
+saveRDS(AmjjasoMM, file = paste0(folderData, "/AmjjasoMM.rds", ))
+saveRDS(LTSdengueMM, file = paste0(folderData, "/LTSdengueMM.rds", ))
+
+AmjjasoMM <- readRDS(file = paste0(folderData, "/AmjjasoMM.rds", ))
+LTSdengueMM <- readRDS(file = paste0(folderData, "/LTSdengueMM.rds", ))
