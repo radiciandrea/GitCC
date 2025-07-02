@@ -81,9 +81,9 @@ for(i in  1:length(years)){
       distinct(ID, .keep_all = TRUE) %>%
       dplyr::select(c("ID", "pop")) %>%
       filter(ID %in% IDsSubSet)
-    
-    H = matrix(rep(IDsDT$pop, nD), nrow = nD, byrow = T )
   }
+  
+  H = matrix(rep(IDsDT$pop, nD), nrow = nD, byrow = T )
   
   #vector to host ratio
   m = Adults*100/H
