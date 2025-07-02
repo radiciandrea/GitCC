@@ -112,3 +112,280 @@ rm(IDsDT)
 
 AmjjasoMM[1,] <- colSums(AmjjasoM, na.rm =T)
 LTSdengueMM[1,] <- colSums(LTSdengueM, na.rm =T)
+
+## SSP2 RCP 4.5 2055----
+
+name = "ssp245"
+years = 2050:2059
+
+files = list.files(paste0(folderData,"/"), pattern = "Sim_Drias_Hist")
+
+# matrices of indicators: average adults and R0
+
+AmjjasoM = matrix(NA, nrow = length(years), ncol = nIDs)
+LTSdengueM = matrix(NA, nrow = length(years), ncol = nIDs)
+
+for(i in  1:length(years)){
+  
+  file = files[i]
+  
+  Sim <- readRDS(paste0(folderData, "/", file))
+  year <- years[i] # substr(file, nchar(file)-7, nchar(file)-4)
+  
+  #determine mjjaso
+  nD <- nrow(Sim)
+  FMay <- yday(as.Date(paste0(year, "-05-01"))) 
+  LOct <- yday(as.Date(paste0(year, "-10-31"))) 
+  
+  Adults <- Sim[,3*nIDs + 1:nIDs]
+  
+  Amjjaso <- colMeans(Adults[FMay:LOct,], na.rm =T)
+  AmjjasoM[i, ] <- Amjjaso
+  
+  # load weather for R0
+  
+  WTotDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", year, ".rds")) %>%
+    filter(ID %in% IDsSubSet) 
+  
+  tas = matrix(WTotDT$tas, nrow = nD)
+  
+  # load H (just once) for R0
+  if(!exists("IDsDT")){
+    IDsDT <- WTotDT %>%
+      distinct(ID, .keep_all = TRUE) %>%
+      dplyr::select(c("ID", "pop")) %>%
+      filter(ID %in% IDsSubSet)
+  }
+  
+  H = matrix(rep(IDsDT$pop, nD), nrow = nD, byrow = T )
+  
+  #vector to host ratio
+  m = Adults*100/H
+  
+  #demographic parameters
+  muA = -log(0.677 * exp(-0.5*((tas-20.9)/13.2)^6)*tas^0.1) # adult mortality rate
+  muA[which(tas<=0)] = -log(0.677 * exp(-0.5*((tas[which(tas<=0)]-20.9)/13.2)^6))  #correct the problems due to negative values from SI
+  
+  #epidemiological parameters
+  A = (0.0043*tas + 0.0943)/2  #biting rate (Zanardini et al., Caminade 2016, Blagrove 2020)
+  phiA = phiAU*(H>RTh)+phiAR*(H<=RTh)
+  
+  EIPdengue = 1.03*(4*exp(5.15 - 0.123*tas)) #Metelmann 2021
+  
+  # Compute epidemiological risk
+  R0dengueM = (A*phiA)^2*m/(muA+muA^2*EIPdengue)*bV2H*bH2Vdengue*IIPdengue
+  LTSdengueM[i,] = colSums(R0dengueM>1, na.rm =T)
+}
+
+rm(IDsDT)
+
+AmjjasoMM[2,] <- colSums(AmjjasoM, na.rm =T)
+LTSdengueMM[2,] <- colSums(LTSdengueM, na.rm =T)
+
+## SSP2 RCP 4.5 2085----
+
+name = "ssp245"
+years = 2080:2089
+
+files = list.files(paste0(folderData,"/"), pattern = "Sim_Drias_Hist")
+
+# matrices of indicators: average adults and R0
+
+AmjjasoM = matrix(NA, nrow = length(years), ncol = nIDs)
+LTSdengueM = matrix(NA, nrow = length(years), ncol = nIDs)
+
+for(i in  1:length(years)){
+  
+  file = files[i]
+  
+  Sim <- readRDS(paste0(folderData, "/", file))
+  year <- years[i] # substr(file, nchar(file)-7, nchar(file)-4)
+  
+  #determine mjjaso
+  nD <- nrow(Sim)
+  FMay <- yday(as.Date(paste0(year, "-05-01"))) 
+  LOct <- yday(as.Date(paste0(year, "-10-31"))) 
+  
+  Adults <- Sim[,3*nIDs + 1:nIDs]
+  
+  Amjjaso <- colMeans(Adults[FMay:LOct,], na.rm =T)
+  AmjjasoM[i, ] <- Amjjaso
+  
+  # load weather for R0
+  
+  WTotDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", year, ".rds")) %>%
+    filter(ID %in% IDsSubSet) 
+  
+  tas = matrix(WTotDT$tas, nrow = nD)
+  
+  # load H (just once) for R0
+  if(!exists("IDsDT")){
+    IDsDT <- WTotDT %>%
+      distinct(ID, .keep_all = TRUE) %>%
+      dplyr::select(c("ID", "pop")) %>%
+      filter(ID %in% IDsSubSet)
+  }
+  
+  H = matrix(rep(IDsDT$pop, nD), nrow = nD, byrow = T )
+  
+  #vector to host ratio
+  m = Adults*100/H
+  
+  #demographic parameters
+  muA = -log(0.677 * exp(-0.5*((tas-20.9)/13.2)^6)*tas^0.1) # adult mortality rate
+  muA[which(tas<=0)] = -log(0.677 * exp(-0.5*((tas[which(tas<=0)]-20.9)/13.2)^6))  #correct the problems due to negative values from SI
+  
+  #epidemiological parameters
+  A = (0.0043*tas + 0.0943)/2  #biting rate (Zanardini et al., Caminade 2016, Blagrove 2020)
+  phiA = phiAU*(H>RTh)+phiAR*(H<=RTh)
+  
+  EIPdengue = 1.03*(4*exp(5.15 - 0.123*tas)) #Metelmann 2021
+  
+  # Compute epidemiological risk
+  R0dengueM = (A*phiA)^2*m/(muA+muA^2*EIPdengue)*bV2H*bH2Vdengue*IIPdengue
+  LTSdengueM[i,] = colSums(R0dengueM>1, na.rm =T)
+}
+
+rm(IDsDT)
+
+AmjjasoMM[3,] <- colSums(AmjjasoM, na.rm =T)
+LTSdengueMM[3,] <- colSums(LTSdengueM, na.rm =T)
+
+
+## SSP5 RCP 8.5 2055----
+
+name = "ssp585"
+years = 2050:2059
+
+files = list.files(paste0(folderData,"/"), pattern = "Sim_Drias_Hist")
+
+# matrices of indicators: average adults and R0
+
+AmjjasoM = matrix(NA, nrow = length(years), ncol = nIDs)
+LTSdengueM = matrix(NA, nrow = length(years), ncol = nIDs)
+
+for(i in  1:length(years)){
+  
+  file = files[i]
+  
+  Sim <- readRDS(paste0(folderData, "/", file))
+  year <- years[i] # substr(file, nchar(file)-7, nchar(file)-4)
+  
+  #determine mjjaso
+  nD <- nrow(Sim)
+  FMay <- yday(as.Date(paste0(year, "-05-01"))) 
+  LOct <- yday(as.Date(paste0(year, "-10-31"))) 
+  
+  Adults <- Sim[,3*nIDs + 1:nIDs]
+  
+  Amjjaso <- colMeans(Adults[FMay:LOct,], na.rm =T)
+  AmjjasoM[i, ] <- Amjjaso
+  
+  # load weather for R0
+  
+  WTotDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", year, ".rds")) %>%
+    filter(ID %in% IDsSubSet) 
+  
+  tas = matrix(WTotDT$tas, nrow = nD)
+  
+  # load H (just once) for R0
+  if(!exists("IDsDT")){
+    IDsDT <- WTotDT %>%
+      distinct(ID, .keep_all = TRUE) %>%
+      dplyr::select(c("ID", "pop")) %>%
+      filter(ID %in% IDsSubSet)
+  }
+  
+  H = matrix(rep(IDsDT$pop, nD), nrow = nD, byrow = T )
+  
+  #vector to host ratio
+  m = Adults*100/H
+  
+  #demographic parameters
+  muA = -log(0.677 * exp(-0.5*((tas-20.9)/13.2)^6)*tas^0.1) # adult mortality rate
+  muA[which(tas<=0)] = -log(0.677 * exp(-0.5*((tas[which(tas<=0)]-20.9)/13.2)^6))  #correct the problems due to negative values from SI
+  
+  #epidemiological parameters
+  A = (0.0043*tas + 0.0943)/2  #biting rate (Zanardini et al., Caminade 2016, Blagrove 2020)
+  phiA = phiAU*(H>RTh)+phiAR*(H<=RTh)
+  
+  EIPdengue = 1.03*(4*exp(5.15 - 0.123*tas)) #Metelmann 2021
+  
+  # Compute epidemiological risk
+  R0dengueM = (A*phiA)^2*m/(muA+muA^2*EIPdengue)*bV2H*bH2Vdengue*IIPdengue
+  LTSdengueM[i,] = colSums(R0dengueM>1, na.rm =T)
+}
+
+rm(IDsDT)
+
+AmjjasoMM[4,] <- colSums(AmjjasoM, na.rm =T)
+LTSdengueMM[4,] <- colSums(LTSdengueM, na.rm =T)
+
+## SSP5 RCP 8.5 2085----
+
+name = "ssp585"
+years = 2080:2089
+
+files = list.files(paste0(folderData,"/"), pattern = "Sim_Drias_Hist")
+
+# matrices of indicators: average adults and R0
+
+AmjjasoM = matrix(NA, nrow = length(years), ncol = nIDs)
+LTSdengueM = matrix(NA, nrow = length(years), ncol = nIDs)
+
+for(i in  1:length(years)){
+  
+  file = files[i]
+  
+  Sim <- readRDS(paste0(folderData, "/", file))
+  year <- years[i] # substr(file, nchar(file)-7, nchar(file)-4)
+  
+  #determine mjjaso
+  nD <- nrow(Sim)
+  FMay <- yday(as.Date(paste0(year, "-05-01"))) 
+  LOct <- yday(as.Date(paste0(year, "-10-31"))) 
+  
+  Adults <- Sim[,3*nIDs + 1:nIDs]
+  
+  Amjjaso <- colMeans(Adults[FMay:LOct,], na.rm =T)
+  AmjjasoM[i, ] <- Amjjaso
+  
+  # load weather for R0
+  
+  WTotDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", year, ".rds")) %>%
+    filter(ID %in% IDsSubSet) 
+  
+  tas = matrix(WTotDT$tas, nrow = nD)
+  
+  # load H (just once) for R0
+  if(!exists("IDsDT")){
+    IDsDT <- WTotDT %>%
+      distinct(ID, .keep_all = TRUE) %>%
+      dplyr::select(c("ID", "pop")) %>%
+      filter(ID %in% IDsSubSet)
+  }
+  
+  H = matrix(rep(IDsDT$pop, nD), nrow = nD, byrow = T )
+  
+  #vector to host ratio
+  m = Adults*100/H
+  
+  #demographic parameters
+  muA = -log(0.677 * exp(-0.5*((tas-20.9)/13.2)^6)*tas^0.1) # adult mortality rate
+  muA[which(tas<=0)] = -log(0.677 * exp(-0.5*((tas[which(tas<=0)]-20.9)/13.2)^6))  #correct the problems due to negative values from SI
+  
+  #epidemiological parameters
+  A = (0.0043*tas + 0.0943)/2  #biting rate (Zanardini et al., Caminade 2016, Blagrove 2020)
+  phiA = phiAU*(H>RTh)+phiAR*(H<=RTh)
+  
+  EIPdengue = 1.03*(4*exp(5.15 - 0.123*tas)) #Metelmann 2021
+  
+  # Compute epidemiological risk
+  R0dengueM = (A*phiA)^2*m/(muA+muA^2*EIPdengue)*bV2H*bH2Vdengue*IIPdengue
+  LTSdengueM[i,] = colSums(R0dengueM>1, na.rm =T)
+}
+
+rm(IDsDT)
+
+AmjjasoMM[5,] <- colSums(AmjjasoM, na.rm =T)
+LTSdengueMM[5,] <- colSums(LTSdengueM, na.rm =T)
