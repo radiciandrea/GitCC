@@ -25,6 +25,11 @@ nIDs = (ncol(Sim)-1)/nC # number of regions
 IDs = 1:nIDs
 IDsSubSet = IDs
 
+# create meta matrices for each scenario (hist, ssp2, ssp5) for both adults and MTS for dengue
+
+AmjjasoMM <- matrix(NA, ncol = nIDs, nrow = 5)
+LTSdengueMM <- matrix(NA, ncol = nIDs, nrow = 5)
+
 #fixed epimelogical (meta)perameters
 
 #host preference
@@ -65,7 +70,7 @@ for(i in  1:length(years)){
   
   Adults <- Sim[,3*nIDs + 1:nIDs]
   
-  Amjjaso <- colMeans(Adults[FMay:LOct,])
+  Amjjaso <- colMeans(Adults[FMay:LOct,], na.rm =T)
   AmjjasoM[i, ] <- Amjjaso
   
   # load weather for R0
@@ -100,7 +105,10 @@ for(i in  1:length(years)){
   
   # Compute epidemiological risk
   R0dengueM = (A*phiA)^2*m/(muA+muA^2*EIPdengue)*bV2H*bH2Vdengue*IIPdengue
-  LTSdengueM[i,] = colSums(R0dengueM>1)
+  LTSdengueM[i,] = colSums(R0dengueM>1, na.rm =T)
 }
 
 rm(IDsDT)
+
+AmjjasoMM[1,] <- colSums(AmjjasoM, na.rm =T)
+LTSdengueMM[1,] <- colSums(LTSdengueM, na.rm =T)
