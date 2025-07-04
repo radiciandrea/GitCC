@@ -44,10 +44,10 @@ if(!exists("IDsSubSet")){
 
 if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
   folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
-  folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim"
+  folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_03"
 } else {
   folderDrias = "DRIAS_elab"
-  folderOut = "DRIAS_sim"
+  folderOut = "DRIAS_sim_03"
 }
 
 # get ID, lat, lon
