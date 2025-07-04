@@ -229,6 +229,7 @@ for (year in years){
   
   # update X0 (E0 are AT LEAST 1)
   X0 = c(rep(0, 4*nIDs), pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 1))
+  X0[which(is.na(X0))] == 1
   
   # Compute betaApprox
   betaApprox = (33.2*exp(-0.5*((tas-70.3)/14.1)^2)*(38.8 - tas)^1.5)*(tas<= 38.8) #fertility rate
