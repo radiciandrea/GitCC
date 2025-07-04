@@ -46,11 +46,11 @@ dfLog1 <- function(t, x, parms) {
     beta = (33.2*exp(-0.5*((tempH-70.3)/14.1)^2)*(38.8 - tempH)^1.5)*(tempH<= 38.8) #fertility rate
     
     # supporting variable (with check for positivity)
-    E1 = pmax(10^-12, exp(logE1)-1)
-    J1 = pmax(10^-12, exp(logJ1)-1)
-    I1 = pmax(10^-12, exp(logI1)-1)
-    A1 = pmax(10^-12, exp(logA1)-1)
-    Ed1 = pmax(10^-12, exp(logEd1)-1)
+    E1 = pmax(0, exp(logE1)-1)
+    J1 = pmax(0, exp(logJ1)-1)
+    I1 = pmax(0, exp(logI1)-1)
+    A1 = pmax(0, exp(logA1)-1)
+    Ed1 = pmax(0, exp(logEd1)-1)
     
     # ODE definition 
     dlogE1 = beta*(1-omega[tN, ])*A1 - (h[tN, ]*deltaE + muE)*E1
