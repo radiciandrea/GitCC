@@ -231,7 +231,7 @@ for (year in years){
   
   # update X0 (E0 are AT LEAST 1)
   X0 = c(rep(0, 4*nIDs), pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 1))
-  X0[which(is.na(X0))] == 1
+  X0[which(is.nan(X0))] = 1
   cat("UPDATE\nYear:", year, "\n")
   
   toc()
