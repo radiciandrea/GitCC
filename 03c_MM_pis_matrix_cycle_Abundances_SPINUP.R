@@ -95,8 +95,8 @@ Ed_0 = 10^3*rep(1, nIDs) # at 1st of January (10^6)
 
 X0 = c(E0, J0, I0, A0, Ed_0)
 
-#integration step (should be 1/100)
-iS = 1/60
+#integration step during activity period (should be 1/100)
+iS = 1/100
 
 tic()
 for (year in years){
@@ -210,8 +210,9 @@ for (year in years){
                              value = 0,
                              method = "rep")
   
-  # define finer integration grid
-  DOSiS = seq(tS, tEnd, by = iS)
+  # define finer integration grid in activity period
+  tAP = which(rowSums(sigma)>0)[1]-1
+  DOSiS = c(seq(tS, tAP, by = 1), seq(tAP, tEnd, by = iS))
   
   ## Integration  ----
   SimLog1DOSiS<- deSolve::ode(y = X0log1, 
