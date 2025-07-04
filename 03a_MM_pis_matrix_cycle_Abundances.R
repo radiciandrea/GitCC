@@ -212,7 +212,7 @@ for (year in years){
   
   # define finer integration grid in activity period (after Start Activity Period)
   tSAP = which(rowSums(sigma)>0)[1]-1
-  DOSiS = c(seq(tS, tSAP, by = 1), seq(tSAP, tEnd, by = iS))
+  DOSiS = c(seq(tS, tSAP-1, by = 1), seq(tSAP, tEnd, by = iS))
   
   ## Integration  ----
   SimLog1DOSiS<- deSolve::ode(y = X0log1, 
