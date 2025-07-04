@@ -18,8 +18,8 @@ folderPlotR0 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esper
 ## initial settings----
 
 # load 1 for dimension
-files = list.files(paste0(folderData,"/"), paste0("Sim_Drias_", name))
-Sim <- readRDS(paste0(folderData, "/", files[1]))
+files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_", name))
+Sim <- readRDS(paste0(folderSim, "/", files[1]))
 nC = 5 # number of classes
 nIDs = (ncol(Sim)-1)/nC # number of regions
 IDs = 1:nIDs
@@ -56,7 +56,7 @@ bH2Vdengue = 0.31 # beta Metelmann 2021
 name = "Hist"
 years = 1996:2005 #:2005
 
-files = list.files(paste0(folderData,"/"), paste0("Sim_Drias_", name))
+files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_", name))
 
 # matrices of indicators: average adults and R0
 
@@ -67,7 +67,7 @@ for(i in  1:length(years)){
   
   file = files[i]
   
-  Sim <- readRDS(paste0(folderData, "/", file))
+  Sim <- readRDS(paste0(folderSim, "/", file))
   year <- years[i] # substr(file, nchar(file)-7, nchar(file)-4)
   
   #determine mjjaso
@@ -125,7 +125,7 @@ LTSdengueMM[1,] <- colMeans(LTSdengueM, na.rm =T)
 name = "ssp245"
 years = 2050:2059
 
-files = list.files(paste0(folderData,"/"), paste0("Sim_Drias_", name))
+files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_", name))
 files = files[1:length(years)]
 
 # matrices of indicators: average adults and R0
@@ -137,7 +137,7 @@ for(i in  1:length(years)){
   
   file = files[i]
   
-  Sim <- readRDS(paste0(folderData, "/", file))
+  Sim <- readRDS(paste0(folderSim, "/", file))
   year <- years[i] # substr(file, nchar(file)-7, nchar(file)-4)
   
   #determine mjjaso
@@ -195,7 +195,7 @@ LTSdengueMM[2,] <- colMeans(LTSdengueM, na.rm =T)
 name = "ssp245"
 years = 2080:2089
 
-files = list.files(paste0(folderData,"/"), paste0("Sim_Drias_", name))
+files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_", name))
 files = files[length(years)+1:length(years)]
 
 # matrices of indicators: average adults and R0
@@ -207,7 +207,7 @@ for(i in  1:length(years)){
   
   file = files[i]
   
-  Sim <- readRDS(paste0(folderData, "/", file))
+  Sim <- readRDS(paste0(folderSim, "/", file))
   year <- years[i] # substr(file, nchar(file)-7, nchar(file)-4)
   
   #determine mjjaso
@@ -266,7 +266,7 @@ LTSdengueMM[3,] <- colMeans(LTSdengueM, na.rm =T)
 name = "ssp585"
 years = 2050:2059
 
-files = list.files(paste0(folderData,"/"), paste0("Sim_Drias_", name))
+files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_", name))
 files = files[1:length(years)]
 
 # matrices of indicators: average adults and R0
@@ -278,7 +278,7 @@ for(i in  1:length(years)){
   
   file = files[i]
   
-  Sim <- readRDS(paste0(folderData, "/", file))
+  Sim <- readRDS(paste0(folderSim, "/", file))
   year <- years[i] # substr(file, nchar(file)-7, nchar(file)-4)
   
   #determine mjjaso
@@ -336,7 +336,7 @@ LTSdengueMM[4,] <- colMeans(LTSdengueM, na.rm =T)
 name = "ssp585"
 years = 2080:2089
 
-files = list.files(paste0(folderData,"/"), paste0("Sim_Drias_", name))
+files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_", name))
 files = files[length(years)+1:length(years)]
 
 # matrices of indicators: average adults and R0
@@ -348,7 +348,7 @@ for(i in  1:length(years)){
   
   file = files[i]
   
-  Sim <- readRDS(paste0(folderData, "/", file))
+  Sim <- readRDS(paste0(folderSim, "/", file))
   year <- years[i] # substr(file, nchar(file)-7, nchar(file)-4)
   
   #determine mjjaso
@@ -402,11 +402,11 @@ AmjjasoMM[5,] <- colMeans(AmjjasoM, na.rm =T)
 LTSdengueMM[5,] <- colMeans(LTSdengueM, na.rm =T)
 
 # Save and load----
-saveRDS(AmjjasoMM, file = paste0(folderData, "/AmjjasoMM.rds"))
-saveRDS(LTSdengueMM, file = paste0(folderData, "/LTSdengueMM.rds"))
+saveRDS(AmjjasoMM, file = paste0(folderSim, "/AmjjasoMM.rds"))
+saveRDS(LTSdengueMM, file = paste0(folderSim, "/LTSdengueMM.rds"))
 
-AmjjasoMM <- readRDS(file = paste0(folderData, "/AmjjasoMM.rds"))
-LTSdengueMM <- readRDS(file = paste0(folderData, "/LTSdengueMM.rds"))
+AmjjasoMM <- readRDS(file = paste0(folderSim, "/AmjjasoMM.rds"))
+LTSdengueMM <- readRDS(file = paste0(folderSim, "/LTSdengueMM.rds"))
 
 # Plot----
 
