@@ -18,6 +18,7 @@ folderPlotR0 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esper
 ## initial settings----
 
 # load 1 for dimension
+name = "Hist"
 files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_", name))
 Sim <- readRDS(paste0(folderSim, "/", files[1]))
 nC = 5 # number of classes
