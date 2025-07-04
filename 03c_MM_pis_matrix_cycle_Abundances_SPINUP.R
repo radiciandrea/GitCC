@@ -223,7 +223,8 @@ for (year in years){
                               events = list(data = eventZeroEd1))
   
   # extract values from finer grid
-  SimLog1 <-SimLog1DOSiS[1+(0:(tEnd-tS))/iS,]
+  whichDOSiS = which((DOSiS %% 1)==0)
+  SimLog1 <-SimLog1DOSiS[whichDOSiS,]
   
   # untransform variables
   Sim = cbind(SimLog1[,1], exp(SimLog1[, 1+1:(nIDs*5)])-1)
