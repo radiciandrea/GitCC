@@ -95,7 +95,7 @@ Ed_0 = 10^3*rep(1, nIDs) # at 1st of January (10^6)
 
 X0 = c(E0, J0, I0, A0, Ed_0)
 
-#integration step (chould be 1/100)
+#integration step (should be 1/100)
 iS = 1/60
 
 tic()
@@ -230,7 +230,6 @@ for (year in years){
   # update X0 (E0 are AT LEAST 1)
   X0 = c(rep(0, 4*nIDs), pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 1))
   X0[which(is.na(X0))] == 1
-  
   cat("UPDATE\nYear:", year, "\n")
   
   toc()

@@ -95,7 +95,7 @@ X0 = c(X0[0*8981+IDsSubSet],
        X0[3*8981+IDsSubSet],
        X0[4*8981+IDsSubSet])
 
-#integration step (chould be 1/100)
+#integration step (should be 1/100)
 iS = 1/60
 
 tic()
