@@ -1,11 +1,11 @@
 # Model by Metelmann 2019 ----
-# to simulate abundance
+# to simulate secondary cases
 
 # Running on SAFRAN
 
 # Notes from "Esperimenti/Scenari climatici"
 
-# inspired by ModelMetelmann_pis_matrix_EOBS_cycle
+# inspired by ModelMetelmann_pis_matrix_EOBS_cycle AND MM_PM_EOBS_CC_01_Epidemic.R
 
 # per scenarios:
 
@@ -40,14 +40,26 @@ if(!exists("IDsSubSet")){
   IDsSubSet = 1:8981 # put to compute only a subset of cells (8981 in total)
 }
 
+if(!exists("AreaKm2")){
+  AreaKm2 = 63.735 # approximate surface of each cell (max rel error: 0.44%)
+}
+
+if(!exists("NIntro")){
+  NIntro = 1 # number of introduced infected people
+}
+
+if(!exists("ICCalendar")){
+  ICCalendar = 1:12 # imported case: one for each month
+}
+
 # folder names
 
 if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
   folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
-  folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_03"
+  folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_04"
 } else {
   folderDrias = "DRIAS_elab"
-  folderOut = "DRIAS_sim_03"
+  folderOut = "DRIAS_sim_04"
 }
 
 # get ID, lat, lon
@@ -85,6 +97,21 @@ epsOpt = 8
 epsDens = 0.01
 epsFac = 0.01
 
+### Epidemic parameters
+
+# Epidemic parameters 1
+bH2v = 0.31 # beta Mtl 2021 (dengue)
+bv2H = 0.5 # b Blagrove 2020
+phiA = 0.9 #human biting preference (urban)
+deltaM = 4.5 #ind/ha max number of mosquito bitten for (goniotrophic cycle)
+
+# Epidemic sysem initialization
+AE0 = rep(0, nIDs) # exposed vectors
+AI0 = rep(0, nIDs) # infected vectors
+
+# Prevalence
+P0 = rep(0, nIDs) # infected humans
+
 ## System initialization ----
 X0 = readRDS(file = paste0(folderOut, "/X0_Drias_", name, "_", years[1], ".rds"))
 
@@ -94,7 +121,9 @@ X0 = c(X0[0*8981+IDsSubSet],
        X0[1*8981+IDsSubSet],
        X0[2*8981+IDsSubSet],
        X0[3*8981+IDsSubSet],
-       X0[4*8981+IDsSubSet]) # per ha
+       X0[4*8981+IDsSubSet],
+       AE0,
+       AI0) # per ha
 
 #integration step during inactivity period(should be 1/100) (I)
 iSI = 1/4
@@ -188,8 +217,20 @@ for (year in years){
                                             sapply(DOSy, function(x){return(sum(alphaEvap^(x:1-1) * (alphaDens*prec[1:x,y] + alphaRain*H[x,y])))}))
   }) 
   
+  ## Compute epidemic parameters ----
+  a = (0.0043*tas + 0.0943)/2 #biting rate
+  EIP = 1.03*(4*exp(5.15 - 0.123*tas)) #Metelmann 2021 (Dengue)
+  ni = 1/EIP #of the vector
+  
+  #Epidemic scenario
+  IC = rep(0, nD)
+  ICDates <- yday(as.Date(paste0(year, "-", ICCalendar, "-01", "%d/%m/%y")))
+  IC[ICDates] = NIntro/AreaKm2 #hab/km²
+  ICm = matrix(rep(IC, nIDs), ncol = nIDs)
+  iCm = ICm/H
+  
   ## Call integration fucntion ----
-  source("02b_MM_integration_functions.R")
+  source("04b_MM_SEI_integration_functions.R")
   
   parms = list(omega = omega,
                h = h,
@@ -201,7 +242,12 @@ for (year in years){
                tasMax = tasMax,
                tasMin = tasMin,
                nIDs = nIDs,
-               tSr = tSr)
+               tSr = tSr,
+               a = a,
+               phiA = phiA,
+               bH2v = bH2v,
+               ni = ni,
+               iCm = iCm)
   
   #transform into log+1 AND giving names
   X0m2 <- X0/10^4 #per m2
@@ -234,7 +280,7 @@ for (year in years){
   ## Integration  ----
   SimLog1DOSiS<- deSolve::ode(y = X0log1, 
                               times = DOSiS,
-                              func = dfLog1, 
+                              func = dfLogSEI, 
                               parms = parms,
                               method = "rk4",
                               events = list(data = eventZeroEd1))
@@ -244,22 +290,29 @@ for (year in years){
   SimLog1 <-SimLog1DOSiS[whichDOSiS,]
   
   # untransform variables and transform to ha
-  Sim = cbind(SimLog1[,1], 10^4*exp(SimLog1[, 1+1:(nIDs*5)])-1)
+  Sim = cbind(SimLog1[,1], 10^4*(exp(SimLog1[, 1+1:(nIDs*7)])-1))
   
   # update X0 (E0 are AT LEAST 1)
-  X0 = c(rep(0, 4*nIDs), pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 1))
+  X0 = c(rep(0, 4*nIDs), pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 1), rep(0, 2*nIDs))
   X0[which(is.na(X0))] = 1
   
-  # Compute betaApprox
-  betaApprox = (33.2*exp(-0.5*((tas-70.3)/14.1)^2)*(38.8 - tas)^1.5)*(tas<= 38.8) #fertility rate
+  #compute prevalence
+  Prev = a*bv2H*deltaM*phiA*Sim[,1+(nIDs*6+1):(nIDs*7)]*AreaKm2*100 
+  
+  AI <- Sim[,1+(nIDs*6+1):(nIDs*7)]
+  AE <- Sim[,1+(nIDs*5+1):(nIDs*6)]
+  AS <- Sim[,1+(nIDs*3+1):(nIDs*4)]
+  A <- AS + AE + AI
+  
+  SecondayCases = a*bv2H*deltaM*phiA*AI*AreaKm2*100 
+  SecondayCasesCum = apply(SecondayCases, 2, cumsum)
   
   ## Save results ----
-  saveRDS(Sim, file = paste0(folderOut, "/Sim_Drias_", name, "_", year, ".rds"))
-  saveRDS(betaApprox, file = paste0(folderOut, "/Beta_Drias_", name, "_", year, ".rds"))
+  # saveRDS(Sim, file = paste0(folderOut, "/Sim_Drias_", name, "_", year, ".rds"))
   
   cat("UPDATE\nYear:", year, "\n")
   
   toc()
 }
 
-
+plot(SecondayCasesCum)
