@@ -244,7 +244,7 @@ for (year in years){
   SimLog1 <-SimLog1DOSiS[whichDOSiS,]
   
   # untransform variables and transform to ha
-  Sim = cbind(SimLog1[,1], 10^4*(exp(SimLog1[, 1+1:(nIDs*5)])-1))
+ Sim = cbind(SimLog1[,1], 10^4*(exp(SimLog1[, 1+1:(nIDs*7)])-1))
   
   # update X0 (E0 are AT LEAST 1)
   X0 = c(rep(0, 4*nIDs), pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 1))
