@@ -72,7 +72,8 @@ CTTs = 11 #critical temperature over one week in spring (°C )
 CPPs = 11.25 #critical photoperiod in spring
 CPPa = 10.058 + 0.08965 * LAT # critical photperiod in autumn
 deltaE = 1/7.1 #normal egg development rate (1/day)
-lambda = 10^6 # capacity parameter (larvae/day/ha)
+# lambda = 10^6 # capacity parameter (larvae/day/ha)
+lambdaM2 = 10^2 # capacity parameter (larvae/day/m2)
 
 # advanced parameter for carrying capacity
 alphaEvap = 0.9
@@ -93,10 +94,14 @@ I0 = rep(0, nIDs)
 A0 = rep(0, nIDs)
 Ed_0 = 10^3*rep(1, nIDs) # at 1st of January (10^6)
 
-X0 = c(E0, J0, I0, A0, Ed_0)
+X0 = c(E0, J0, I0, A0, Ed_0) #per ha
 
-#integration step during activity period (should be 1/100)
-iS = 1/100
+#integration step during inactivity period(should be 1/100) (I)
+iSI = 1/4
+#integration step during diapause beginning and ending (D)
+iSD = 1/120
+#integration step during activty period (should be 1/100) (A)
+iSA = 1/72
 
 tic()
 for (year in years){
@@ -178,17 +183,17 @@ for (year in years){
     (exp(-epsVar*(prec-epsOpt)^2)+ eps0) +
     epsRat*epsDens/(epsDens + exp(-epsFac*H))
   
-  # Compute K
-  K = sapply(1:nIDs, function(y){return(lambda * (1-alphaEvap)/(1 - alphaEvap^DOSy)*
+  # Compute K per m2
+  KM2 = sapply(1:nIDs, function(y){return(lambdaM2 * (1-alphaEvap)/(1 - alphaEvap^DOSy)*
                                           sapply(DOSy, function(x){return(sum(alphaEvap^(x:1-1) * (alphaDens*prec[1:x,y] + alphaRain*H[x,y])))}))
   }) 
   
   ## Call integration fucntion ----
-  source("02b_MM_integration_functions.R")
+  source("02b_MM_integration_functions.R") #02b2_MM_integration_functions_withcheck
   
   parms = list(omega = omega,
                h = h,
-               K = K,
+               K = KM2,
                muA = muA,
                deltaE = deltaE,
                sigma = sigma,
@@ -199,7 +204,8 @@ for (year in years){
                tSr = tSr)
   
   #transform into log+1 AND giving names
-  X0log1 = log(X0+1)
+  X0m2 <- X0/10^4 #per m2
+  X0log1 = log(X0m2+1)
   
   names(X0log1) =as.character(1:(length(X0)))
   
@@ -210,10 +216,21 @@ for (year in years){
                              value = 0,
                              method = "rep")
   
-  # define finer integration grid in activity period
-  tAP = which(rowSums(sigma)>0)[1]-1
-  DOSiS = c(seq(tS, tAP-1, by = 1), seq(tAP, tEnd, by = iS))
+  # define finer integration grid during diapause haching
+  tbDH = which(rowSums(sigma)>0)[1]-1
+  tfDH = which(rowSums(sigma)== max(rowSums(sigma)))[1]+1
   
+  # define finer integration grid during diapause enterin
+  tbDE = which(rowSums(omega)>0)[1]-1
+  tfDE = which(rowSums(omega)== max(rowSums(omega)))[1]+1
+  
+  # cbind integration grid
+  DOSiS = c(seq(tS, tbDH-iSI, by = iSI),
+            seq(tbDH, tfDH-iSD, by = iSD),
+            seq(tfDH, tbDE-iSA, by = iSA),
+            seq(tbDE, tfDE-iSD, by = iSD),
+            seq(tfDE, tEnd, by = iSI))
+
   ## Integration  ----
   SimLog1DOSiS<- deSolve::ode(y = X0log1, 
                               times = DOSiS,
@@ -226,8 +243,8 @@ for (year in years){
   whichDOSiS = which((DOSiS %% 1)==0)
   SimLog1 <-SimLog1DOSiS[whichDOSiS,]
   
-  # untransform variables
-  Sim = cbind(SimLog1[,1], exp(SimLog1[, 1+1:(nIDs*5)])-1)
+  # untransform variables and transform to ha
+  Sim = cbind(SimLog1[,1], 10^4*exp(SimLog1[, 1+1:(nIDs*5)])-1)
   
   # update X0 (E0 are AT LEAST 1)
   X0 = c(rep(0, 4*nIDs), pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 1))
