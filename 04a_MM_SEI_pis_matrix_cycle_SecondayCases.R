@@ -335,15 +335,16 @@ for (year in years){
   AS <- Sim[,1+(nIDs*3+1):(nIDs*4)]
   Atot <- AS + AE + AI
   
-  PrevMosquito = AI/Atot
-  
-  SH <- Sim[,1+(nIDs*7+1):(nIDs*8)]
-  SecondayCasesContCum = (H - SH*100)*AreaKm2
-  
-  PrevHost = 100*SecondayCasesContCum/(H*AreaKm2)
+  # first checks, to be removed
+  # PrevMosquito = AI/Atot
+  # 
+  # SH <- Sim[,1+(nIDs*7+1):(nIDs*8)]
+  # SecondayCasesContCum = (H - SH*100)*AreaKm2
+  # 
+  # PrevHost = 100*SecondayCasesContCum/(H*AreaKm2)
   
   ## Save results ----
-  # saveRDS(Sim, file = paste0(folderOut, "/Sim_Drias_", name, "_", year, ".rds"))
+  saveRDS(Sim, file = paste0(folderOut, "/Sim_Drias_SEIS_", name, "_", year, ".rds"))
   
   cat("UPDATE\nYear:", year, "\n")
   
