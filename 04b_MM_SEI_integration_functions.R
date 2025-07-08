@@ -30,11 +30,12 @@ dfLogSEI <- function(t, x, parms) {
     logEd1 = x[(1+nIDs*4):(5*nIDs)]
     logAE1 = x[(1+nIDs*5):(6*nIDs)]
     logAI1= x[(1+nIDs*6):(7*nIDs)]
+    logSH1= x[(1+nIDs*7):(8*nIDs)]
     
     
     #tN = t[1]-t_s+1 # time of numerical integration to index matrix
     tN = t[1]
-    tH = 24*(t - tN) #should put t and not t[1]
+    tH = 24*(t - tN) #SHould put t and not t[1]
     tasMax = tasMax[max(1,tN-1),]*(tH<tSr[tN, ]) + tasMax[tN,]*(tH>tSr[tN, ])
     tasMin = tasMin[tN, ]*(tH<14) + tasMin[min(tN+1, length(tasMin))]*(tH>14)
     
@@ -56,6 +57,7 @@ dfLogSEI <- function(t, x, parms) {
     Ed1 = pmax(0, exp(logEd1)-1)
     AE1 = pmax(0, exp(logAE1)-1)
     AI1 = pmax(0, exp(logAI1)-1)
+    SH1 = pmax(0, exp(logSH1)-1)
     
     # ODE definition 
     dlogE1 = beta*(1-omega[tN, ])*AS1 - (h[tN, ]*deltaE + muE)*E1
@@ -68,6 +70,9 @@ dfLogSEI <- function(t, x, parms) {
     dlogAE1 = A[tN, ]*phiA[tN, ]*bH2v*iCm[tN, ]*AS1 - (muA[tN, ] - ni[tN, ])*AE1
     dlogAI1 = ni[tN, ]*AE1 - muA[tN, ]*AI1
     
+    #and S loss 
+    dlogSH1 = -A[tN, ]*bv2H*deltaM*phiA[tN, ]*AI1*SH1/(SH0/10^4)
+    
     # and complete transformation
     dlogE1 = dlogE1/(E1+1)
     dlogJ1 = dlogJ1/(J1+1)
@@ -76,8 +81,9 @@ dfLogSEI <- function(t, x, parms) {
     dlogEd1 = dlogEd1/(Ed1+1)
     dlogAE1 = dlogAE1/(AE1+1)
     dlogAI1 = dlogAI1/(AI1+1)
+    dlogSH1 = dlogSH1/(SH1+1)
     
-    dlog1x <- c(dlogE1, dlogJ1, dlogI1, dlogAS1, dlogEd1, dlogAE1, dlogAI1)
+    dlog1x <- c(dlogE1, dlogJ1, dlogI1, dlogAS1, dlogEd1, dlogAE1, dlogAI1, dlogSH1)
     
     # cat("UPDATE from deSolve\nTime:", tN, "\n")
     

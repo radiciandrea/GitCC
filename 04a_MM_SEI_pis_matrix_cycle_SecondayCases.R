@@ -232,6 +232,9 @@ for (year in years){
   InfectedHostDensityM = matrix(rep(InfectedHostDensity, nIDs), ncol = nIDs)
   InfectedHostPrevalenceM = InfectedHostDensityM/H
   
+  SH0 = H[1,]/100 # susceptible hosts per ha
+  X0 = c(X0, SH0) # included in the system
+  
   ## Call integration fucntion ----
   source("04b_MM_SEI_integration_functions.R")
   
@@ -249,15 +252,20 @@ for (year in years){
                A = A,
                phiA = phiA,
                bH2v = bH2v,
+               bv2H = bv2H,
+               deltaM = deltaM,
                ni = ni,
                IC = IntroDates,
-               iCm = InfectedHostPrevalenceM)
+               iCm = InfectedHostPrevalenceM,
+               SH0 = SH0)
   
   #transform into log+1 AND giving names
   X0m2 <- X0/10^4 #per m2
   X0log1 = log(X0m2+1)
   
   names(X0log1) =as.character(1:(length(X0)))
+  
+  ## Set events ----
   
   #set event: zeroing diapausing eggs on FoA
   
@@ -277,9 +285,15 @@ for (year in years){
                             value = 0,
                             method = "rep")
   
+  #event reset SH
+  eventResetSH <- data.frame(var = names(X0log1)[(nIDs*7+1):(nIDs*8)], 
+                            time = rep(IntroDates, each = nIDs),
+                            value = log(SH0*10^-4+1) ,
+                            method = "rep")
+  
   #cbind and sort
   
-  eventZero <- rbind(eventZeroEd1, eventZeroAE, eventZeroAI) %>%
+  eventReset <- rbind(eventZeroEd1, eventZeroAE, eventZeroAI, eventResetSH) %>%
     arrange(time)
   
   # define finer integration grid during diapause haching
@@ -303,30 +317,30 @@ for (year in years){
                               func = dfLogSEI, 
                               parms = parms,
                               method = "rk4",
-                              events = list(data = eventZero))
+                              events = list(data = eventReset))
   
   # extract values from finer grid
   whichDOSiS = which((DOSiS %% 1)==0)
   SimLog1 <-SimLog1DOSiS[whichDOSiS,]
   
   # untransform variables and transform to ha
-  Sim = cbind(SimLog1[,1], 10^4*(exp(SimLog1[, 1+1:(nIDs*7)])-1))
+  Sim = cbind(SimLog1[,1], 10^4*(exp(SimLog1[, 1+1:(nIDs*8)])-1))
   
   # update X0 (E0 are AT LEAST 1)
   X0 = c(rep(0, 4*nIDs), pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 1), rep(0, 2*nIDs))
   X0[which(is.na(X0))] = 1
-  
-  #compute prevalence
-  Prev = a*bv2H*deltaM*phiA*Sim[,1+(nIDs*6+1):(nIDs*7)]*AreaKm2*100 
   
   AI <- Sim[,1+(nIDs*6+1):(nIDs*7)]
   AE <- Sim[,1+(nIDs*5+1):(nIDs*6)]
   AS <- Sim[,1+(nIDs*3+1):(nIDs*4)]
   Atot <- AS + AE + AI
   
-  SecondayCases = A*bv2H*deltaM*phiA*AI*AreaKm2*100 
-  SecondayCasesCum = apply(SecondayCases, 2, cumsum)
-  Prevalence = 100*SecondayCasesCum/(H*AreaKm2)
+  PrevMosquito = AI/Atot
+  
+  SH <- Sim[,1+(nIDs*7+1):(nIDs*8)]
+  SecondayCasesContCum = (H - SH*100)*AreaKm2
+  
+  PrevHost = 100*SecondayCasesContCum/(H*AreaKm2)
   
   ## Save results ----
   # saveRDS(Sim, file = paste0(folderOut, "/Sim_Drias_", name, "_", year, ".rds"))
