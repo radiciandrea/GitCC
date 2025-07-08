@@ -64,8 +64,8 @@ dfLogSEI <- function(t, x, parms) {
     dlogEd1 = beta*omega[tN, ]*AS1 -  h[tN, ]*sigma[tN, ]*Ed1
     
     # with SEI
-    dlogAS1 = deltaI*I1 - (muA[tN, ] + a[tN, ]*phiA*bH2v*iCm[tN, ])*AS1
-    dlogAE1 = a[tN, ]*phiA*bH2v*iCm[tN, ]*AS1 - (muA[tN, ] - ni[tN, ])*AE1
+    dlogAS1 = deltaI*I1 - (muA[tN, ] + A[tN, ]*phiA[tN, ]*bH2v*iCm[tN, ])*AS1
+    dlogAE1 = A[tN, ]*phiA[tN, ]*bH2v*iCm[tN, ]*AS1 - (muA[tN, ] - ni[tN, ])*AE1
     dlogAI1 = ni[tN, ]*AE1 - muA[tN, ]*AI1
     
     # and complete transformation

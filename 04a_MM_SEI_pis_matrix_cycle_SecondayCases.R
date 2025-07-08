@@ -1,5 +1,5 @@
 # Model by Metelmann 2019 ----
-# to simulate secondary cases
+# to simulate secondary cases within a month
 
 # Running on SAFRAN
 
@@ -48,8 +48,8 @@ if(!exists("NIntro")){
   NIntro = 1 # number of introduced infected people
 }
 
-if(!exists("ICCalendar")){
-  ICCalendar = 1:12 # imported case: one for each month
+if(!exists("IntroMonthCalendar")){
+  IntroMonthCalendar = 1:12 # imported case: one for each month
 }
 
 # folder names
@@ -102,15 +102,16 @@ epsFac = 0.01
 # Epidemic parameters 1
 bH2v = 0.31 # beta Mtl 2021 (dengue)
 bv2H = 0.5 # b Blagrove 2020
-phiA = 0.9 #human biting preference (urban)
+phiAU = 0.9 # vector preference (urban)
+phiAR = 0.5 # vector preference (rural) #Caminade 2016
+RTh = 50 # threshold, in term of people density, to distinguish rural and urban
+
 deltaM = 4.5 #ind/ha max number of mosquito bitten for (goniotrophic cycle)
+DHV = 5 # 1/host recovery rate, duration of hte host viremia days (Benkimoun)
 
 # Epidemic sysem initialization
 AE0 = rep(0, nIDs) # exposed vectors
 AI0 = rep(0, nIDs) # infected vectors
-
-# Prevalence
-P0 = rep(0, nIDs) # infected humans
 
 ## System initialization ----
 X0 = readRDS(file = paste0(folderOut, "/X0_Drias_", name, "_", years[1], ".rds"))
@@ -218,16 +219,18 @@ for (year in years){
   }) 
   
   ## Compute epidemic parameters ----
-  a = (0.0043*tas + 0.0943)/2 #biting rate
+  A = (0.0043*tas + 0.0943)/2 #biting rate
   EIP = 1.03*(4*exp(5.15 - 0.123*tas)) #Metelmann 2021 (Dengue)
   ni = 1/EIP #of the vector
+  phiA = phiAU*(H>RTh)+phiAR*(H<=RTh) #vector preference
   
   #Epidemic scenario
-  IC = rep(0, nD)
-  ICDates <- yday(as.Date(paste0(year, "-", ICCalendar, "-01", "%d/%m/%y")))
-  IC[ICDates] = NIntro/AreaKm2 #hab/km²
-  ICm = matrix(rep(IC, nIDs), ncol = nIDs)
-  iCm = ICm/H
+  InfectedHostDensity <- rep(0, nD)
+  IntroDates <- yday(as.Date(paste0(year, "-", IntroMonthCalendar, "-01", "%d/%m/%y")))
+  InfectedHostDates <- c(t(sapply(-1+1:DHV, function(x){IntroDates+x}))) # repeat for a duration of DHV
+  InfectedHostDensity[InfectedHostDates] = NIntro/AreaKm2 #hab/km²
+  InfectedHostDensityM = matrix(rep(InfectedHostDensity, nIDs), ncol = nIDs)
+  InfectedHostPrevalenceM = InfectedHostDensityM/H
   
   ## Call integration fucntion ----
   source("04b_MM_SEI_integration_functions.R")
@@ -243,11 +246,12 @@ for (year in years){
                tasMin = tasMin,
                nIDs = nIDs,
                tSr = tSr,
-               a = a,
+               A = A,
                phiA = phiA,
                bH2v = bH2v,
                ni = ni,
-               iCm = iCm)
+               IC = IntroDates,
+               iCm = InfectedHostPrevalenceM)
   
   #transform into log+1 AND giving names
   X0m2 <- X0/10^4 #per m2
@@ -261,6 +265,22 @@ for (year in years){
                              time = FoA,
                              value = 0,
                              method = "rep")
+  
+  # event: zero mosquito infection. Beware, this way they are simply "killed" and not added to the "S". (They are very few btw)
+  eventZeroAE <- data.frame(var = names(X0log1)[(nIDs*5+1):(nIDs*6)], 
+                              time = rep(IntroDates, each = nIDs),
+                              value = 0,
+                              method = "rep")
+  
+  eventZeroAI <- data.frame(var = names(X0log1)[(nIDs*6+1):(nIDs*7)], 
+                            time = rep(IntroDates, each = nIDs),
+                            value = 0,
+                            method = "rep")
+  
+  #cbind and sort
+  
+  eventZero <- rbind(eventZeroEd1, eventZeroAE, eventZeroAI) %>%
+    arrange(time)
   
   # define finer integration grid during diapause haching
   tbDH = which(rowSums(sigma)>0)[1]-1
@@ -283,7 +303,7 @@ for (year in years){
                               func = dfLogSEI, 
                               parms = parms,
                               method = "rk4",
-                              events = list(data = eventZeroEd1))
+                              events = list(data = eventZero))
   
   # extract values from finer grid
   whichDOSiS = which((DOSiS %% 1)==0)
@@ -302,10 +322,11 @@ for (year in years){
   AI <- Sim[,1+(nIDs*6+1):(nIDs*7)]
   AE <- Sim[,1+(nIDs*5+1):(nIDs*6)]
   AS <- Sim[,1+(nIDs*3+1):(nIDs*4)]
-  A <- AS + AE + AI
+  Atot <- AS + AE + AI
   
-  SecondayCases = a*bv2H*deltaM*phiA*AI*AreaKm2*100 
+  SecondayCases = A*bv2H*deltaM*phiA*AI*AreaKm2*100 
   SecondayCasesCum = apply(SecondayCases, 2, cumsum)
+  Prevalence = 100*SecondayCasesCum/(H*AreaKm2)
   
   ## Save results ----
   # saveRDS(Sim, file = paste0(folderOut, "/Sim_Drias_", name, "_", year, ".rds"))
@@ -314,5 +335,3 @@ for (year in years){
   
   toc()
 }
-
-plot(SecondayCasesCum)
