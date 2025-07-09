@@ -30,7 +30,7 @@ IDsSubSet = IDs
 
 scenariosDF= data.frame(name = c("Hist", "ssp245", "ssp245", "ssp585", "ssp585"),
                           yearStart = c(1996, 2050, 2080, 2050, 2080),
-                          yearEnd = c(1996, 2050, 2080, 2050, 2080)+10)
+                          yearEnd = c(1996, 2050, 2080, 2050, 2080)+9)
 
 
 # create meta matrices for each scenario (hist, ssp2, ssp5) for both adults and MTS for dengue
