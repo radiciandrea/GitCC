@@ -12,7 +12,7 @@ library(data.table)
 
 folderSim = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_04"
 folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
-folderPlotSim4 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/Sim_SEI_4"
+folderPlotSim4 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/Sim_4"
 
 
 ## initial settings----
@@ -134,7 +134,7 @@ for(k in 1:nrow(scenariosDF)){
     SecCaseM[i, ] <- MaxSecondayCases
     
     MaxPrevHost = 100*(1 - MinSH/MaxSH)
-    PrevM[i,] = colSums(R0dengueM>1, na.rm =T)
+    PrevM[i,] = MaxPrevHost
   }
   
   rm(IDsDT)
@@ -165,7 +165,7 @@ domain <- st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Da
 
 cutPal = c(10^3, 10^2, 10^1, 1, 1)
 cutPalLab = c("e > 1000", "d > 100", "c > 10", "b > 1", "a < 1")
-colPal<- c( "#a63603", "#a63603", "#e6550d", "#fd8d3c", "#fdbe85", "#feedde")
+colPal<- c( "#a63603", "#e6550d", "#fd8d3c", "#fdbe85", "#feedde")
 
 # Cycle
 
@@ -182,7 +182,7 @@ for(i in 1:nrow(scenariosDF)){
   plotCut <- ggplot()+
     geom_sf(data = domain, aes(fill = AmjjasoCut), colour = NA)+ #
     scale_fill_manual(values = colPal)+
-    ggtitle(paste0("LTS (dengue), scenario: ", name, "; period: ", min(years), "-", max(years)))
+    ggtitle(paste0("Adult density, scenario: ", name, "; period: ", min(years), "-", max(years)))
   
   ggsave(file = 
            paste0(folderPlotSim4, "/Amjjaso_", name, "_", min(years), "-", max(years), ".png"),
@@ -214,7 +214,7 @@ for(i in 1:nrow(scenariosDF)){
     ggtitle(paste0("LTS (dengue), scenario: ", name, "; period: ", min(years), "-", max(years)))
   
   ggsave(file = 
-           paste0(folderPlotSim40, "/LTS_dengue_", name, "_", min(years), "-", max(years), ".png"),
+           paste0(folderPlotSim4, "/LTS_dengue_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut , units="in", width=5.5, height=7, dpi=300)
   
   
@@ -222,9 +222,9 @@ for(i in 1:nrow(scenariosDF)){
 
 ### Secondary cases ----
 
-cutPal = c(10^3, 10^2, 10^1, 1, 1)
-cutPalLab = c("e > 1000", "d > 100", "c > 10", "b > 1", "a < 1")
-colPal<- c( "#a63603", "#a63603", "#e6550d", "#fd8d3c", "#fdbe85", "#feedde")
+cutPal = c(20, 5, 1, 0.5, 0.5)
+cutPalLab = c("e > 20", "d > 5", "c > 1", "b > 0.5", "a < 0.5")
+colPal<- c("#fcfdbf", "#fc8961", "#b73779", "#51127c", "#000004")
 
 # Cycle
 
@@ -241,7 +241,7 @@ for(i in 1:nrow(scenariosDF)){
   plotCut <- ggplot()+
     geom_sf(data = domain, aes(fill = SecCaseCut), colour = NA)+ #
     scale_fill_manual(values = colPal)+
-    ggtitle(paste0("LTS (dengue), scenario: ", name, "; period: ", min(years), "-", max(years)))
+    ggtitle(paste0("Secondary cases (dengue), scenario: ", name, "; period: ", min(years), "-", max(years)))
   
   ggsave(file = 
            paste0(folderPlotSim4, "/SecCase_", name, "_", min(years), "-", max(years), ".png"),
@@ -251,9 +251,9 @@ for(i in 1:nrow(scenariosDF)){
 
 ### Prevalence ----
 
-cutPal = c(105, 56, 21, 1, 0)
-cutPalLab = c("e 15 or more", "d 8 to 15", "c 3 to 8", "b 0 to 3", "a 0")
-colPal<- c("#450054", "#3A528A", "#21908C", "#5CC963", "#FCE724")
+cutPal = c(20, 5, 1, 0.1, 0.1)
+cutPalLab = c("e > 20 %", "d > 5 %", "c > 1 %", "b > 0.1 %", "a  < 0.1 %")
+colPal<- c("#0d0887", "#7e03a8", "#cc4778", "#f89540", "#f0f921")
 
 # Cycle
 
@@ -261,11 +261,11 @@ for(i in 1:nrow(scenariosDF)){
   name = scenariosDF$name[i]
   years = scenariosDF$yearStart[i]:scenariosDF$yearEnd[i]
   
-  PrevSelCut <- case_when(PrevdengueMM[i,] >= cutPal[1] ~ cutPalLab[1],
-                         PrevdengueMM[i,] >= cutPal[2] ~ cutPalLab[2],
-                         PrevdengueMM[i,] >= cutPal[3] ~ cutPalLab[3],
-                         PrevdengueMM[i,] >= cutPal[4] ~ cutPalLab[4],
-                         PrevdengueMM[i,] <= cutPal[4] ~ cutPalLab[5])
+  PrevSelCut <- case_when(PrevMM[i,] >= cutPal[1] ~ cutPalLab[1],
+                         PrevMM[i,] >= cutPal[2] ~ cutPalLab[2],
+                         PrevMM[i,] >= cutPal[3] ~ cutPalLab[3],
+                         PrevMM[i,] >= cutPal[4] ~ cutPalLab[4],
+                         PrevMM[i,] <= cutPal[4] ~ cutPalLab[5])
   
   plotCut <- ggplot()+
     geom_sf(data = domain, aes(fill = PrevSelCut), colour = NA)+ #
@@ -273,7 +273,7 @@ for(i in 1:nrow(scenariosDF)){
     ggtitle(paste0("Prev (dengue), scenario: ", name, "; period: ", min(years), "-", max(years)))
   
   ggsave(file = 
-           paste0(folderPlotSim40, "/Prev_dengue_", name, "_", min(years), "-", max(years), ".png"),
+           paste0(folderPlotSim4, "/Prev_dengue_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut , units="in", width=5.5, height=7, dpi=300)
   
   
