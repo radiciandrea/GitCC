@@ -60,10 +60,13 @@ for(k in 1:nrow(scenariosDF)){
   years = scenariosDF$yearStart[k]:scenariosDF$yearEnd[k]
   
   
-  files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_SEIS_", name))
+  #files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_SEIS_", name))
+  files = paste0("Sim_Drias_SEIS_", name, "_", years, ".rds")
   
-  # matrices of indicators: average adults and R0
+  # matrices of indicators
   
+  AmjjasoM = matrix(NA, nrow = length(years), ncol = nIDs)
+  LTSdengueM = matrix(NA, nrow = length(years), ncol = nIDs)
   SecCaseM = matrix(NA, nrow = length(years), ncol = nIDs) # Secondary Cases matrix
   PrevM = matrix(NA, nrow = length(years), ncol = nIDs)  # prevalence matrix
   
@@ -128,7 +131,7 @@ for(k in 1:nrow(scenariosDF)){
     MinSH <-sapply(1:ncol(SH), function(x){min(SH[,x])})
     
     MaxSecondayCases = 100*(MaxSH - MinSH)*AreaKm2 # 100 per ha
-    SecCaseM[i, ] <- MaxPrevHost 
+    SecCaseM[i, ] <- MaxSecondayCases
     
     MaxPrevHost = 100*(1 - MinSH/MaxSH)
     PrevM[i,] = colSums(R0dengueM>1, na.rm =T)
