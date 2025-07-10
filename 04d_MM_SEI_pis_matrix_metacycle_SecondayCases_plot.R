@@ -60,7 +60,7 @@ for(k in 1:nrow(scenariosDF)){
   years = scenariosDF$yearStart[k]:scenariosDF$yearEnd[k]
   
   
-  files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_", name))
+  files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_SEIS_", name))
   
   # matrices of indicators: average adults and R0
   
