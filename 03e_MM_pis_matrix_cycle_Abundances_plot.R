@@ -12,8 +12,7 @@ library(data.table)
 
 folderSim = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_03"
 folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
-folderPlotA = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/Adults"
-folderPlotR0 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/R0"
+folderPlot = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/Sim_3"
 
 ## initial settings----
 
@@ -438,7 +437,7 @@ for(i in 1:nrow(scenariosDF)){
     ggtitle(paste0("LTS (dengue), scenario: ", name, "; period: ", min(years), "-", max(years)))
   
   ggsave(file = 
-           paste0(folderPlotA, "/Amjjaso_", name, "_", min(years), "-", max(years), ".png"),
+           paste0(folderPlot, "/Amjjaso_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut , units="in", width=5.5, height=7, dpi=300)
 
 }
@@ -467,7 +466,7 @@ for(i in 1:nrow(scenariosDF)){
     ggtitle(paste0("LTS (dengue), scenario: ", name, "; period: ", min(years), "-", max(years)))
   
   ggsave(file = 
-           paste0(folderPlotR0, "/LTS_dengue_", name, "_", min(years), "-", max(years), ".png"),
+           paste0(folderPlot, "/LTS_dengue_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut , units="in", width=5.5, height=7, dpi=300)
   
 }
