@@ -188,6 +188,9 @@ for (year in years){
                                             sapply(DOSy, function(x){return(sum(alphaEvap^(x:1-1) * (alphaDens*prec[1:x,y] + alphaRain*H[x,y])))}))
   }) 
   
+  # Adjust K per m2 with a arctan formulation
+  KM2adj = (2*0.0625/pi) * atan(pi*KM2/(2*0.0625))
+  
   ## Call integration fucntion ----
   source("02b_MM_integration_functions.R")
   
