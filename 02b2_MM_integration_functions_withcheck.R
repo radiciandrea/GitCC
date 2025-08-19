@@ -32,8 +32,8 @@ dfLog1 <- function(t, x, parms) {
     #tN = t[1]-t_s+1 # time of numerical integration to index matrix
     tN = t[1]
     tH = 24*(t - tN) #should put t and not t[1]
-    tasMax = tasMax[max(1,tN-1),]*(tH<tSr[tN, ]) + tasMax[tN,]*(tH>tSr[tN, ])
-    tasMin = tasMin[tN, ]*(tH<14) + tasMin[min(tN+1, length(tasMin))]*(tH>14)
+    tasMax = tasMax[max(1,tN-1),]*(tH<=tSr[tN, ]) + tasMax[tN,]*(tH>tSr[tN, ])
+    tasMin = tasMin[tN, ]*(tH<=14) + tasMin[min(tN+1, length(tasMin))]*(tH>14)
     
     tempH = ((tasMax+tasMin)/2 + (tasMax-tasMin)/2*cos(pi*(tH+10)/(10+tSr[tN, ])))*(tH<tSr[tN, ])+
       ((tasMax+tasMin)/2 - (tasMax-tasMin)/2*cos(pi*(tH-tSr[tN, ])/(14-tSr[tN, ])))*(tH>tSr[tN, ])*(tH<14)+
