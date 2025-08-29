@@ -178,7 +178,7 @@ communesPop2018DF <- communesPop2018DF %>%
   mutate(fracPopNommDep_18 = Pop_18/PopDep_18)
 
 depDemMetrShp <- st_read(paste0(foldeShp, "/DemHist_ScenariosOmphaleCentrHighDep.shp")) %>%
-  rename(popDep_Hist = pop_1999) %>%
+  rename(popDep_1999 = pop_1999) %>%
   rename(popDep_Cn2070 = pop_Cn2070) %>%
   rename(popDep_Hg2040 = pop_Hg2040) %>%
   rename(popDep_Cn2040 = pop_Cn2040) %>%
@@ -188,12 +188,12 @@ depDemMetrShp <- st_read(paste0(foldeShp, "/DemHist_ScenariosOmphaleCentrHighDep
 
 depDemMetrDF <- depDemMetrShp %>%
   st_drop_geometry() %>%
-  select(c("code_dep", "popDep_Hist", "popDep_Cn2040", "popDep_Cn2070", "popDep_Hg2040", "popDep_Hg2070"))
+  select(c("code_dep", "popDep_1999", "popDep_Cn2040", "popDep_Cn2070", "popDep_Hg2040", "popDep_Hg2070"))
 
 # join with communes
 
 communesPopDF <- left_join(communesPop2018DF, depDemMetrDF) %>%
-  mutate(popCom_Hist = fracPopNommDep_18*popDep_Hist) %>%
+  mutate(popCom_1999 = fracPopNommDep_18*popDep_1999) %>%
   mutate(popCom_Cn2040 = fracPopNommDep_18*popDep_Cn2040) %>%
   mutate(popCom_Hg2040 = fracPopNommDep_18*popDep_Hg2040) %>%
   mutate(popCom_Cn2070 = fracPopNommDep_18*popDep_Cn2070) %>%
@@ -209,12 +209,12 @@ MarseillePopDF <- data.frame(code_dep = 13,
                              Pop_18 = sum(MarseillePopDF$Pop_18),
                              PopDep_18 = sum(MarseillePopDF$PopDep_18),
                              fracPopNommDep_18 = sum(MarseillePopDF$fracPopNommDep_18),
-                             popDep_Hist = sum(MarseillePopDF$popDep_Hist),
+                             popDep_1999 = sum(MarseillePopDF$popDep_1999),
                              popDep_Cn2040 = mean(MarseillePopDF$popDep_Cn2040),
                              popDep_Cn2070 = mean(MarseillePopDF$popDep_Cn2070),
                              popDep_Hg2040 = mean(MarseillePopDF$popDep_Hg2040),
                              popDep_Hg2070 = mean(MarseillePopDF$popDep_Hg2070),
-                             popCom_Hist = sum(MarseillePopDF$popCom_Hist),
+                             popCom_1999 = sum(MarseillePopDF$popCom_1999),
                              popCom_Cn2040 = sum(MarseillePopDF$popCom_Cn2040),
                              popCom_Hg2040 = sum(MarseillePopDF$popCom_Hg2040),
                              popCom_Cn2070 = sum(MarseillePopDF$popCom_Cn2070),
@@ -229,12 +229,12 @@ LyonPopDF <- data.frame(code_dep = 69,
                         Pop_18 = sum(LyonPopDF$Pop_18),
                         PopDep_18 = sum(LyonPopDF$PopDep_18),
                         fracPopNommDep_18 = sum(LyonPopDF$fracPopNommDep_18),
-                        popDep_Hist = sum(LyonPopDF$popDep_Hist),
+                        popDep_1999 = sum(LyonPopDF$popDep_1999),
                         popDep_Cn2040 = mean(LyonPopDF$popDep_Cn2040),
                         popDep_Cn2070 = mean(LyonPopDF$popDep_Cn2070),
                         popDep_Hg2040 = mean(LyonPopDF$popDep_Hg2040),
                         popDep_Hg2070 = mean(LyonPopDF$popDep_Hg2070),
-                        popCom_Hist = sum(LyonPopDF$popCom_Hist),
+                        popCom_1999 = sum(LyonPopDF$popCom_1999),
                         popCom_Cn2040 = sum(LyonPopDF$popCom_Cn2040),
                         popCom_Hg2040 = sum(LyonPopDF$popCom_Hg2040),
                         popCom_Cn2070 = sum(LyonPopDF$popCom_Cn2070),
@@ -249,12 +249,12 @@ ParisPopDF <- data.frame(code_dep = 75,
                          Pop_18 = sum(ParisPopDF$Pop_18),
                          PopDep_18 = sum(ParisPopDF$PopDep_18),
                          fracPopNommDep_18 = sum(ParisPopDF$fracPopNommDep_18),
-                         popDep_Hist = sum(ParisPopDF$popDep_Hist),
+                         popDep_1999 = sum(ParisPopDF$popDep_1999),
                          popDep_Cn2040 = mean(ParisPopDF$popDep_Cn2040),
                          popDep_Cn2070 = mean(ParisPopDF$popDep_Cn2070),
                          popDep_Hg2040 = mean(ParisPopDF$popDep_Hg2040),
                          popDep_Hg2070 = mean(ParisPopDF$popDep_Hg2070),
-                         popCom_Hist = sum(ParisPopDF$popCom_Hist),
+                         popCom_1999 = sum(ParisPopDF$popCom_1999),
                          popCom_Cn2040 = sum(ParisPopDF$popCom_Cn2040),
                          popCom_Hg2040 = sum(ParisPopDF$popCom_Hg2040),
                          popCom_Cn2070 = sum(ParisPopDF$popCom_Cn2070),
@@ -271,12 +271,12 @@ SalinePopDF <- data.frame(code_dep =14,
                           Pop_18 = sum(SalinePopDF$Pop_18),
                           PopDep_18 = sum(SalinePopDF$PopDep_18),
                           fracPopNommDep_18 = sum(SalinePopDF$fracPopNommDep_18),
-                          popDep_Hist = sum(SalinePopDF$popDep_Hist),
+                          popDep_1999 = sum(SalinePopDF$popDep_1999),
                           popDep_Cn2040 = mean(SalinePopDF$popDep_Cn2040),
                           popDep_Cn2070 = mean(SalinePopDF$popDep_Cn2070),
                           popDep_Hg2040 = mean(SalinePopDF$popDep_Hg2040),
                           popDep_Hg2070 = mean(SalinePopDF$popDep_Hg2070),
-                          popCom_Hist = sum(SalinePopDF$popCom_Hist),
+                          popCom_1999 = sum(SalinePopDF$popCom_1999),
                           popCom_Cn2040 = sum(SalinePopDF$popCom_Cn2040),
                           popCom_Hg2040 = sum(SalinePopDF$popCom_Hg2040),
                           popCom_Cn2070 = sum(SalinePopDF$popCom_Cn2070),
@@ -290,7 +290,7 @@ communesPopDF <- communesPopDF %>%
 communesPopDF <- rbind(communesPopDF, MarseillePopDF, LyonPopDF, ParisPopDF, SalinePopDF)
 
 #join with shp
-communesPopShp <- left_join(communesPopDF, communesShp, by = "code_insee")
+communesPopShp <- left_join(communesPopDF, communesShp, by = c("code_insee", "nom"))
 
 
 # problema, molti NA, soprattutto lione, parigi, marsiglia
