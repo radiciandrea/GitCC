@@ -69,7 +69,9 @@ popDepTot$years = years
 
 ##### Central Scenario ----
 
-popDepExtendedCentral <- read.xlsx(paste0(folderInsee, "/donnees_det_Central.xlsx"), sheetName = "Population", startRow = 6)
+popDepExtendedCentral <- xlsx::read.xlsx(paste0(folderInsee, "/donnees_det_Central.xlsx"),
+                                         sheetName = "Population",
+                                         startRow = 6)
 
 popDepCentral <- popDepTot
 
@@ -93,7 +95,9 @@ sum(popDepCentral[which(popDepCentral$years == 2070),])
 
 ##### High Scenario ----
 
-popDepExtendedHigh <- read.xlsx(paste0(folderInsee, "/donnees_det_Pop_haute.xlsx"), sheetName = "Population", startRow = 6)
+popDepExtendedHigh <- xlsx::read.xlsx(paste0(folderInsee, "/donnees_det_Pop_haute.xlsx"),
+                                      sheetName = "Population",
+                                      startRow = 6)
 
 popDepHigh <- popDepTot
 
@@ -118,7 +122,8 @@ sum(popDepHigh[which(popDepHigh$years == 2070),])
 
 ##### Historic Scenario (1999)----
 
-popHist <- xlsx::read.xlsx(paste0(folderInsee, "/base-pop-historiques-1876-2022_simpl.xlsx"), sheetName = "pop_1876_2022")
+popHist <- xlsx::read.xlsx(paste0(folderInsee, "/base-pop-historiques-1876-2022_simpl.xlsx"),
+                           sheetName = "pop_1876_2022")
 
 popDepHistMetr <- popHist %>%
   rename(code_dep = DEP) %>%
@@ -288,7 +293,7 @@ communesPopDF <- rbind(communesPopDF, MarseillePopDF, LyonPopDF, ParisPopDF, Sal
 communesPopShp <- left_join(communesPopDF, communesShp, by = "code_insee")
 
 
-# problema, molti NA, cazzo, soprattutto lione, parigi, marsiglia
+# problema, molti NA, soprattutto lione, parigi, marsiglia
 
 communesPopShpNA <- communesPopShp %>%
   filter(is.na(surf_ha))
