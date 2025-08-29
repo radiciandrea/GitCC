@@ -25,6 +25,7 @@ library(dplyr)
 library(data.table)
 library(ggplot2)
 library(vroom)
+library(spatialEco)
 
 ## Demography: create dep shp ----
 
@@ -156,8 +157,42 @@ st_write(depDemMetrShp, paste0(foldeShp, "/DemHist_ScenariosOmphaleCentrHighDep.
 communesShp <- st_read(paste0(folderAdminShp, "/communes-20180101-shp/communes-20181110-metr-simp001.shp"))
 
 communesShp <- communesShp %>%
-  rename(code_insee = insee) %>%
-  mutate(code_dep = substr(code_insee, 1, 2))
+  rename(code_insee = insee)  %>%
+  select(-c("nom"))
+
+##### Correct INSEE code associated to multiple municipalities ----
+# found with which(table(communesShp$code_insee) == 2)
+
+multiCodeInsee = c("05001", "21352", "38284", "38560", "44003", "69019", "69135", "73151", "73236", "74212", "74289")
+
+# multiCodeInsee = c("05001")
+
+communesMultiCodeInseeShp <- communesShp  %>%
+  filter(code_insee %in% multiCodeInsee)
+
+# df to keep area (dissolve does not work very good)
+communesMultiCodeInseeDissDF <- communesMultiCodeInseeShp  %>%
+  st_drop_geometry() %>%
+  group_by(code_insee) %>%
+  summarise(surf_ha = sum(surf_ha)) %>%
+  ungroup()
+
+communesMonoCodeInseeShp <- communesShp  %>%
+  filter(!(code_insee %in% multiCodeInsee))
+
+# I dissolve the polyongs of the municipalities with the same insee code
+communesMultiCodeInseeDissShp <- sf_dissolve(communesMultiCodeInseeShp, "code_insee")
+
+communesMultiCodeInseeDissShp <- communesMultiCodeInseeDissShp %>%
+  rename(geometry = x)
+
+communesMultiCodeInseeDissShp <- left_join(communesMultiCodeInseeDissShp, communesMultiCodeInseeDissDF )
+
+# rbind the old and the new dataframe
+
+communesCodeInseeDissShp <- rbind(communesMonoCodeInseeShp, communesMultiCodeInseeDissShp) 
+
+##### Load population ----
 
 communesPop2018DF <- vroom(paste0(folderInsee, "/base-ic-evol-struct-pop-2018_simpl.csv")) %>%
   select(c("DEP", "COM", "LIBCOM", "P18_POP")) %>%
@@ -198,6 +233,8 @@ communesPopDF <- left_join(communesPop2018DF, depDemMetrDF) %>%
   mutate(popCom_Hg2040 = fracPopNommDep_18*popDep_Hg2040) %>%
   mutate(popCom_Cn2070 = fracPopNommDep_18*popDep_Cn2070) %>%
   mutate(popCom_Hg2070 = fracPopNommDep_18*popDep_Hg2070)
+
+##### Correct municipalities with multiple INSEE----
 
 # merge problematic commons: Marseille, Lyon, Paris
 MarseillePopDF <- communesPopDF %>%
@@ -290,13 +327,7 @@ communesPopDF <- communesPopDF %>%
 communesPopDF <- rbind(communesPopDF, MarseillePopDF, LyonPopDF, ParisPopDF, SalinePopDF)
 
 #join with shp
-communesPopShp <- left_join(communesPopDF, communesShp, by = c("code_insee", "nom"))
-
-
-# problema, molti NA, soprattutto lione, parigi, marsiglia
-
-communesPopShpNA <- communesPopShp %>%
-  filter(is.na(surf_ha))
+communesPopShp <- left_join(communesPopDF, communesCodeInseeDissShp, by = "code_insee")
 
 #calculate density: per m2
 
