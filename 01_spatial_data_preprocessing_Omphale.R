@@ -26,6 +26,8 @@ library(data.table)
 library(ggplot2)
 library(vroom)
 library(spatialEco)
+library(furrr)
+library(pracma)
 
 ## Demography: create dep shp ----
 
@@ -336,9 +338,28 @@ communesDensShp <- communesPopShp %>%
   mutate(PopMqCn70 = 10^4*popCom_Cn2070/surf_ha) %>%
   mutate(PopMqHg40 = 10^4*popCom_Hg2040/surf_ha) %>%
   mutate(PopMqHg70 = 10^4*popCom_Hg2070/surf_ha) %>%
-  select(c("code_insee", "nom", "PopMqHs99", "PopMqCn40", "PopMqCn70", "PopMqHg40", "PopMqHg70", "surf_ha", "geometry"))
+  select(c("code_insee", "nom", "PopMqHs99", "PopMqCn40", "PopMqCn70", "PopMqHg40", "PopMqHg70", "geometry"))
 
 #Load safran grd  
 
-SafranGrid <- st_read(file:///C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomain.shp)
+SafranGrid <- st_read(paste0(folderShp, "/SafranDomain.shp")) %>%
+  select(-c("point", "positionX", "positionY", "lat", "lon"))
+
+# Since sf_intersection takes a lot of time, st_intersects +  st_intersection
+
+communesDensSafranList <- list()
+
+tic()
+for(comm in 1:nrow(communesDensShp)){
+  commIntersects <- st_intersects(communesDensShp[comm,], SafranGrid)
+  commIntersection <- st_intersection(communesDensShp[comm,], SafranGrid[commIntersects[[1]],])
+  
+  communesDensSafranList[[comm]] <- commIntersection
+}
+toc()
+
+save(communesDensSafranList)
+
+saveRDS(communesDensSafranList,
+        file = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/05_GitCC/communesDensSafranList.rds"))
 
