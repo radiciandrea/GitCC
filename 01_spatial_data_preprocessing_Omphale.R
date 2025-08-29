@@ -33,7 +33,7 @@ library(spatialEco)
 
 folderInsee <- "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/INSEE_Omphale_2022"
 folderAdminShp <- "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_adm"
-foldeShp <- "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab"
+folderShp <- "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab"
 
 depShp <- st_read(paste0(folderAdminShp, "/departements-20180101-shp/departements-20180101.shp"))
 
@@ -150,7 +150,7 @@ depDemMetrShp <- depMetrShp %>%
   mutate(pop_Hg2040 = as.numeric(as.vector(popDepHigh[which(popDepHigh$years == 2040),2:ncol(popDepCentral)]))) %>%
   mutate(pop_Hg2070 = as.numeric(as.vector(popDepHigh[which(popDepHigh$years == 2070),2:ncol(popDepCentral)])))
 
-st_write(depDemMetrShp, paste0(foldeShp, "/DemHist_ScenariosOmphaleCentrHighDep.shp"))
+st_write(depDemMetrShp, paste0(folderShp, "/DemHist_ScenariosOmphaleCentrHighDep.shp"))
 
 ## Demography: create comm shp ----
 
@@ -212,7 +212,7 @@ communesPop2018DF <- communesPop2018DF %>%
   ungroup() %>%
   mutate(fracPopNommDep_18 = Pop_18/PopDep_18)
 
-depDemMetrShp <- st_read(paste0(foldeShp, "/DemHist_ScenariosOmphaleCentrHighDep.shp")) %>%
+depDemMetrShp <- st_read(paste0(folderShp, "/DemHist_ScenariosOmphaleCentrHighDep.shp")) %>%
   rename(popDep_1999 = pop_1999) %>%
   rename(popDep_Cn2070 = pop_Cn2070) %>%
   rename(popDep_Hg2040 = pop_Hg2040) %>%
@@ -327,7 +327,18 @@ communesPopDF <- communesPopDF %>%
 communesPopDF <- rbind(communesPopDF, MarseillePopDF, LyonPopDF, ParisPopDF, SalinePopDF)
 
 #join with shp
-communesPopShp <- left_join(communesPopDF, communesCodeInseeDissShp, by = "code_insee")
+communesPopShp <- left_join(communesCodeInseeDissShp, communesPopDF, by = "code_insee")
 
 #calculate density: per m2
+communesDensShp <- communesPopShp %>%
+  mutate(PopMqHs99 = 10^4*popCom_1999/surf_ha) %>%
+  mutate(PopMqCn40 = 10^4*popCom_Cn2040/surf_ha) %>%
+  mutate(PopMqCn70 = 10^4*popCom_Cn2070/surf_ha) %>%
+  mutate(PopMqHg40 = 10^4*popCom_Hg2040/surf_ha) %>%
+  mutate(PopMqHg70 = 10^4*popCom_Hg2070/surf_ha) %>%
+  select(c("code_insee", "nom", "PopMqHs99", "PopMqCn40", "PopMqCn70", "PopMqHg40", "PopMqHg70", "surf_ha", "geometry"))
+
+#Load safran grd  
+
+SafranGrid <- st_read(file:///C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomain.shp)
 
