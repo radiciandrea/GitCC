@@ -331,6 +331,8 @@ communesPopDF <- rbind(communesPopDF, MarseillePopDF, LyonPopDF, ParisPopDF, Sal
 #join with shp
 communesPopShp <- left_join(communesCodeInseeDissShp, communesPopDF, by = "code_insee")
 
+# BEWARE: I should remove all municipalities with 0 or NA people to avoid eliminated municipalities (like 69150 part of 69135)
+
 #calculate density: per m2
 communesDensShp <- communesPopShp %>%
   mutate(PopMqHs99 = 10^(-4)*popCom_1999/surf_ha) %>%
@@ -392,14 +394,20 @@ communesDensSafranSF$surf_ha = as.numeric(st_area(communesDensSafranSF))/10^4
 
 # transform into df, summarise to compute pop effective (per m²)
 
+# as there are a lot of "NA" from commons that disappeard (such as 09302: Suc-et-Sentenac), I have to ignore the NA.
+
+# Also: because of the nouvelles communs (as Deux grosnes, 96135, that contains several ancient municipalities, like, Ouroux, 69150)
+# I have to eliminate all the municipalities with 0 people. Should have done this before!
+
 SafranDensDF <- communesDensSafranSF %>%
+  filter(!is.na(nom)) %>%
   st_drop_geometry() %>%
   group_by(ID) %>%
-  summarise(PopHs99 = sum(PopMqHs99*surf_ha*10^4),
-            PopCn40 = sum(PopMqCn40*surf_ha*10^4),
-            PopCn70 = sum(PopMqCn70*surf_ha*10^4),
-            PopHg40 = sum(PopMqHg40*surf_ha*10^4),
-            PopHg70 = sum(PopMqHg70*surf_ha*10^4),
+  summarise(PopHs99 = sum(PopMqHs99*surf_ha*10^4, na.rm = T),
+            PopCn40 = sum(PopMqCn40*surf_ha*10^4, na.rm = T),
+            PopCn70 = sum(PopMqCn70*surf_ha*10^4, na.rm = T),
+            PopHg40 = sum(PopMqHg40*surf_ha*10^4, na.rm = T),
+            PopHg70 = sum(PopMqHg70*surf_ha*10^4, na.rm = T),
             surf_ha = sum(surf_ha)) %>%
   ungroup() %>%
   mutate(PopMqHs99 = PopHs99/surf_ha/10^4) %>%
@@ -410,15 +418,17 @@ SafranDensDF <- communesDensSafranSF %>%
   
  # check pop totale
 
-sum(SafranDensDF$PopHs99, na.rm = T) #55.4
-sum(SafranDensDF$PopCn40, na.rm = T) #63.4
-sum(SafranDensDF$PopCn70, na.rm = T) #62.0
-sum(SafranDensDF$PopHg40, na.rm = T) #66.2
-sum(SafranDensDF$PopHg70, na.rm = T) #71.5
-
+sum(SafranDensDF$PopHs99, na.rm = T) #58.3
+sum(SafranDensDF$PopCn40, na.rm = T) #66.7
+sum(SafranDensDF$PopCn70, na.rm = T) #65.1
+sum(SafranDensDF$PopHg40, na.rm = T) #69.6
+sum(SafranDensDF$PopHg70, na.rm = T) #75.2
+     
 # create DF
 
 SafranDensSF <- left_join(SafranGrid, SafranDensDF) %>%
-  select(ID, PopMqHs99, PopMqCn40, PopMqCn70, PopMqHg40, PopMqHg70)
+  select(ID, PopMqHs99, PopMqCn40, PopMqCn70, PopMqHg40, PopMqHg70, surf_ha)
+
+# I keep the area since some boundaries cells have smaller areas
 
 st_write(SafranDensSF, paste0(folderShp, "/SafranDensOmphale.shp"))
