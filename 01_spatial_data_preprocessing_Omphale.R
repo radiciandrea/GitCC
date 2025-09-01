@@ -333,11 +333,11 @@ communesPopShp <- left_join(communesCodeInseeDissShp, communesPopDF, by = "code_
 
 #calculate density: per m2
 communesDensShp <- communesPopShp %>%
-  mutate(PopMqHs99 = 10^4*popCom_1999/surf_ha) %>%
-  mutate(PopMqCn40 = 10^4*popCom_Cn2040/surf_ha) %>%
-  mutate(PopMqCn70 = 10^4*popCom_Cn2070/surf_ha) %>%
-  mutate(PopMqHg40 = 10^4*popCom_Hg2040/surf_ha) %>%
-  mutate(PopMqHg70 = 10^4*popCom_Hg2070/surf_ha) %>%
+  mutate(PopMqHs99 = 10^(-4)*popCom_1999/surf_ha) %>%
+  mutate(PopMqCn40 = 10^(-4)*popCom_Cn2040/surf_ha) %>%
+  mutate(PopMqCn70 = 10^(-4)*popCom_Cn2070/surf_ha) %>%
+  mutate(PopMqHg40 = 10^(-4)*popCom_Hg2040/surf_ha) %>%
+  mutate(PopMqHg70 = 10^(-4)*popCom_Hg2070/surf_ha) %>%
   select(c("code_insee", "nom", "PopMqHs99", "PopMqCn40", "PopMqCn70", "PopMqHg40", "PopMqHg70", "geometry"))
 
 #Load safran grd  
@@ -356,10 +356,69 @@ for(comm in 1:nrow(communesDensShp)){
   
   communesDensSafranList[[comm]] <- commIntersection
 }
+toc() #~5200 sec
+
+# save(communesDensSafranList)
+# 
+# saveRDS(communesDensSafranList,
+#         file = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/05_GitCC/communesDensSafranList.rds"))
+# 
+# communesDensSafranList <- readRDS(paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/05_GitCC/communesDensSafranList.rds"))
+# 
+# 
+# 
+# # better do do.call("rbind") wby groups)
+# communesDensSafranListAgg <- list()
+
+larg = 100
+
+tic()
+for(k in 1:ceil(length(communesDensSafranList)/100)){
+  
+  communesDensSafranListSub <- communesDensSafranList[(larg*(k-1)+1):pmin(length(communesDensSafranList), (larg*k))]
+  communesDensSafranDFSub <- do.call("rbind", communesDensSafranListSub)
+  communesDensSafranListAgg[[k]] <- communesDensSafranDFSub
+}
+toc() 
+
+communesDensSafranSF <- do.call("rbind", communesDensSafranListAgg)
 toc()
 
-save(communesDensSafranList)
+# Compute Area in ha
 
-saveRDS(communesDensSafranList,
-        file = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/05_GitCC/communesDensSafranList.rds"))
+communesDensSafranSF$surf_ha = as.numeric(st_area(communesDensSafranSF))/10^4
 
+# st_write(communesDensSafranSF, paste0(folderShp, "/communesDensSafran.shp"))
+
+# transform into df, summarise to compute pop effective (per m²)
+
+SafranDensDF <- communesDensSafranSF %>%
+  st_drop_geometry() %>%
+  group_by(ID) %>%
+  summarise(PopHs99 = sum(PopMqHs99*surf_ha*10^4),
+            PopCn40 = sum(PopMqCn40*surf_ha*10^4),
+            PopCn70 = sum(PopMqCn70*surf_ha*10^4),
+            PopHg40 = sum(PopMqHg40*surf_ha*10^4),
+            PopHg70 = sum(PopMqHg70*surf_ha*10^4),
+            surf_ha = sum(surf_ha)) %>%
+  ungroup() %>%
+  mutate(PopMqHs99 = PopHs99/surf_ha/10^4) %>%
+  mutate(PopMqCn40 = PopCn40/surf_ha/10^4) %>%
+  mutate(PopMqCn70 = PopCn70/surf_ha/10^4) %>%
+  mutate(PopMqHg40 = PopHg40/surf_ha/10^4) %>%
+  mutate(PopMqHg70 = PopHg70/surf_ha/10^4)
+  
+ # check pop totale
+
+sum(SafranDensDF$PopHs99, na.rm = T) #55.4
+sum(SafranDensDF$PopCn40, na.rm = T) #63.4
+sum(SafranDensDF$PopCn70, na.rm = T) #62.0
+sum(SafranDensDF$PopHg40, na.rm = T) #66.2
+sum(SafranDensDF$PopHg70, na.rm = T) #71.5
+
+# create DF
+
+SafranDensSF <- left_join(SafranGrid, SafranDensDF) %>%
+  select(ID, PopMqHs99, PopMqCn40, PopMqCn70, PopMqHg40, PopMqHg70)
+
+st_write(SafranDensSF, paste0(folderShp, "/SafranDensOmphale.shp"))
