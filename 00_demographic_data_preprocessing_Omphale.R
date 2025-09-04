@@ -11,9 +11,9 @@
 # ssp 2 - "median hypothesis" -> associated with central scenario
 
 # new horizons: 
-# 1996-2005 (« hist, 2000 »)
-# 2036-2045 « 2040 »
-# 2066-2074 « 2070 »
+# 1986-2005 with pop 1999 («0HS»)
+# 2046-2065 («1MT»)
+# 2066-2085 («2LT»)
 
 ## Load libraries ----
 
@@ -146,10 +146,10 @@ depDemMetrShp <- depMetrShp %>%
   mutate(pop_1999 = popDepHistMetr$popDep_1999) %>%
   mutate(pop_2018 = as.numeric(as.vector(popDepCentral[which(popDepCentral$years == 2018),2:ncol(popDepCentral)]))) %>%
   mutate(pop_Cn2025 = as.numeric(as.vector(popDepCentral[which(popDepCentral$years == 2025),2:ncol(popDepCentral)]))) %>%
-  mutate(pop_Cn2040 = as.numeric(as.vector(popDepCentral[which(popDepCentral$years == 2040),2:ncol(popDepCentral)]))) %>%
+  mutate(pop_Cn2055 = as.numeric(as.vector(popDepCentral[which(popDepCentral$years == 2055),2:ncol(popDepCentral)]))) %>%
   mutate(pop_Cn2070 = as.numeric(as.vector(popDepCentral[which(popDepCentral$years == 2070),2:ncol(popDepCentral)]))) %>%
   mutate(pop_Hg2025 = as.numeric(as.vector(popDepHigh[which(popDepHigh$years == 2025),2:ncol(popDepCentral)]))) %>%
-  mutate(pop_Hg2040 = as.numeric(as.vector(popDepHigh[which(popDepHigh$years == 2040),2:ncol(popDepCentral)]))) %>%
+  mutate(pop_Hg2055 = as.numeric(as.vector(popDepHigh[which(popDepHigh$years == 2055),2:ncol(popDepCentral)]))) %>%
   mutate(pop_Hg2070 = as.numeric(as.vector(popDepHigh[which(popDepHigh$years == 2070),2:ncol(popDepCentral)])))
 
 st_write(depDemMetrShp, paste0(folderShp, "/DemHist_ScenariosOmphaleCentrHighDep.shp"))
@@ -217,22 +217,22 @@ communesPop2018DF <- communesPop2018DF %>%
 depDemMetrShp <- st_read(paste0(folderShp, "/DemHist_ScenariosOmphaleCentrHighDep.shp")) %>%
   rename(popDep_1999 = pop_1999) %>%
   rename(popDep_Cn2070 = pop_Cn2070) %>%
-  rename(popDep_Hg2040 = pop_Hg2040) %>%
-  rename(popDep_Cn2040 = pop_Cn2040) %>%
+  rename(popDep_Hg2055 = pop_Hg2055) %>%
+  rename(popDep_Cn2055 = pop_Cn2055) %>%
   rename(popDep_Hg2070 = pop_Hg2070) 
 
 # keep only pop for dep
 
 depDemMetrDF <- depDemMetrShp %>%
   st_drop_geometry() %>%
-  select(c("code_dep", "popDep_1999", "popDep_Cn2040", "popDep_Cn2070", "popDep_Hg2040", "popDep_Hg2070"))
+  select(c("code_dep", "popDep_1999", "popDep_Cn2055", "popDep_Cn2070", "popDep_Hg2055", "popDep_Hg2070"))
 
 # join with communes
 
 communesPopDF <- left_join(communesPop2018DF, depDemMetrDF) %>%
   mutate(popCom_1999 = fracPopNommDep_18*popDep_1999) %>%
-  mutate(popCom_Cn2040 = fracPopNommDep_18*popDep_Cn2040) %>%
-  mutate(popCom_Hg2040 = fracPopNommDep_18*popDep_Hg2040) %>%
+  mutate(popCom_Cn2055 = fracPopNommDep_18*popDep_Cn2055) %>%
+  mutate(popCom_Hg2055 = fracPopNommDep_18*popDep_Hg2055) %>%
   mutate(popCom_Cn2070 = fracPopNommDep_18*popDep_Cn2070) %>%
   mutate(popCom_Hg2070 = fracPopNommDep_18*popDep_Hg2070)
 
@@ -249,13 +249,13 @@ MarseillePopDF <- data.frame(code_dep = 13,
                              PopDep_18 = sum(MarseillePopDF$PopDep_18),
                              fracPopNommDep_18 = sum(MarseillePopDF$fracPopNommDep_18),
                              popDep_1999 = sum(MarseillePopDF$popDep_1999),
-                             popDep_Cn2040 = mean(MarseillePopDF$popDep_Cn2040),
+                             popDep_Cn2055 = mean(MarseillePopDF$popDep_Cn2055),
                              popDep_Cn2070 = mean(MarseillePopDF$popDep_Cn2070),
-                             popDep_Hg2040 = mean(MarseillePopDF$popDep_Hg2040),
+                             popDep_Hg2055 = mean(MarseillePopDF$popDep_Hg2055),
                              popDep_Hg2070 = mean(MarseillePopDF$popDep_Hg2070),
                              popCom_1999 = sum(MarseillePopDF$popCom_1999),
-                             popCom_Cn2040 = sum(MarseillePopDF$popCom_Cn2040),
-                             popCom_Hg2040 = sum(MarseillePopDF$popCom_Hg2040),
+                             popCom_Cn2055 = sum(MarseillePopDF$popCom_Cn2055),
+                             popCom_Hg2055 = sum(MarseillePopDF$popCom_Hg2055),
                              popCom_Cn2070 = sum(MarseillePopDF$popCom_Cn2070),
                              popCom_Hg2070 = sum(MarseillePopDF$popCom_Hg2070))
 
@@ -269,13 +269,13 @@ LyonPopDF <- data.frame(code_dep = 69,
                         PopDep_18 = sum(LyonPopDF$PopDep_18),
                         fracPopNommDep_18 = sum(LyonPopDF$fracPopNommDep_18),
                         popDep_1999 = sum(LyonPopDF$popDep_1999),
-                        popDep_Cn2040 = mean(LyonPopDF$popDep_Cn2040),
+                        popDep_Cn2055 = mean(LyonPopDF$popDep_Cn2055),
                         popDep_Cn2070 = mean(LyonPopDF$popDep_Cn2070),
-                        popDep_Hg2040 = mean(LyonPopDF$popDep_Hg2040),
+                        popDep_Hg2055 = mean(LyonPopDF$popDep_Hg2055),
                         popDep_Hg2070 = mean(LyonPopDF$popDep_Hg2070),
                         popCom_1999 = sum(LyonPopDF$popCom_1999),
-                        popCom_Cn2040 = sum(LyonPopDF$popCom_Cn2040),
-                        popCom_Hg2040 = sum(LyonPopDF$popCom_Hg2040),
+                        popCom_Cn2055 = sum(LyonPopDF$popCom_Cn2055),
+                        popCom_Hg2055 = sum(LyonPopDF$popCom_Hg2055),
                         popCom_Cn2070 = sum(LyonPopDF$popCom_Cn2070),
                         popCom_Hg2070 = sum(LyonPopDF$popCom_Hg2070))
 
@@ -289,13 +289,13 @@ ParisPopDF <- data.frame(code_dep = 75,
                          PopDep_18 = sum(ParisPopDF$PopDep_18),
                          fracPopNommDep_18 = sum(ParisPopDF$fracPopNommDep_18),
                          popDep_1999 = sum(ParisPopDF$popDep_1999),
-                         popDep_Cn2040 = mean(ParisPopDF$popDep_Cn2040),
+                         popDep_Cn2055 = mean(ParisPopDF$popDep_Cn2055),
                          popDep_Cn2070 = mean(ParisPopDF$popDep_Cn2070),
-                         popDep_Hg2040 = mean(ParisPopDF$popDep_Hg2040),
+                         popDep_Hg2055 = mean(ParisPopDF$popDep_Hg2055),
                          popDep_Hg2070 = mean(ParisPopDF$popDep_Hg2070),
                          popCom_1999 = sum(ParisPopDF$popCom_1999),
-                         popCom_Cn2040 = sum(ParisPopDF$popCom_Cn2040),
-                         popCom_Hg2040 = sum(ParisPopDF$popCom_Hg2040),
+                         popCom_Cn2055 = sum(ParisPopDF$popCom_Cn2055),
+                         popCom_Hg2055 = sum(ParisPopDF$popCom_Hg2055),
                          popCom_Cn2070 = sum(ParisPopDF$popCom_Cn2070),
                          popCom_Hg2070 = sum(ParisPopDF$popCom_Hg2070))
 
@@ -311,13 +311,13 @@ SalinePopDF <- data.frame(code_dep =14,
                           PopDep_18 = sum(SalinePopDF$PopDep_18),
                           fracPopNommDep_18 = sum(SalinePopDF$fracPopNommDep_18),
                           popDep_1999 = sum(SalinePopDF$popDep_1999),
-                          popDep_Cn2040 = mean(SalinePopDF$popDep_Cn2040),
+                          popDep_Cn2055 = mean(SalinePopDF$popDep_Cn2055),
                           popDep_Cn2070 = mean(SalinePopDF$popDep_Cn2070),
-                          popDep_Hg2040 = mean(SalinePopDF$popDep_Hg2040),
+                          popDep_Hg2055 = mean(SalinePopDF$popDep_Hg2055),
                           popDep_Hg2070 = mean(SalinePopDF$popDep_Hg2070),
                           popCom_1999 = sum(SalinePopDF$popCom_1999),
-                          popCom_Cn2040 = sum(SalinePopDF$popCom_Cn2040),
-                          popCom_Hg2040 = sum(SalinePopDF$popCom_Hg2040),
+                          popCom_Cn2055 = sum(SalinePopDF$popCom_Cn2055),
+                          popCom_Hg2055 = sum(SalinePopDF$popCom_Hg2055),
                           popCom_Cn2070 = sum(SalinePopDF$popCom_Cn2070),
                           popCom_Hg2070 = sum(SalinePopDF$popCom_Hg2070))
 
@@ -336,11 +336,11 @@ communesPopShp <- left_join(communesCodeInseeDissShp, communesPopDF, by = "code_
 #calculate density: per m2
 communesDensShp <- communesPopShp %>%
   mutate(PopMqHs99 = 10^(-4)*popCom_1999/surf_ha) %>%
-  mutate(PopMqCn40 = 10^(-4)*popCom_Cn2040/surf_ha) %>%
+  mutate(PopMqCn55 = 10^(-4)*popCom_Cn2055/surf_ha) %>%
   mutate(PopMqCn70 = 10^(-4)*popCom_Cn2070/surf_ha) %>%
-  mutate(PopMqHg40 = 10^(-4)*popCom_Hg2040/surf_ha) %>%
+  mutate(PopMqHg55 = 10^(-4)*popCom_Hg2055/surf_ha) %>%
   mutate(PopMqHg70 = 10^(-4)*popCom_Hg2070/surf_ha) %>%
-  select(c("code_insee", "nom", "PopMqHs99", "PopMqCn40", "PopMqCn70", "PopMqHg40", "PopMqHg70", "geometry"))
+  select(c("code_insee", "nom", "PopMqHs99", "PopMqCn55", "PopMqCn70", "PopMqHg55", "PopMqHg70", "geometry"))
 
 #Load safran grd  
 
@@ -374,6 +374,8 @@ toc() #~5200 sec
 
 larg = 100
 
+communesDensSafranListAgg <- list()
+
 tic()
 for(k in 1:ceil(length(communesDensSafranList)/100)){
   
@@ -404,30 +406,30 @@ SafranDensDF <- communesDensSafranSF %>%
   st_drop_geometry() %>%
   group_by(ID) %>%
   summarise(PopHs99 = sum(PopMqHs99*surf_ha*10^4, na.rm = T),
-            PopCn40 = sum(PopMqCn40*surf_ha*10^4, na.rm = T),
+            PopCn55 = sum(PopMqCn55*surf_ha*10^4, na.rm = T),
             PopCn70 = sum(PopMqCn70*surf_ha*10^4, na.rm = T),
-            PopHg40 = sum(PopMqHg40*surf_ha*10^4, na.rm = T),
+            PopHg55 = sum(PopMqHg55*surf_ha*10^4, na.rm = T),
             PopHg70 = sum(PopMqHg70*surf_ha*10^4, na.rm = T),
             surf_ha = sum(surf_ha)) %>%
   ungroup() %>%
   mutate(PopMqHs99 = PopHs99/surf_ha/10^4) %>%
-  mutate(PopMqCn40 = PopCn40/surf_ha/10^4) %>%
+  mutate(PopMqCn55 = PopCn55/surf_ha/10^4) %>%
   mutate(PopMqCn70 = PopCn70/surf_ha/10^4) %>%
-  mutate(PopMqHg40 = PopHg40/surf_ha/10^4) %>%
+  mutate(PopMqHg55 = PopHg55/surf_ha/10^4) %>%
   mutate(PopMqHg70 = PopHg70/surf_ha/10^4)
   
  # check pop totale
 
 sum(SafranDensDF$PopHs99, na.rm = T) #58.3
-sum(SafranDensDF$PopCn40, na.rm = T) #66.7
+sum(SafranDensDF$PopCn55, na.rm = T) #66.2
 sum(SafranDensDF$PopCn70, na.rm = T) #65.1
-sum(SafranDensDF$PopHg40, na.rm = T) #69.6
+sum(SafranDensDF$PopHg55, na.rm = T) #72.4
 sum(SafranDensDF$PopHg70, na.rm = T) #75.2
      
 # create DF
 
 SafranDensSF <- left_join(SafranGrid, SafranDensDF) %>%
-  select(ID, PopMqHs99, PopMqCn40, PopMqCn70, PopMqHg40, PopMqHg70, surf_ha)
+  select(ID, PopMqHs99, PopMqCn55, PopMqCn70, PopMqHg55, PopMqHg70, surf_ha)
 
 # I keep the area since some boundaries cells have smaller areas
 
