@@ -6,37 +6,37 @@ IDsSubSet = 1:8981 # put to compute only a subset of cells (8981 in total)
 
 nRep = 5
 
-## HIST----
+## historical ----
 
-name = "Hist"
-years = rep(1996, times = nRep)
-
-source("03c_MM_pis_matrix_cycle_Abundances_SPINUP.R")
-
-## SSP2 RCP 4.5 2055----
-
-name = "ssp245"
-years = rep(2050, times = nRep)
+name = "Hs99"
+years = 1986:2005 
 
 source("03c_MM_pis_matrix_cycle_Abundances_SPINUP.R")
 
-## SSP2 RCP 4.5 2085----
+## Central RCP 4.5 short term----
 
-name = "ssp245"
-years = rep(2080, times = nRep)
-
-source("03c_MM_pis_matrix_cycle_Abundances_SPINUP.R")
-
-## SSP5 RCP 8.5 2055----
-
-name = "ssp585"
-years = rep(2050, times = nRep)
+name = "Cn55"
+years = 2046:2065
 
 source("03c_MM_pis_matrix_cycle_Abundances_SPINUP.R")
 
-## SSP5 RCP 8.5 2085----
+## Central RCP 4.5 long term----
 
-name = "ssp585"
-years = rep(2080, times = nRep)
+name = "Cn70"
+years = 2066:2085
+
+source("03c_MM_pis_matrix_cycle_Abundances_SPINUP.R")
+
+## High RCP 8.5 short term----
+
+name = "Hg55"
+years = 2046:2065
+
+source("03c_MM_pis_matrix_cycle_Abundances_SPINUP.R")
+
+## High RCP 8.5 long term----
+
+name = "Hg70"
+years = 2066:2085
 
 source("03c_MM_pis_matrix_cycle_Abundances_SPINUP.R")
