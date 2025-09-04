@@ -31,7 +31,7 @@ folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRI
 
 ## climate model 
 
-# "WRF381P_IPSL-CM5A"
+# "CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63"
 
 ## details in
 
@@ -46,9 +46,9 @@ folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRI
 
 ## years
 
-# 1996-2005
-# 2050-2059
-# 2080-2089
+# 1986-2005
+# 2046-2065
+# 2066-2086
 
 ## spatial grid:
 
@@ -138,60 +138,56 @@ st_write(safranGridGeom, paste0(ShpFolder,"/SafranDomain.shp"))
 
 ## Historic ----
 
-### GPW Historic 2000 ----
+# Old code
+# 
+# # website 0 https://www.earthdata.nasa.gov/data/projects/gpw
+# # website 1 https://sedac.ciesin.columbia.edudatacollectiongpw-v4
+# # website 2 http://sedac.ciesin.columbia.edu/data/collection/gpw-v4/sets/browse
+# 
+# # documentation  http://sedac.ciesin.columbia.edu/data/collection/gpw-v4/documentation
+# 
+# # inactive: doing it here
+# 
+# # read domain
+# 
+# domain = st_read(paste0(ShpFolder,"/SafranDomain.shp"))
+# 
+# # read 2000 GWv4 (number of persons per square kilometer)
+# 
+# GPW <- rast("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/GPW_4/Global_2000_PopulationDensity30sec_GPWv4.tiff")
+# 
+# GPWCrop <- crop(GPW, ext(domain)) # France only
+# 
+# # writeRaster(GPW_crop, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/GPW_4/Global_2000_PopulationDensity30sec_GPWv4_France.tiff")
+# 
+# GPWCropExtract <- raster::extract(GPWCrop, domain) %>%
+#   group_by(ID) %>%
+#   summarise(pop = sum(Global_2000_PopulationDensity30sec_GPWv4, na.rm = T)/
+#               n()) %>%
+#   ungroup()
+# 
+# domainPop <- left_join(domain, GPWCropExtract)
+# 
+# st_write(domainPop, paste0(ShpFolder,"/SafranDomainPopHist_2000.shp"))
 
-# website 0 https://www.earthdata.nasa.gov/data/projects/gpw
-# website 1 https://sedac.ciesin.columbia.edudatacollectiongpw-v4
-# website 2 http://sedac.ciesin.columbia.edu/data/collection/gpw-v4/sets/browse
-
-# documentation  http://sedac.ciesin.columbia.edu/data/collection/gpw-v4/documentation
-
-# inactive: doing it here
-
-# read domain
-
-domain = st_read(paste0(ShpFolder,"/SafranDomain.shp"))
-
-# read 2000 GWv4 (number of persons per square kilometer)
-
-GPW <- rast("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/GPW_4/Global_2000_PopulationDensity30sec_GPWv4.tiff")
-
-GPWCrop <- crop(GPW, ext(domain)) # France only
-
-# writeRaster(GPW_crop, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/GPW_4/Global_2000_PopulationDensity30sec_GPWv4_France.tiff")
-
-GPWCropExtract <- raster::extract(GPWCrop, domain) %>%
-  group_by(ID) %>%
-  summarise(pop = sum(Global_2000_PopulationDensity30sec_GPWv4, na.rm = T)/
-              n()) %>%
-  ungroup()
-
-domainPop <- left_join(domain, GPWCropExtract)
-
-st_write(domainPop, paste0(ShpFolder,"/SafranDomainPopHist_2000.shp"))
-
-### Safran Historic 1996-2005 ----
+### Safran Historic 1986-2005 ----
 # format: ncdf
-# years: 1996-2005
+# years: 1986-2005
 # (8981 points) details in grilleSafran_complete_drias2021
 # variables: temperature (max, min, mean), in K, precipitations, in kg/m^2/s
 
-years = 1996:2005
+years = 1986:2005
 name = "Hist"
 
-# read domainPop
+# read domainPop (beware: each cell has people/m² and a given area)
 
-domainPopDF = st_read(paste0(ShpFolder,"/SafranDomainPopHist_2000.shp"))
+domainPopDF =  st_read(paste0(folderShp, "/SafranDensOmphale.shp"))
 domainPopDT = as.data.table(domainPopDF)
 nReg = nrow(domainPopDT)
 
 # load tas (temperature)
 
-# tasHistRaster <- rast(paste0(dataFolder, "tasAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_Historical_METEO-FRANCE_ADAMONT-France_SAFRAN_day_19960101-20051231.nc"))
-# observation: it has no latitude longitude and so on.
-# plot(tasHistRaster)
-
-tasHistNCDF <- nc_open(paste0(dataFolder, "tasAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_Historical_METEO-FRANCE_ADAMONT-France_SAFRAN_day_19960101-20051231.nc"))
+tasHistNCDF <- nc_open(paste0(dataFolder, "tasAdjust_France_CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63_Historical_METEO-FRANCE_ADAMONT-France_SAFRAN_day_19860101-20051231.nc"))
 
 print(tasHistNCDF)
 attributes(tasHistNCDF$var)
@@ -203,9 +199,9 @@ time = ncvar_get(tasHistNCDF, "time") # days since 1950-01-01 00:00:00
 date = as.Date(time, origin=as.Date("1950-01-01"))
 yearRep = sapply(date, function(x){substr(x, 1, 4)})
 
-tasMaxHistNCDF <- nc_open(paste0(dataFolder, "tasmaxAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_Historical_METEO-FRANCE_ADAMONT-France_SAFRAN_day_19960101-20051231.nc"))
-tasMinHistNCDF <- nc_open(paste0(dataFolder, "tasminAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_Historical_METEO-FRANCE_ADAMONT-France_SAFRAN_day_19960101-20051231.nc"))
-prTotHistNCDF <- nc_open(paste0(dataFolder, "prtotAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_Historical_METEO-FRANCE_ADAMONT-France_SAFRAN_day_19960101-20051231.nc"))
+tasMaxHistNCDF <- nc_open(paste0(dataFolder, "tasmaxAdjust_France_CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63_Historical_METEO-FRANCE_ADAMONT-France_SAFRAN_day_19860101-20051231.nc"))
+tasMinHistNCDF <- nc_open(paste0(dataFolder, "tasminAdjust_France_CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63_Historical_METEO-FRANCE_ADAMONT-France_SAFRAN_day_19860101-20051231.nc"))
+prTotHistNCDF <- nc_open(paste0(dataFolder, "prtotAdjust_France_CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63_Historical_METEO-FRANCE_ADAMONT-France_SAFRAN_day_19860101-20051231.nc"))
 
 #extract 3Dmatrices with ncvar_get
 
@@ -268,7 +264,7 @@ for(year in years){
 # ggplot(domainPop, aes(fill = WTotDT_sum$pr))+
 #   geom_sf()
 
-## SSP2 2050-2059 ----
+## SSP2 2046-2065 ----
 
 ### GPW SSP2 2055 ----
 
@@ -303,10 +299,10 @@ domainPopSSP2_2055$pop = 10^6*domainPopSSP2_2055$pop/as.numeric(st_area(domainPo
 
 st_write(domainPopSSP2_2055, paste0(ShpFolder,"/SafranDomainPopSSP2_2055.shp"))
 
-### Safran RCP 4.5 2050-2059 ----
+### Safran RCP 4.5 2046-2065 ----
 # format: ncdf
 
-years = 2050:2059
+years = 2046:2065
 name = "ssp245"
 
 # read domainPop
@@ -317,15 +313,15 @@ nReg = nrow(domainPopDT)
 
 # load tas (temperature)
 
-tasNCDF <- nc_open(paste0(dataFolder, "tasAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20500101-20591231.nc"))
+tasNCDF <- nc_open(paste0(dataFolder, "tasAdjust_France_CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20460101-20651231.nc"))
 
 time = ncvar_get(tasNCDF, "time") # days since 1950-01-01 00:00:00
 date = as.Date(time, origin=as.Date("1950-01-01"))
 yearRep = sapply(date, function(x){substr(x, 1, 4)})
 
-tasMaxNCDF <- nc_open(paste0(dataFolder, "tasmaxAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20500101-20591231.nc"))
-tasMinNCDF <- nc_open(paste0(dataFolder, "tasminAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20500101-20591231.nc"))
-prTotNCDF <- nc_open(paste0(dataFolder, "prtotAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20500101-20591231.nc"))
+tasMaxNCDF <- nc_open(paste0(dataFolder, "tasmaxAdjust_France_CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20460101-20651231.nc"))
+tasMinNCDF <- nc_open(paste0(dataFolder, "tasminAdjust_France_CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20460101-20651231.nc"))
+prTotNCDF <- nc_open(paste0(dataFolder, "prtotAdjust_France_CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20460101-20651231.nc"))
 
 #extract 3Dmatrices with ncvar_get
 
@@ -377,7 +373,7 @@ for(year in years){
   
 }
 
-## SSP2 2080-2089 ----
+## SSP2 2066-2085 ----
 
 ### GPW SSP2 2085 ----
 
@@ -404,10 +400,10 @@ domainPopSSP2_2085$pop = 10^6*domainPopSSP2_2085$pop/as.numeric(st_area(domainPo
 
 st_write(domainPopSSP2_2085, paste0(ShpFolder,"/SafranDomainPopSSP2_2085.shp"))
 
-### Safran RCP 4.5 2080-2089 ----
+### Safran RCP 4.5 2066-2085 ----
 # format: ncdf
 
-years = 2080:2089
+years = 2066:2085
 name = "ssp245"
 
 # read domainPop
@@ -418,15 +414,15 @@ nReg = nrow(domainPopDT)
 
 # load tas (temperature)
 
-tasNCDF <- nc_open(paste0(dataFolder, "tasAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20800101-20891231.nc"))
+tasNCDF <- nc_open(paste0(dataFolder, "tasAdjust_France_CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20660101-20851231.nc"))
 
 time = ncvar_get(tasNCDF, "time") # days since 1950-01-01 00:00:00
 date = as.Date(time, origin=as.Date("1950-01-01"))
 yearRep = sapply(date, function(x){substr(x, 1, 4)})
 
-tasMaxNCDF <- nc_open(paste0(dataFolder, "tasmaxAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20800101-20891231.nc"))
-tasMinNCDF <- nc_open(paste0(dataFolder, "tasminAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20800101-20891231.nc"))
-prTotNCDF <- nc_open(paste0(dataFolder, "prtotAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20800101-20891231.nc"))
+tasMaxNCDF <- nc_open(paste0(dataFolder, "tasmaxAdjust_France_CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20660101-20851231.nc"))
+tasMinNCDF <- nc_open(paste0(dataFolder, "tasminAdjust_France_CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20660101-20851231.nc"))
+prTotNCDF <- nc_open(paste0(dataFolder, "prtotAdjust_France_CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63_rcp4.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20660101-20851231.nc"))
 
 #extract 3Dmatrices with ncvar_get
 
@@ -478,7 +474,7 @@ for(year in years){
   
 }
 
-## SSP5 2050-2059 ----
+## SSP5 2046-2065 ----
 
 ### GPW SSP5 2055 ----
 
@@ -505,10 +501,10 @@ domainPopSSP5_2055$pop = 10^6*domainPopSSP5_2055$pop/as.numeric(st_area(domainPo
 
 st_write(domainPopSSP5_2055, paste0(ShpFolder,"/SafranDomainPopSSP5_2055.shp"))
 
-### Safran RCP 8.5 2050-2059 ----
+### Safran RCP 8.5 2046-2065 ----
 # format: ncdf
 
-years = 2050:2059
+years = 2046:2065
 name = "ssp585"
 
 # read domainPop
@@ -519,15 +515,15 @@ nReg = nrow(domainPopDT)
 
 # load tas (temperature)
 
-tasNCDF <- nc_open(paste0(dataFolder, "tasAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20500101-20591231.nc"))
+tasNCDF <- nc_open(paste0(dataFolder, "tasAdjust_France_CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20460101-20651231.nc"))
 
 time = ncvar_get(tasNCDF, "time") # days since 1950-01-01 00:00:00
 date = as.Date(time, origin=as.Date("1950-01-01"))
 yearRep = sapply(date, function(x){substr(x, 1, 4)})
 
-tasMaxNCDF <- nc_open(paste0(dataFolder, "tasmaxAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20500101-20591231.nc"))
-tasMinNCDF <- nc_open(paste0(dataFolder, "tasminAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20500101-20591231.nc"))
-prTotNCDF <- nc_open(paste0(dataFolder, "prtotAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20500101-20591231.nc"))
+tasMaxNCDF <- nc_open(paste0(dataFolder, "tasmaxAdjust_France_CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20460101-20651231.nc"))
+tasMinNCDF <- nc_open(paste0(dataFolder, "tasminAdjust_France_CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20460101-20651231.nc"))
+prTotNCDF <- nc_open(paste0(dataFolder, "prtotAdjust_France_CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20460101-20651231.nc"))
 
 #extract 3Dmatrices with ncvar_get
 
@@ -579,7 +575,7 @@ for(year in years){
   
 }
 
-## SSP2 2080-2089 ----
+## SSP2 2066-2085 ----
 
 ### GPW SSP5 2085 ----
 
@@ -606,10 +602,10 @@ domainPopSSP5_2085$pop = 10^6*domainPopSSP5_2085$pop/as.numeric(st_area(domainPo
 
 st_write(domainPopSSP5_2085, paste0(ShpFolder,"/SafranDomainPopSSP5_2085.shp"))
 
-### Safran RCP 8.5 2080-2089 ----
+### Safran RCP 8.5 2066-2085 ----
 # format: ncdf
 
-years = 2080:2089
+years = 2066:2085
 name = "ssp585"
 
 # read domainPop
@@ -620,15 +616,15 @@ nReg = nrow(domainPopDT)
 
 # load tas (temperature)
 
-tasNCDF <- nc_open(paste0(dataFolder, "tasAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20800101-20891231.nc"))
+tasNCDF <- nc_open(paste0(dataFolder, "tasAdjust_France_CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20660101-20851231.nc"))
 
 time = ncvar_get(tasNCDF, "time") # days since 1950-01-01 00:00:00
 date = as.Date(time, origin=as.Date("1950-01-01"))
 yearRep = sapply(date, function(x){substr(x, 1, 4)})
 
-tasMaxNCDF <- nc_open(paste0(dataFolder, "tasmaxAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20800101-20891231.nc"))
-tasMinNCDF <- nc_open(paste0(dataFolder, "tasminAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20800101-20891231.nc"))
-prTotNCDF <- nc_open(paste0(dataFolder, "prtotAdjust_France_IPSL-IPSL-CM5A-MR_IPSL-WRF381P_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20800101-20891231.nc"))
+tasMaxNCDF <- nc_open(paste0(dataFolder, "tasmaxAdjust_France_CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20660101-20851231.nc"))
+tasMinNCDF <- nc_open(paste0(dataFolder, "tasminAdjust_France_CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20660101-20851231.nc"))
+prTotNCDF <- nc_open(paste0(dataFolder, "prtotAdjust_France_CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63_rcp8.5_METEO-FRANCE_ADAMONT-France_SAFRAN_day_20660101-20851231.nc"))
 
 #extract 3Dmatrices with ncvar_get
 
