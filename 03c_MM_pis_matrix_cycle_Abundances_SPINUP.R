@@ -9,11 +9,11 @@
 
 # per scenarios:
 
-# Hist 1996-2005
-# SSP 2 2050-2059
-# SSP 2 2080-2089
-# SSP 5 2050-2059
-# SSP 5 2050-2059
+# Hist 1986-2005
+# central + rcp 4.5 2045-2065
+# central + rcp  4.5 2066-2085
+# high + rcp  8.5 2045-2065
+# high + rcp 8.5 2066-2085
 
 # rm(list = ls())
 
@@ -29,11 +29,11 @@ library(data.table)
 ## Simulation settings ----
 
 if(!exists("name")){
-  name = "Hist"
+  name = "Hs99"
 }
 
 if(!exists("years")){
-  years = 1996:2005 
+  years = 1986:2005 
 }
 
 if(!exists("IDsSubSet")){
