@@ -11,9 +11,11 @@
 # ssp 2 - "median hypothesis" -> associated with central scenario
 
 # new horizons: 
-# 1986-2005 with pop 1999 («0HS»)
-# 2046-2065 («1MT»)
-# 2066-2085 («2LT»)
+# 1986-2005 with pop 1999, historic scenario (PopHs99)
+# 2046-2065 with pop 2055, central scenario (PopCn55)
+# 2066-2085 with pop 2070, central scenario (PopCn70)
+# 2046-2065 with pop 2055, high scenario (PopHg55)
+# 2066-2085 with pop 2070, high scenario (PopHg70)
 
 ## Load libraries ----
 
