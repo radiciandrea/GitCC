@@ -138,8 +138,10 @@ for (year in years){
     tasMin <- tas
   }
   
-  #reshape human matrix
+  # reshape human matrix
   H =   matrix(rep(IDsDT$pop, nD), nrow = nD, byrow = T ) 
+  # humans are corrected (from density expressed as h/m² to h/km²)
+  H = H*10^6
   
   #elaborate tas and prec + sapply transpose matrices: need to t()
   tas7 = tas[1,]
