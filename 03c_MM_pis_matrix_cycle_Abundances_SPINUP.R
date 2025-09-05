@@ -187,7 +187,7 @@ for (year in years){
   
   # Compute K per m2
   KM2 = sapply(1:nIDs, function(y){return(lambdaM2 * (1-alphaEvap)/(1 - alphaEvap^DOSy)*
-                                          sapply(DOSy, function(x){return(sum(alphaEvap^(x:1-1) * (alphaDens*prec[1:x,y] + alphaRain*H[x,y])))}))
+                                            sapply(DOSy, function(x){return(sum(alphaEvap^(x:1-1) * (alphaDens*prec[1:x,y] + alphaRain*H[x,y])))}))
   }) 
   
   ## Call integration fucntion ----
@@ -232,7 +232,7 @@ for (year in years){
             seq(tfDH, tbDE-iSA, by = iSA),
             seq(tbDE, tfDE-iSD, by = iSD),
             seq(tfDE, tEnd, by = iSI))
-
+  
   ## Integration  ----
   SimLog1DOSiS<- deSolve::ode(y = X0log1, 
                               times = DOSiS,
@@ -246,7 +246,7 @@ for (year in years){
   SimLog1 <-SimLog1DOSiS[whichDOSiS,]
   
   # untransform variables and transform to ha
- Sim = cbind(SimLog1[,1], 10^4*(exp(SimLog1[, 1+1:(nIDs*7)])-1))
+  Sim = cbind(SimLog1[,1], 10^4*(exp(SimLog1[, 1+1:(nIDs*5)])-1))
   
   # update X0 (E0 are AT LEAST 1)
   X0 = c(rep(0, 4*nIDs), pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 1))
