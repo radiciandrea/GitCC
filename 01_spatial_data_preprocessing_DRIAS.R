@@ -136,6 +136,9 @@ safranGridGeom <- safranGridGeom %>%
 
 st_write(safranGridGeom, paste0(ShpFolder,"/SafranDomain.shp"))
 
+## Running code 00 ----
+
+safranGridGeom <- st_read(paste0(ShpFolder,"/SafranDomain.shp"))
 safranGridDT = as.data.table(safranGridGeom)
 
 ## Cycle ----
