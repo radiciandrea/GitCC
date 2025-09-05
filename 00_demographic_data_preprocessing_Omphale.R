@@ -335,14 +335,14 @@ communesPopShp <- left_join(communesCodeInseeDissShp, communesPopDF, by = "code_
 
 # BEWARE: I should remove all municipalities with 0 or NA people to avoid eliminated municipalities (like 69150 part of 69135)
 
-#calculate density: per m2
+#calculate density: per km2
 communesDensShp <- communesPopShp %>%
-  mutate(PopMqHs99 = 10^(-4)*popCom_1999/surf_ha) %>%
-  mutate(PopMqCn55 = 10^(-4)*popCom_Cn2055/surf_ha) %>%
-  mutate(PopMqCn70 = 10^(-4)*popCom_Cn2070/surf_ha) %>%
-  mutate(PopMqHg55 = 10^(-4)*popCom_Hg2055/surf_ha) %>%
-  mutate(PopMqHg70 = 10^(-4)*popCom_Hg2070/surf_ha) %>%
-  select(c("code_insee", "nom", "PopMqHs99", "PopMqCn55", "PopMqCn70", "PopMqHg55", "PopMqHg70", "geometry"))
+  mutate(PopKmHs99 = 10^(2)*popCom_1999/surf_ha) %>%
+  mutate(PopKmCn55 = 10^(2)*popCom_Cn2055/surf_ha) %>%
+  mutate(PopKmCn70 = 10^(2)*popCom_Cn2070/surf_ha) %>%
+  mutate(PopKmHg55 = 10^(2)*popCom_Hg2055/surf_ha) %>%
+  mutate(PopKmHg70 = 10^(2)*popCom_Hg2070/surf_ha) %>%
+  select(c("code_insee", "nom", "PopKmHs99", "PopKmCn55", "PopKmCn70", "PopKmHg55", "PopKmHg70", "geometry"))
 
 #Load safran grd  
 
@@ -407,18 +407,18 @@ SafranDensDF <- communesDensSafranSF %>%
   filter(!is.na(nom)) %>%
   st_drop_geometry() %>%
   group_by(ID) %>%
-  summarise(PopHs99 = sum(PopMqHs99*surf_ha*10^4, na.rm = T),
-            PopCn55 = sum(PopMqCn55*surf_ha*10^4, na.rm = T),
-            PopCn70 = sum(PopMqCn70*surf_ha*10^4, na.rm = T),
-            PopHg55 = sum(PopMqHg55*surf_ha*10^4, na.rm = T),
-            PopHg70 = sum(PopMqHg70*surf_ha*10^4, na.rm = T),
+  summarise(PopHs99 = sum(PopKmHs99*surf_ha/10^(2), na.rm = T),
+            PopCn55 = sum(PopKmCn55*surf_ha/10^(2), na.rm = T),
+            PopCn70 = sum(PopKmCn70*surf_ha/10^(2), na.rm = T),
+            PopHg55 = sum(PopKmHg55*surf_ha/10^(2), na.rm = T),
+            PopHg70 = sum(PopKmHg70*surf_ha/10^(2), na.rm = T),
             surf_ha = sum(surf_ha)) %>%
   ungroup() %>%
-  mutate(PopMqHs99 = PopHs99/surf_ha/10^4) %>%
-  mutate(PopMqCn55 = PopCn55/surf_ha/10^4) %>%
-  mutate(PopMqCn70 = PopCn70/surf_ha/10^4) %>%
-  mutate(PopMqHg55 = PopHg55/surf_ha/10^4) %>%
-  mutate(PopMqHg70 = PopHg70/surf_ha/10^4)
+  mutate(PopKmHs99 = PopHs99/surf_ha*10^2) %>%
+  mutate(PopKmCn55 = PopCn55/surf_ha*10^2) %>%
+  mutate(PopKmCn70 = PopCn70/surf_ha*10^2) %>%
+  mutate(PopKmHg55 = PopHg55/surf_ha*10^2) %>%
+  mutate(PopKmHg70 = PopHg70/surf_ha*10^2)
   
  # check pop totale
 
@@ -431,7 +431,7 @@ sum(SafranDensDF$PopHg70, na.rm = T) #75.2
 # create DF
 
 SafranDensSF <- left_join(SafranGrid, SafranDensDF) %>%
-  select(ID, PopMqHs99, PopMqCn55, PopMqCn70, PopMqHg55, PopMqHg70, surf_ha)
+  select(ID, PopKmHs99, PopKmCn55, PopKmCn70, PopKmHg55, PopKmHg70, surf_ha)
 
 # I keep the area since some boundaries cells have smaller areas
 
