@@ -40,11 +40,6 @@ if(!exists("IDsSubSet")){
   IDsSubSet = 1:8981 # put to compute only a subset of cells (8981 in total)
 }
 
-NEEDs CORRECTIOn
-if(!exists("AreaKm2")){
-  AreaKm2 = 63.735 # approximate surface of each cell (max rel error: 0.44%)
-}
-
 if(!exists("NIntro")){
   NIntro = 1 # number of introduced infected people
 }
@@ -66,7 +61,7 @@ if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codi
 # get ID, lat, lon
 IDsDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", years[1], ".rds")) %>%
   distinct(ID, .keep_all = TRUE) %>%
-  dplyr::select(c("ID", "lat", "lon", "pop")) %>%
+  dplyr::select(c("ID", "lat", "lon", "pop", "surfHa")) %>%
   filter(ID %in% IDsSubSet)
 
 nIDs = length(IDsSubSet)
@@ -179,6 +174,9 @@ for (year in years){
   #reshape human matrix
   H =   matrix(rep(IDsDT$pop, nD), nrow = nD, byrow = T ) 
   
+  #reshape area matrix (km²)
+  AreaKm2 = matrix(rep(IDsDT$surfHa*10^-2, nD), nrow = nD, byrow = T )
+  
   #elaborate tas and prec + sapply transpose matrices: need to t()
   tas7 = tas[1,]
   
@@ -225,12 +223,12 @@ for (year in years){
   ni = 1/EIP #of the vector
   phiA = phiAU*(H>RTh)+phiAR*(H<=RTh) #vector preference
   
-  #Epidemic scenario
-  InfectedHostDensity <- rep(0, nD)
+  #Epidemic scenario (as a matrix)
+  InfectedHosts <- rep(0, nD)
   IntroDates <- yday(as.Date(paste0(year, "-", IntroMonthCalendar, "-01", "%d/%m/%y")))
   InfectedHostDates <- c(t(sapply(-1+1:DHV, function(x){IntroDates+x}))) # repeat for a duration of DHV
-  InfectedHostDensity[InfectedHostDates] = NIntro/AreaKm2 #hab/km²
-  InfectedHostDensityM = matrix(rep(InfectedHostDensity, nIDs), ncol = nIDs)
+  InfectedHosts[InfectedHostDates] = NIntro #hab
+  InfectedHostDensityM = matrix(rep(InfectedHostDensity, nIDs), ncol = nIDs)/AreaKm2
   InfectedHostPrevalenceM = InfectedHostDensityM/H
   
   SH0 = H[1,]/100 # susceptible hosts per ha
