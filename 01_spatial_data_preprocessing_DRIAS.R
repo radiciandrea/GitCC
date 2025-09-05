@@ -161,7 +161,7 @@ for(s in scenariosDT[,name]){
   yearE = scenariosDT[name == s, yearE]
   rcp = scenariosDT[name == s, rcp]
   
-  codeOmphale = paste0("PopMq", s)
+  codeOmphale = paste0("PopKm", s)
   years = yearS:yearE
   
   
@@ -217,7 +217,7 @@ for(s in scenariosDT[,name]){
         ID = id,
         lat = safranGridDT[id, lat],
         lon = safranGridDT[id, lon],
-        pop = domainPopDT[id, get(codeOmphale)], #m-2
+        pop = domainPopDT[id, get(codeOmphale)], #km2
         surfHa = domainPopDT[id, surf_ha], #ha
         DOS = as.numeric(strftime(date[indexYear], format = "%j")),
         date = date[indexYear],
