@@ -228,7 +228,7 @@ for (year in years){
   IntroDates <- yday(as.Date(paste0(year, "-", IntroMonthCalendar, "-01", "%d/%m/%y")))
   InfectedHostDates <- c(t(sapply(-1+1:DHV, function(x){IntroDates+x}))) # repeat for a duration of DHV
   InfectedHosts[InfectedHostDates] = NIntro #hab
-  InfectedHostDensityM = matrix(rep(InfectedHostDensity, nIDs), ncol = nIDs)/AreaKm2
+  InfectedHostDensityM = matrix(rep(InfectedHosts, nIDs), ncol = nIDs)/AreaKm2
   InfectedHostPrevalenceM = InfectedHostDensityM/H
   
   SH0 = H[1,]/100 # susceptible hosts per ha
