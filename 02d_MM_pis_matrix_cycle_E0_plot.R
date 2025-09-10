@@ -10,7 +10,7 @@ library(pracma)
 library(sf)
 library(data.table)
 
-folderData = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim"
+folderData = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_02"
 folderPlot = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/E0"
 
 files = list.files(paste0(folderData,"/"))
@@ -38,10 +38,10 @@ cutPal = c(0, 10^(-3:3), 10^10)
 
 # Compute means per scenario----
 
-##HIST----
+## historical ----
 
-name = "Hist"
-years = 1996:2005 #:2005
+name = "Hs99"
+years = 1986:2005 
 
 nR <- which((namesAll == name) & (yearsAll %in% years))
 
@@ -60,32 +60,10 @@ ggsave(file =
          paste0(folderPlot, "/E0_", name, "_", min(years), "-", max(years), ".png"),
        plot= plotCut , units="in", width=5.5, height=7, dpi=300)
 
-## SSP2 RCP 4.5 2055----
+## Central RCP 4.5 short term----
 
-name = "ssp245"
-years = 2050:2059
-
-nR <- which((namesAll == name) & (yearsAll %in% years))
-
-E0Sel <-  apply(E0m[nR,], 2,
-                      function(x){exp(mean(log(x)))})
-
-E0SelCut <- cut(E0Sel, breaks=cutPal,
-                labels=sapply(cutPal [-length(cutPal )], function(x){paste0(">", as.character(x))}))
-
-plotCut <- ggplot()+
-  geom_sf(data = domain, aes(fill = E0SelCut), colour = NA)+ #
-  scale_fill_manual(values = colPal)+
-  ggtitle(paste0("E0 (suitability), scenario: ", name, "; period: ", min(years), "-", max(years)))
-
-ggsave(file = 
-         paste0(folderPlot, "/E0_", name, "_", min(years), "-", max(years), ".png"),
-       plot= plotCut , units="in", width=5.5, height=7, dpi=300)
-
-## SSP2 RCP 4.5 2085----
-
-name = "ssp245"
-years = 2080:2089
+name = "Cn55"
+years = 2046:2065
 
 nR <- which((namesAll == name) & (yearsAll %in% years))
 
@@ -104,10 +82,10 @@ ggsave(file =
          paste0(folderPlot, "/E0_", name, "_", min(years), "-", max(years), ".png"),
        plot= plotCut , units="in", width=5.5, height=7, dpi=300)
 
-## SSP5 RCP 8.5 2055----
+## Central RCP 4.5 long term----
 
-name = "ssp585"
-years = 2050:2059
+name = "Cn70"
+years = 2066:2085
 
 nR <- which((namesAll == name) & (yearsAll %in% years))
 
@@ -126,10 +104,32 @@ ggsave(file =
          paste0(folderPlot, "/E0_", name, "_", min(years), "-", max(years), ".png"),
        plot= plotCut , units="in", width=5.5, height=7, dpi=300)
 
-## SSP5 RCP 8.5 2085----
+## High RCP 8.5 short term----
 
-name = "ssp585"
-years = 2080:2089
+name = "Hg55"
+years = 2046:2065
+
+nR <- which((namesAll == name) & (yearsAll %in% years))
+
+E0Sel <-  apply(E0m[nR,], 2,
+                      function(x){exp(mean(log(x)))})
+
+E0SelCut <- cut(E0Sel, breaks=cutPal,
+                labels=sapply(cutPal [-length(cutPal )], function(x){paste0(">", as.character(x))}))
+
+plotCut <- ggplot()+
+  geom_sf(data = domain, aes(fill = E0SelCut), colour = NA)+ #
+  scale_fill_manual(values = colPal)+
+  ggtitle(paste0("E0 (suitability), scenario: ", name, "; period: ", min(years), "-", max(years)))
+
+ggsave(file = 
+         paste0(folderPlot, "/E0_", name, "_", min(years), "-", max(years), ".png"),
+       plot= plotCut , units="in", width=5.5, height=7, dpi=300)
+
+## High RCP 8.5 long term----
+
+name = "Hg70"
+years = 2066:2085
 
 nR <- which((namesAll == name) & (yearsAll %in% years))
 
