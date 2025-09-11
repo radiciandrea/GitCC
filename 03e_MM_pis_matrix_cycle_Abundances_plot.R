@@ -12,12 +12,12 @@ library(data.table)
 
 folderSim = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_03"
 folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
-folderPlot = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/Sim_3"
+folderPlot = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/DRIAS_sim_03"
 
 ## initial settings----
 
 # load 1 for dimension
-name = "Hist"
+name = "Hs"
 files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_", name))
 Sim <- readRDS(paste0(folderSim, "/", files[1]))
 nC = 5 # number of classes
@@ -27,9 +27,9 @@ IDsSubSet = IDs
 
 # scenarios
 
-scenariosDF= data.frame(name = c("Hist", "ssp245", "ssp245", "ssp585", "ssp585"),
-                          yearStart = c(1996, 2050, 2080, 2050, 2080),
-                          yearEnd = c(1996, 2050, 2080, 2050, 2080)+9)
+scenariosDF= data.frame(name = c("Hs99", "Cn55", "Cn70", "Hg55", "Hg70"),
+                          yearStart = c(1986, 2046, 2066, 2046, 2066),
+                          yearEnd = c(1986, 2046, 2066, 2046, 2066)+19)
 
 
 # create meta matrices for each scenario (hist, ssp2, ssp5) for both adults and MTS for dengue
@@ -51,10 +51,10 @@ bH2Vdengue = 0.31 # beta Metelmann 2021
 
 # Compute indicators per scenario----
 
-##HIST----
+## historical ----
 
-name = "Hist"
-years = 1996:2005 #:2005
+name = "Hs99"
+years = 1986:2005 
 
 files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_", name))
 
@@ -120,13 +120,12 @@ rm(IDsDT)
 AmjjasoMM[1,] <- colMeans(AmjjasoM, na.rm =T)
 LTSdengueMM[1,] <- colMeans(LTSdengueM, na.rm =T)
 
-## SSP2 RCP 4.5 2055----
+## Central RCP 4.5 short term----
 
-name = "ssp245"
-years = 2050:2059
+name = "Cn55"
+years = 2046:2065
 
 files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_", name))
-files = files[1:length(years)]
 
 # matrices of indicators: average adults and R0
 
@@ -190,13 +189,12 @@ rm(IDsDT)
 AmjjasoMM[2,] <- colMeans(AmjjasoM, na.rm =T)
 LTSdengueMM[2,] <- colMeans(LTSdengueM, na.rm =T)
 
-## SSP2 RCP 4.5 2085----
+## Central RCP 4.5 long term----
 
-name = "ssp245"
-years = 2080:2089
+name = "Cn70"
+years = 2066:2085
 
 files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_", name))
-files = files[length(years)+1:length(years)]
 
 # matrices of indicators: average adults and R0
 
@@ -260,14 +258,12 @@ rm(IDsDT)
 AmjjasoMM[3,] <- colMeans(AmjjasoM, na.rm =T)
 LTSdengueMM[3,] <- colMeans(LTSdengueM, na.rm =T)
 
+## High RCP 8.5 short term----
 
-## SSP5 RCP 8.5 2055----
-
-name = "ssp585"
-years = 2050:2059
+name = "Hg55"
+years = 2046:2065
 
 files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_", name))
-files = files[1:length(years)]
 
 # matrices of indicators: average adults and R0
 
@@ -331,13 +327,12 @@ rm(IDsDT)
 AmjjasoMM[4,] <- colMeans(AmjjasoM, na.rm =T)
 LTSdengueMM[4,] <- colMeans(LTSdengueM, na.rm =T)
 
-## SSP5 RCP 8.5 2085----
+## High RCP 8.5 long term----
 
-name = "ssp585"
-years = 2080:2089
+name = "Hg70"
+years = 2066:2085
 
 files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_", name))
-files = files[length(years)+1:length(years)]
 
 # matrices of indicators: average adults and R0
 

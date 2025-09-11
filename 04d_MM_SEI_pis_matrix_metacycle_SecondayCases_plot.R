@@ -18,7 +18,7 @@ folderPlotSim4 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esp
 ## initial settings----
 
 # load 1 for dimension
-name = "Hist"
+name = "Hs"
 files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_SEIS_", name))
 Sim <- readRDS(paste0(folderSim, "/", files[1]))
 nC = 8 # number of classes: 5 + exposed + infexted + susceptible hosts
@@ -32,9 +32,9 @@ if(!exists("AreaKm2")){
 
 # scenarios
 
-scenariosDF= data.frame(name = c("Hist", "ssp245", "ssp245", "ssp585", "ssp585"),
-                        yearStart = c(1996, 2050, 2080, 2050, 2080),
-                        yearEnd = c(1996, 2050, 2080, 2050, 2080)+9)
+scenariosDF= data.frame(name = c("Hs99", "Cn55", "Cn70", "Hg55", "Hg70"),
+                        yearStart = c(1986, 2046, 2066, 2046, 2066),
+                        yearEnd = c(1986, 2046, 2066, 2046, 2066)+19)
 
 # create meta matrices for each scenario (hist, ssp2, ssp5) for both adults and MTS for dengue
 
