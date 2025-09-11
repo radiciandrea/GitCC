@@ -12,8 +12,8 @@ library(data.table)
 
 folderSim = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_04"
 folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
+folderShape = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab"
 folderPlotSim4 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/Sim_4"
-
 
 ## initial settings----
 
@@ -26,9 +26,10 @@ nIDs = (ncol(Sim)-1)/nC # number of regions
 IDs = 1:nIDs
 IDsSubSet = IDs
 
-if(!exists("AreaKm2")){
-  AreaKm2 = 63.735 # approximate surface of each cell (max rel error: 0.44%)
-}
+# if(!exists("AreaKm2")){
+#   DomainSf <- st_read(paste0(folderShape, "/SafranDensOmphale.shp"))
+#   AreaKm2 = DomainSf$surf_ha/100 # approximate surface of each cell (max rel error: 0.44%)
+# }
 
 # scenarios
 
@@ -99,11 +100,15 @@ for(k in 1:nrow(scenariosDF)){
     if(!exists("IDsDT")){
       IDsDT <- WTotDT %>%
         distinct(ID, .keep_all = TRUE) %>%
-        dplyr::select(c("ID", "pop")) %>%
+        dplyr::select(c("ID", "pop", "surfHa")) %>%
         filter(ID %in% IDsSubSet)
     }
     
+    #reshape human matrix
     H = matrix(rep(IDsDT$pop, nD), nrow = nD, byrow = T )
+    
+    #reshape area matrix (km²)
+    AreaKm2 = matrix(rep(IDsDT$surfHa*10^-2, nD), nrow = nD, byrow = T )`
     
     #vector to host ratio
     m = Adults*100/H
