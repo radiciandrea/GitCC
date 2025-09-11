@@ -11,9 +11,9 @@ library(sf)
 library(data.table)
 
 folderData = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_02"
-folderPlot = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/E0"
+folderPlot = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/DRIAS_sim_02"
 
-files = list.files(paste0(folderData,"/"))
+files = list.files(paste0(folderData,"/"), pattern = "E0")
 
 namesAll = substring(files, 10, nchar(files)-9)
 yearsAll = substring(files, nchar(files)-7, nchar(files)-4) 
