@@ -15,6 +15,13 @@ source("03c_MM_pis_matrix_cycle_Abundances_SPINUP.R")
 
 ## Central RCP 4.5 short term----
 
+name = "Cn35"
+years = rep(2026, nRep) 
+
+source("03c_MM_pis_matrix_cycle_Abundances_SPINUP.R")
+
+## Central RCP 4.5 middle term----
+
 name = "Cn55"
 years = rep(2046, nRep) 
 
@@ -28,6 +35,13 @@ years = rep(2066, nRep)
 source("03c_MM_pis_matrix_cycle_Abundances_SPINUP.R")
 
 ## High RCP 8.5 short term----
+
+name = "Hg35"
+years = rep(2026, nRep)
+
+source("03c_MM_pis_matrix_cycle_Abundances_SPINUP.R")
+
+## High RCP 8.5 middle term----
 
 name = "Hg55"
 years = rep(2046, nRep)
