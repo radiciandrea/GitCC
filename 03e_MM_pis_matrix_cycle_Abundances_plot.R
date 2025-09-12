@@ -429,7 +429,7 @@ for(i in 1:nrow(scenariosDF)){
   plotCut <- ggplot()+
     geom_sf(data = domain, aes(fill = AmjjasoCut), colour = NA)+ #
     scale_fill_manual(values = colPal)+
-    ggtitle(paste0("LTS (dengue), scenario: ", name, "; period: ", min(years), "-", max(years)))
+    ggtitle(paste0("Adult density, scenario: ", name, "; period: ", min(years), "-", max(years)))
   
   ggsave(file = 
            paste0(folderPlot, "/Amjjaso_", name, "_", min(years), "-", max(years), ".png"),
