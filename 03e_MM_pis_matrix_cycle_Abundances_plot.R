@@ -27,9 +27,9 @@ IDsSubSet = IDs
 
 # scenarios
 
-scenariosDF= data.frame(name = c("Hs99", "Cn55", "Cn70", "Hg55", "Hg70"),
-                          yearStart = c(1986, 2046, 2066, 2046, 2066),
-                          yearEnd = c(1986, 2046, 2066, 2046, 2066)+19)
+scenariosDF= data.frame(name = c("Hs99", "Cn35", "Cn55", "Cn70", "Hg35", "Hg55", "Hg70"),
+                        yearStart = c(1986, 2026, 2046, 2066, 2026, 2046, 2066),
+                        yearEnd = c(1986, 2026, 2046, 2066, 2026, 2046, 2066)+19)
 
 
 # create meta matrices for each scenario (hist, ssp2, ssp5) for both adults and MTS for dengue
@@ -51,350 +51,78 @@ bH2Vdengue = 0.31 # beta Metelmann 2021
 
 # Compute indicators per scenario----
 
-## historical ----
+## cycle
 
-name = "Hs99"
-years = 1986:2005 
-
-files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_", name))
-
-# matrices of indicators: average adults and R0
-
-AmjjasoM = matrix(NA, nrow = length(years), ncol = nIDs)
-LTSdengueM = matrix(NA, nrow = length(years), ncol = nIDs)
-
-for(i in  1:length(years)){
+for(k in 1:nrow(scenariosDF)){
   
-  file = files[i]
+  name = scenariosDF$name[k]
+  years = scenariosDF$yearStart[k]:scenariosDF$yearEnd[k]
   
-  Sim <- readRDS(paste0(folderSim, "/", file))
-  year <- years[i] # substr(file, nchar(file)-7, nchar(file)-4)
+  files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_", name))
   
-  #determine mjjaso
-  nD <- nrow(Sim)
-  FMay <- yday(as.Date(paste0(year, "-05-01"))) 
-  LOct <- yday(as.Date(paste0(year, "-10-31"))) 
+  # matrices of indicators: average adults and R0
   
-  Adults <- Sim[,3*nIDs + 1:nIDs]
+  AmjjasoM = matrix(NA, nrow = length(years), ncol = nIDs)
+  LTSdengueM = matrix(NA, nrow = length(years), ncol = nIDs)
   
-  Amjjaso <- colMeans(Adults[FMay:LOct,], na.rm =T)
-  AmjjasoM[i, ] <- Amjjaso
-  
-  # load weather for R0
-  
-  WTotDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", year, ".rds")) %>%
-    filter(ID %in% IDsSubSet) 
-  
-  tas = matrix(WTotDT$tas, nrow = nD)
-  
-  # load H (just once) for R0
-  if(!exists("IDsDT")){
-    IDsDT <- WTotDT %>%
-      distinct(ID, .keep_all = TRUE) %>%
-      dplyr::select(c("ID", "pop")) %>%
-      filter(ID %in% IDsSubSet)
+  for(i in  1:length(years)){
+    
+    file = files[i]
+    
+    Sim <- readRDS(paste0(folderSim, "/", file))
+    year <- years[i] # substr(file, nchar(file)-7, nchar(file)-4)
+    
+    #determine mjjaso
+    nD <- nrow(Sim)
+    FMay <- yday(as.Date(paste0(year, "-05-01"))) 
+    LOct <- yday(as.Date(paste0(year, "-10-31"))) 
+    
+    Adults <- Sim[,3*nIDs + 1:nIDs]
+    
+    Amjjaso <- colMeans(Adults[FMay:LOct,], na.rm =T)
+    AmjjasoM[i, ] <- Amjjaso
+    
+    # load weather for R0
+    
+    WTotDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", year, ".rds")) %>%
+      filter(ID %in% IDsSubSet) 
+    
+    tas = matrix(WTotDT$tas, nrow = nD)
+    
+    # load H (just once) for R0
+    if(!exists("IDsDT")){
+      IDsDT <- WTotDT %>%
+        distinct(ID, .keep_all = TRUE) %>%
+        dplyr::select(c("ID", "pop")) %>%
+        filter(ID %in% IDsSubSet)
+    }
+    
+    H = matrix(rep(IDsDT$pop, nD), nrow = nD, byrow = T )
+    
+    #vector to host ratio
+    m = Adults*100/H
+    
+    #demographic parameters
+    muA = -log(0.677 * exp(-0.5*((tas-20.9)/13.2)^6)*tas^0.1) # adult mortality rate
+    muA[which(tas<=0)] = -log(0.677 * exp(-0.5*((tas[which(tas<=0)]-20.9)/13.2)^6))  #correct the problems due to negative values from SI
+    
+    #epidemiological parameters
+    A = (0.0043*tas + 0.0943)/2  #biting rate (Zanardini et al., Caminade 2016, Blagrove 2020)
+    phiA = phiAU*(H>RTh)+phiAR*(H<=RTh)
+    
+    EIPdengue = 1.03*(4*exp(5.15 - 0.123*tas)) #Metelmann 2021
+    
+    # Compute epidemiological risk
+    R0dengueM = (A*phiA)^2*m/(muA+muA^2*EIPdengue)*bV2H*bH2Vdengue*IIPdengue
+    LTSdengueM[i,] = colSums(R0dengueM>1, na.rm =T)
   }
   
-  H = matrix(rep(IDsDT$pop, nD), nrow = nD, byrow = T )
+  rm(IDsDT)
   
-  #vector to host ratio
-  m = Adults*100/H
+  AmjjasoMM[k,] <- colMeans(AmjjasoM, na.rm =T)
+  LTSdengueMM[k,] <- colMeans(LTSdengueM, na.rm =T)
   
-  #demographic parameters
-  muA = -log(0.677 * exp(-0.5*((tas-20.9)/13.2)^6)*tas^0.1) # adult mortality rate
-  muA[which(tas<=0)] = -log(0.677 * exp(-0.5*((tas[which(tas<=0)]-20.9)/13.2)^6))  #correct the problems due to negative values from SI
-  
-  #epidemiological parameters
-  A = (0.0043*tas + 0.0943)/2  #biting rate (Zanardini et al., Caminade 2016, Blagrove 2020)
-  phiA = phiAU*(H>RTh)+phiAR*(H<=RTh)
-  
-  EIPdengue = 1.03*(4*exp(5.15 - 0.123*tas)) #Metelmann 2021
-  
-  # Compute epidemiological risk
-  R0dengueM = (A*phiA)^2*m/(muA+muA^2*EIPdengue)*bV2H*bH2Vdengue*IIPdengue
-  LTSdengueM[i,] = colSums(R0dengueM>1, na.rm =T)
 }
-
-rm(IDsDT)
-
-AmjjasoMM[1,] <- colMeans(AmjjasoM, na.rm =T)
-LTSdengueMM[1,] <- colMeans(LTSdengueM, na.rm =T)
-
-## Central RCP 4.5 short term----
-
-name = "Cn55"
-years = 2046:2065
-
-files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_", name))
-
-# matrices of indicators: average adults and R0
-
-AmjjasoM = matrix(NA, nrow = length(years), ncol = nIDs)
-LTSdengueM = matrix(NA, nrow = length(years), ncol = nIDs)
-
-for(i in  1:length(years)){
-  
-  file = files[i]
-  
-  Sim <- readRDS(paste0(folderSim, "/", file))
-  year <- years[i] # substr(file, nchar(file)-7, nchar(file)-4)
-  
-  #determine mjjaso
-  nD <- nrow(Sim)
-  FMay <- yday(as.Date(paste0(year, "-05-01"))) 
-  LOct <- yday(as.Date(paste0(year, "-10-31"))) 
-  
-  Adults <- Sim[,3*nIDs + 1:nIDs]
-  
-  Amjjaso <- colMeans(Adults[FMay:LOct,], na.rm =T)
-  AmjjasoM[i, ] <- Amjjaso
-  
-  # load weather for R0
-  
-  WTotDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", year, ".rds")) %>%
-    filter(ID %in% IDsSubSet) 
-  
-  tas = matrix(WTotDT$tas, nrow = nD)
-  
-  # load H (just once) for R0
-  if(!exists("IDsDT")){
-    IDsDT <- WTotDT %>%
-      distinct(ID, .keep_all = TRUE) %>%
-      dplyr::select(c("ID", "pop")) %>%
-      filter(ID %in% IDsSubSet)
-  }
-  
-  H = matrix(rep(IDsDT$pop, nD), nrow = nD, byrow = T )
-  
-  #vector to host ratio
-  m = Adults*100/H
-  
-  #demographic parameters
-  muA = -log(0.677 * exp(-0.5*((tas-20.9)/13.2)^6)*tas^0.1) # adult mortality rate
-  muA[which(tas<=0)] = -log(0.677 * exp(-0.5*((tas[which(tas<=0)]-20.9)/13.2)^6))  #correct the problems due to negative values from SI
-  
-  #epidemiological parameters
-  A = (0.0043*tas + 0.0943)/2  #biting rate (Zanardini et al., Caminade 2016, Blagrove 2020)
-  phiA = phiAU*(H>RTh)+phiAR*(H<=RTh)
-  
-  EIPdengue = 1.03*(4*exp(5.15 - 0.123*tas)) #Metelmann 2021
-  
-  # Compute epidemiological risk
-  R0dengueM = (A*phiA)^2*m/(muA+muA^2*EIPdengue)*bV2H*bH2Vdengue*IIPdengue
-  LTSdengueM[i,] = colSums(R0dengueM>1, na.rm =T)
-}
-
-rm(IDsDT)
-
-AmjjasoMM[2,] <- colMeans(AmjjasoM, na.rm =T)
-LTSdengueMM[2,] <- colMeans(LTSdengueM, na.rm =T)
-
-## Central RCP 4.5 long term----
-
-name = "Cn70"
-years = 2066:2085
-
-files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_", name))
-
-# matrices of indicators: average adults and R0
-
-AmjjasoM = matrix(NA, nrow = length(years), ncol = nIDs)
-LTSdengueM = matrix(NA, nrow = length(years), ncol = nIDs)
-
-for(i in  1:length(years)){
-  
-  file = files[i]
-  
-  Sim <- readRDS(paste0(folderSim, "/", file))
-  year <- years[i] # substr(file, nchar(file)-7, nchar(file)-4)
-  
-  #determine mjjaso
-  nD <- nrow(Sim)
-  FMay <- yday(as.Date(paste0(year, "-05-01"))) 
-  LOct <- yday(as.Date(paste0(year, "-10-31"))) 
-  
-  Adults <- Sim[,3*nIDs + 1:nIDs]
-  
-  Amjjaso <- colMeans(Adults[FMay:LOct,], na.rm =T)
-  AmjjasoM[i, ] <- Amjjaso
-  
-  # load weather for R0
-  
-  WTotDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", year, ".rds")) %>%
-    filter(ID %in% IDsSubSet) 
-  
-  tas = matrix(WTotDT$tas, nrow = nD)
-  
-  # load H (just once) for R0
-  if(!exists("IDsDT")){
-    IDsDT <- WTotDT %>%
-      distinct(ID, .keep_all = TRUE) %>%
-      dplyr::select(c("ID", "pop")) %>%
-      filter(ID %in% IDsSubSet)
-  }
-  
-  H = matrix(rep(IDsDT$pop, nD), nrow = nD, byrow = T )
-  
-  #vector to host ratio
-  m = Adults*100/H
-  
-  #demographic parameters
-  muA = -log(0.677 * exp(-0.5*((tas-20.9)/13.2)^6)*tas^0.1) # adult mortality rate
-  muA[which(tas<=0)] = -log(0.677 * exp(-0.5*((tas[which(tas<=0)]-20.9)/13.2)^6))  #correct the problems due to negative values from SI
-  
-  #epidemiological parameters
-  A = (0.0043*tas + 0.0943)/2  #biting rate (Zanardini et al., Caminade 2016, Blagrove 2020)
-  phiA = phiAU*(H>RTh)+phiAR*(H<=RTh)
-  
-  EIPdengue = 1.03*(4*exp(5.15 - 0.123*tas)) #Metelmann 2021
-  
-  # Compute epidemiological risk
-  R0dengueM = (A*phiA)^2*m/(muA+muA^2*EIPdengue)*bV2H*bH2Vdengue*IIPdengue
-  LTSdengueM[i,] = colSums(R0dengueM>1, na.rm =T)
-}
-
-rm(IDsDT)
-
-AmjjasoMM[3,] <- colMeans(AmjjasoM, na.rm =T)
-LTSdengueMM[3,] <- colMeans(LTSdengueM, na.rm =T)
-
-## High RCP 8.5 short term----
-
-name = "Hg55"
-years = 2046:2065
-
-files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_", name))
-
-# matrices of indicators: average adults and R0
-
-AmjjasoM = matrix(NA, nrow = length(years), ncol = nIDs)
-LTSdengueM = matrix(NA, nrow = length(years), ncol = nIDs)
-
-for(i in  1:length(years)){
-  
-  file = files[i]
-  
-  Sim <- readRDS(paste0(folderSim, "/", file))
-  year <- years[i] # substr(file, nchar(file)-7, nchar(file)-4)
-  
-  #determine mjjaso
-  nD <- nrow(Sim)
-  FMay <- yday(as.Date(paste0(year, "-05-01"))) 
-  LOct <- yday(as.Date(paste0(year, "-10-31"))) 
-  
-  Adults <- Sim[,3*nIDs + 1:nIDs]
-  
-  Amjjaso <- colMeans(Adults[FMay:LOct,], na.rm =T)
-  AmjjasoM[i, ] <- Amjjaso
-  
-  # load weather for R0
-  
-  WTotDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", year, ".rds")) %>%
-    filter(ID %in% IDsSubSet) 
-  
-  tas = matrix(WTotDT$tas, nrow = nD)
-  
-  # load H (just once) for R0
-  if(!exists("IDsDT")){
-    IDsDT <- WTotDT %>%
-      distinct(ID, .keep_all = TRUE) %>%
-      dplyr::select(c("ID", "pop")) %>%
-      filter(ID %in% IDsSubSet)
-  }
-  
-  H = matrix(rep(IDsDT$pop, nD), nrow = nD, byrow = T )
-  
-  #vector to host ratio
-  m = Adults*100/H
-  
-  #demographic parameters
-  muA = -log(0.677 * exp(-0.5*((tas-20.9)/13.2)^6)*tas^0.1) # adult mortality rate
-  muA[which(tas<=0)] = -log(0.677 * exp(-0.5*((tas[which(tas<=0)]-20.9)/13.2)^6))  #correct the problems due to negative values from SI
-  
-  #epidemiological parameters
-  A = (0.0043*tas + 0.0943)/2  #biting rate (Zanardini et al., Caminade 2016, Blagrove 2020)
-  phiA = phiAU*(H>RTh)+phiAR*(H<=RTh)
-  
-  EIPdengue = 1.03*(4*exp(5.15 - 0.123*tas)) #Metelmann 2021
-  
-  # Compute epidemiological risk
-  R0dengueM = (A*phiA)^2*m/(muA+muA^2*EIPdengue)*bV2H*bH2Vdengue*IIPdengue
-  LTSdengueM[i,] = colSums(R0dengueM>1, na.rm =T)
-}
-
-rm(IDsDT)
-
-AmjjasoMM[4,] <- colMeans(AmjjasoM, na.rm =T)
-LTSdengueMM[4,] <- colMeans(LTSdengueM, na.rm =T)
-
-## High RCP 8.5 long term----
-
-name = "Hg70"
-years = 2066:2085
-
-files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_", name))
-
-# matrices of indicators: average adults and R0
-
-AmjjasoM = matrix(NA, nrow = length(years), ncol = nIDs)
-LTSdengueM = matrix(NA, nrow = length(years), ncol = nIDs)
-
-for(i in  1:length(years)){
-  
-  file = files[i]
-  
-  Sim <- readRDS(paste0(folderSim, "/", file))
-  year <- years[i] # substr(file, nchar(file)-7, nchar(file)-4)
-  
-  #determine mjjaso
-  nD <- nrow(Sim)
-  FMay <- yday(as.Date(paste0(year, "-05-01"))) 
-  LOct <- yday(as.Date(paste0(year, "-10-31"))) 
-  
-  Adults <- Sim[,3*nIDs + 1:nIDs]
-  
-  Amjjaso <- colMeans(Adults[FMay:LOct,], na.rm =T)
-  AmjjasoM[i, ] <- Amjjaso
-  
-  # load weather for R0
-  
-  WTotDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", year, ".rds")) %>%
-    filter(ID %in% IDsSubSet) 
-  
-  tas = matrix(WTotDT$tas, nrow = nD)
-  
-  # load H (just once) for R0
-  if(!exists("IDsDT")){
-    IDsDT <- WTotDT %>%
-      distinct(ID, .keep_all = TRUE) %>%
-      dplyr::select(c("ID", "pop")) %>%
-      filter(ID %in% IDsSubSet)
-  }
-  
-  H = matrix(rep(IDsDT$pop, nD), nrow = nD, byrow = T )
-  
-  #vector to host ratio
-  m = Adults*100/H
-  
-  #demographic parameters
-  muA = -log(0.677 * exp(-0.5*((tas-20.9)/13.2)^6)*tas^0.1) # adult mortality rate
-  muA[which(tas<=0)] = -log(0.677 * exp(-0.5*((tas[which(tas<=0)]-20.9)/13.2)^6))  #correct the problems due to negative values from SI
-  
-  #epidemiological parameters
-  A = (0.0043*tas + 0.0943)/2  #biting rate (Zanardini et al., Caminade 2016, Blagrove 2020)
-  phiA = phiAU*(H>RTh)+phiAR*(H<=RTh)
-  
-  EIPdengue = 1.03*(4*exp(5.15 - 0.123*tas)) #Metelmann 2021
-  
-  # Compute epidemiological risk
-  R0dengueM = (A*phiA)^2*m/(muA+muA^2*EIPdengue)*bV2H*bH2Vdengue*IIPdengue
-  LTSdengueM[i,] = colSums(R0dengueM>1, na.rm =T)
-}
-
-rm(IDsDT)
-
-AmjjasoMM[5,] <- colMeans(AmjjasoM, na.rm =T)
-LTSdengueMM[5,] <- colMeans(LTSdengueM, na.rm =T)
 
 # Save and load----
 saveRDS(AmjjasoMM, file = paste0(folderSim, "/AmjjasoMM.rds"))

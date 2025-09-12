@@ -36,114 +36,33 @@ domain <- st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Da
 colPal= c("#384AB4", "#5570DF", "#8EB0FE", "#C5D7F3", "#F2CDBB", "#F29878", "#D04B45", "#B00026")
 cutPal = c(0, 10^(-3:3), 10^10)
 
-# Compute means per scenario----
+# scenarios
 
-## historical ----
+scenariosDF= data.frame(name = c("Hs99", "Cn35", "Cn55", "Cn70", "Hg35", "Hg55", "Hg70"),
+                        yearStart = c(1986, 2026, 2046, 2066, 2026, 2046, 2066),
+                        yearEnd = c(1986, 2026, 2046, 2066, 2026, 2046, 2066)+19)
 
-name = "Hs99"
-years = 1986:2005 
 
-nR <- which((namesAll == name) & (yearsAll %in% years))
+for(k in 1:nrow(scenariosDF)){
+  
+  name = scenariosDF$name[k]
+  years = scenariosDF$yearStart[k]:scenariosDF$yearEnd[k]
+  
+  nR <- which((namesAll == name) & (yearsAll %in% years))
+  
+  E0Sel <-  apply(E0m[nR,], 2,
+                  function(x){exp(mean(log(x)))})
+  
+  E0SelCut <- cut(E0Sel, breaks=cutPal,
+                  labels=sapply(cutPal [-length(cutPal )], function(x){paste0(">", as.character(x))}))
+  
+  plotCut <- ggplot()+
+    geom_sf(data = domain, aes(fill = E0SelCut), colour = NA)+ #
+    scale_fill_manual(values = colPal)+
+    ggtitle(paste0("E0 (suitability), scenario: ", name, "; period: ", min(years), "-", max(years)))
+  
+  ggsave(file = 
+           paste0(folderPlot, "/E0_", name, "_", min(years), "-", max(years), ".png"),
+         plot= plotCut , units="in", width=5.5, height=7, dpi=300)
 
-E0Sel <-  apply(E0m[nR,], 2,
-                        function(x){exp(mean(log(x)))})
-
-E0SelCut <- cut(E0Sel, breaks=cutPal,
-                      labels=sapply(cutPal [-length(cutPal )], function(x){paste0(">", as.character(x))}))
-
-plotCut <- ggplot()+
-  geom_sf(data = domain, aes(fill = E0SelCut), colour = NA)+ #
-  scale_fill_manual(values = colPal)+
-  ggtitle(paste0("E0 (suitability), scenario: ", name, "; period: ", min(years), "-", max(years)))
-
-ggsave(file = 
-         paste0(folderPlot, "/E0_", name, "_", min(years), "-", max(years), ".png"),
-       plot= plotCut , units="in", width=5.5, height=7, dpi=300)
-
-## Central RCP 4.5 short term----
-
-name = "Cn55"
-years = 2046:2065
-
-nR <- which((namesAll == name) & (yearsAll %in% years))
-
-E0Sel <-  apply(E0m[nR,], 2,
-                      function(x){exp(mean(log(x)))})
-
-E0SelCut <- cut(E0Sel, breaks=cutPal,
-                labels=sapply(cutPal [-length(cutPal )], function(x){paste0(">", as.character(x))}))
-
-plotCut <- ggplot()+
-  geom_sf(data = domain, aes(fill = E0SelCut), colour = NA)+ #
-  scale_fill_manual(values = colPal)+
-  ggtitle(paste0("E0 (suitability), scenario: ", name, "; period: ", min(years), "-", max(years)))
-
-ggsave(file = 
-         paste0(folderPlot, "/E0_", name, "_", min(years), "-", max(years), ".png"),
-       plot= plotCut , units="in", width=5.5, height=7, dpi=300)
-
-## Central RCP 4.5 long term----
-
-name = "Cn70"
-years = 2066:2085
-
-nR <- which((namesAll == name) & (yearsAll %in% years))
-
-E0Sel <-  apply(E0m[nR,], 2,
-                      function(x){exp(mean(log(x)))})
-
-E0SelCut <- cut(E0Sel, breaks=cutPal,
-                labels=sapply(cutPal [-length(cutPal )], function(x){paste0(">", as.character(x))}))
-
-plotCut <- ggplot()+
-  geom_sf(data = domain, aes(fill = E0SelCut), colour = NA)+ #
-  scale_fill_manual(values = colPal)+
-  ggtitle(paste0("E0 (suitability), scenario: ", name, "; period: ", min(years), "-", max(years)))
-
-ggsave(file = 
-         paste0(folderPlot, "/E0_", name, "_", min(years), "-", max(years), ".png"),
-       plot= plotCut , units="in", width=5.5, height=7, dpi=300)
-
-## High RCP 8.5 short term----
-
-name = "Hg55"
-years = 2046:2065
-
-nR <- which((namesAll == name) & (yearsAll %in% years))
-
-E0Sel <-  apply(E0m[nR,], 2,
-                      function(x){exp(mean(log(x)))})
-
-E0SelCut <- cut(E0Sel, breaks=cutPal,
-                labels=sapply(cutPal [-length(cutPal )], function(x){paste0(">", as.character(x))}))
-
-plotCut <- ggplot()+
-  geom_sf(data = domain, aes(fill = E0SelCut), colour = NA)+ #
-  scale_fill_manual(values = colPal)+
-  ggtitle(paste0("E0 (suitability), scenario: ", name, "; period: ", min(years), "-", max(years)))
-
-ggsave(file = 
-         paste0(folderPlot, "/E0_", name, "_", min(years), "-", max(years), ".png"),
-       plot= plotCut , units="in", width=5.5, height=7, dpi=300)
-
-## High RCP 8.5 long term----
-
-name = "Hg70"
-years = 2066:2085
-
-nR <- which((namesAll == name) & (yearsAll %in% years))
-
-E0Sel <-  apply(E0m[nR,], 2,
-                      function(x){exp(mean(log(x)))})
-
-E0SelCut <- cut(E0Sel, breaks=cutPal,
-                labels=sapply(cutPal [-length(cutPal )], function(x){paste0(">", as.character(x))}))
-
-plotCut <- ggplot()+
-  geom_sf(data = domain, aes(fill = E0SelCut), colour = NA)+ #
-  scale_fill_manual(values = colPal)+
-  ggtitle(paste0("E0 (suitability), scenario: ", name, "; period: ", min(years), "-", max(years)))
-
-ggsave(file = 
-         paste0(folderPlot, "/E0_", name, "_", min(years), "-", max(years), ".png"),
-       plot= plotCut , units="in", width=5.5, height=7, dpi=300)
+  }
