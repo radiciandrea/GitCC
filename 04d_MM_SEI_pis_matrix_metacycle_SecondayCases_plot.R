@@ -13,7 +13,7 @@ library(data.table)
 folderSim = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_04"
 folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
 folderShape = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab"
-folderPlotSim4 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/Sim_4"
+folderPlotSim4 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/Drias_sim_04"
 
 ## initial settings----
 
@@ -107,8 +107,8 @@ for(k in 1:nrow(scenariosDF)){
     #reshape human matrix
     H = matrix(rep(IDsDT$pop, nD), nrow = nD, byrow = T )
     
-    #reshape area matrix (km²)
-    AreaKm2 = matrix(rep(IDsDT$surfHa*10^-2, nD), nrow = nD, byrow = T )`
+    #area as (km²)
+    AreaKm2 = IDsDT$surfHa*10^-2
     
     #vector to host ratio
     m = Adults*100/H
