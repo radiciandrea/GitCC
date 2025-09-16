@@ -198,9 +198,9 @@ for (year in years){
   
   
   ### modified k ----
-  Kmax = 500 # arbocarto
+  Kmax = 0.05 # arbocarto
   artancoef = 2*Kmax/pi
-  K = artancoef*(atan(K/artancoef))
+  KM2 = artancoef*(atan(KM2/artancoef))
   
   ## Call integration fucntion ----
   source("02b_MM_integration_functions.R")
