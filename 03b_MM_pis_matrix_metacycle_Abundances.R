@@ -32,14 +32,14 @@ years = 2066:2085
 
 source("03a_MM_pis_matrix_cycle_Abundances.R")
 
-## High RCP 8.5 middle term----
+## High RCP 8.5 short term----
 
 name = "Hg35"
 years = 2026:2045
 
 source("03a_MM_pis_matrix_cycle_Abundances.R")
 
-## High RCP 8.5 short term----
+## High RCP 8.5 middle term----
 
 name = "Hg55"
 years = 2046:2065

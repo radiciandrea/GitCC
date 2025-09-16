@@ -14,7 +14,7 @@ source("02_MM_pis_matrix_cycle_E0.R")
 ## Central RCP 4.5 short term----
 
 name = "Cn35"
-years = 2046:2065
+years = 2026:2045
 
 source("02_MM_pis_matrix_cycle_E0.R")
 
@@ -34,7 +34,7 @@ source("02_MM_pis_matrix_cycle_E0.R")
 
 ## High RCP 8.5 short term----
 
-name = "Hg55"
+name = "Hg35"
 years = 2026:2045
 
 source("02_MM_pis_matrix_cycle_E0.R")
