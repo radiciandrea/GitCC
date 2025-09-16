@@ -14,7 +14,7 @@ source("04a_MM_SEI_pis_matrix_cycle_SecondayCases.R")
 ## Central RCP 4.5 short term----
 
 name = "Cn35"
-years = 2026:2055
+years = 2026:2045
 
 source("04a_MM_SEI_pis_matrix_cycle_SecondayCases.R")
 
