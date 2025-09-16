@@ -145,11 +145,11 @@ safranGridDT = as.data.table(safranGridGeom)
 
 # name : H
 scenariosDT <- data.table(name = c("Hs99", "Cn35", "Cn55", "Cn70", "Hg35", "Hg55", "Hg70"),
-                          yearS = c(1986, 2026, 2046, 2066, 2046, 2066),
-                          yearE = c(1986, 2026, 2046, 2066, 2046, 2066)+19,
-                          yearPop = c(1999, 2035, 2055, 2070, 2055, 2070),
-                          omphale = c("historical", "central", "central", "central", "high", "high"),
-                          rcp = c("Historical", "rcp4.5", "rcp4.5", "rcp4.5", "rcp8.5", "rcp8.5"))
+                          yearS = c(1986, 2026, 2046, 2066, 2026, 2046, 2066),
+                          yearE = c(1986, 2026, 2046, 2066, 2026, 2046, 2066)+19,
+                          yearPop = c(1999, 2035, 2055, 2070, 2035, 2055, 2070),
+                          omphale = c("historical", "central", "central", "central", "high", "high", "high"),
+                          rcp = c("Historical", "rcp4.5", "rcp4.5", "rcp4.5", "rcp8.5",  "rcp8.5", "rcp8.5"))
 
 
 for(s in scenariosDT[,name]){

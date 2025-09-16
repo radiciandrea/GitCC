@@ -368,7 +368,7 @@ communesDensShp <- communesPopShp %>%
   mutate(PopKmHg35 = 10^(2)*popCom_Hg2035/surf_ha) %>%
   mutate(PopKmHg55 = 10^(2)*popCom_Hg2055/surf_ha) %>%
   mutate(PopKmHg70 = 10^(2)*popCom_Hg2070/surf_ha) %>%
-  select(c("code_insee", "nom", "PopKmHs99", "PopKmCn55", "PopKmCn70", "PopKmHg55", "PopKmHg70", "geometry"))
+  select(c("code_insee", "nom", "PopKmHs99", "PopKmCn35","PopKmCn55", "PopKmCn70", "PopKmHg35","PopKmHg55", "PopKmHg70", "geometry"))
 
 #Load safran grd  
 
@@ -386,7 +386,7 @@ for(comm in 1:nrow(communesDensShp)){
   
   communesDensSafranList[[comm]] <- commIntersection
   
-  
+  cat(comm, "\n")
 }
 toc() #~5200 sec
 
@@ -456,15 +456,17 @@ SafranDensDF <- communesDensSafranSF %>%
  # check pop totale
 
 sum(SafranDensDF$PopHs99, na.rm = T) #58.3
+sum(SafranDensDF$PopCn35, na.rm = T) #66.5
 sum(SafranDensDF$PopCn55, na.rm = T) #66.2
 sum(SafranDensDF$PopCn70, na.rm = T) #65.1
+sum(SafranDensDF$PopHg35, na.rm = T) #68.4
 sum(SafranDensDF$PopHg55, na.rm = T) #72.4
 sum(SafranDensDF$PopHg70, na.rm = T) #75.2
      
 # create DF
 
 SafranDensSF <- left_join(SafranGrid, SafranDensDF) %>%
-  select(ID, PopKmHs99, PopKmCn55, PopKmCn70, PopKmHg55, PopKmHg70, surf_ha)
+  select(ID, PopKmHs99, PopKmCn35, PopKmCn55, PopKmCn70, PopKmHg35, PopKmHg55, PopKmHg70, surf_ha)
 
 # I keep the area since some boundaries cells have smaller areas
 
