@@ -13,8 +13,8 @@ library(ggpubr)
 folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
 
 scenarios <- c("Cn70", "Cn55", "Cn35", "Hs99", "Hg35", "Hg55", "Hg70")
-cites <- c("Montpellier")
-IDsSubSet <- c(1040)
+cites <- c("Montpellier", "Nantes", "Rennes", "Lille", "Paris-est", "Lyon", "Grenoble", "Bordeaux", "Toulouse", "Marseille", "Nice")
+IDsSubSet <- c(1040, 5243, 6482, 8915, 7542, 3500, 2936, 2472, 929, 642, 1249)
 
 MapDT <- data.table(city = rep(cites, length(scenarios)),
                     ID = rep(IDsSubSet, length(scenarios)),
