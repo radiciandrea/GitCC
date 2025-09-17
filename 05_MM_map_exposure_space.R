@@ -50,8 +50,8 @@ for(k in 1:length(scenarios)){
 
 # fake background df
 
-bakcDF = data.table(tasAvgYea = rep(seq(11, 20, by = 0.5), each = 21),
-                    tasMinWin = rep(seq(1, 10, by = 0.5), times = 21),
+bakcDF = data.table(tasAvgYea = rep(seq(8, 20, by = 0.5), each = 26),
+                    tasMinWin = rep(seq(-2, 10, by = 0.5), times = 26),
                     suitability = NA)
 
 bakcDF$suitability =  (bakcDF$tasMinWin - 3)^2 + (bakcDF$tasAvgYea)^1.7
@@ -67,8 +67,8 @@ ggplot() +
     aes(x = tasAvgYea, y = tasMinWin, z = suitability),
     color = "black", breaks = c(1))+
   theme_test()+
-  geom_path(data = MapDT, aes(x = tasAvgYea, y = tasMinWin), color= "white") +
-  geom_point(data = MapDT, aes(x = tasAvgYea, y = tasMinWin, shape = "city"), color = "white", size = 2) +
+  geom_path(data = MapDT, aes(x = tasAvgYea, y = tasMinWin, group = city), color= "white") +
+  geom_point(data = MapDT, aes(x = tasAvgYea, y = tasMinWin, shape = city), color = "white", size = 2) +
   guides(size = "legend", colour = "none")+
   scale_color_grey()+
   geom_label_repel(data = MapDT ,
