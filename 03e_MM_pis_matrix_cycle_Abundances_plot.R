@@ -77,7 +77,7 @@ for(k in 1:nrow(scenariosDF)){
     FMay <- yday(as.Date(paste0(year, "-05-01"))) 
     LOct <- yday(as.Date(paste0(year, "-10-31"))) 
     
-    Adults <- Sim[,3*nIDs + 1:nIDs]
+    Adults <- Sim[,1+3*nIDs + 1:nIDs]
     
     Amjjaso <- colMeans(Adults[FMay:LOct,], na.rm =T)
     AmjjasoM[i, ] <- Amjjaso
