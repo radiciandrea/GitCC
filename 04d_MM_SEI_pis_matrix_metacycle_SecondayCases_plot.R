@@ -39,10 +39,10 @@ scenariosDF= data.frame(name = c("Hs99", "Cn35", "Cn55", "Cn70", "Hg35", "Hg55",
 
 # create meta matrices for each scenario (hist, ssp2, ssp5) for both adults and MTS for dengue
 
-AmjjasoMM <- matrix(NA, ncol = nIDs, nrow = 5)
-LTSdengueMM <- matrix(NA, ncol = nIDs, nrow = 5)
-SecCaseMM <- matrix(NA, ncol = nIDs, nrow = 5) # Secondary Cases metamatrix
-PrevMM <- matrix(NA, ncol = nIDs, nrow = 5) # prevalence metamatrix
+AmjjasoMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF))
+LTSdengueMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF))
+SecCaseMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF)) # Secondary Cases metamatrix
+PrevMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF)) # prevalence metamatrix
 
 #host preference
 phiAU = 0.9 #human biting preference (urban)

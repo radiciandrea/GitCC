@@ -34,8 +34,8 @@ scenariosDF= data.frame(name = c("Hs99", "Cn35", "Cn55", "Cn70", "Hg35", "Hg55",
 
 # create meta matrices for each scenario (hist, ssp2, ssp5) for both adults and MTS for dengue
 
-AmjjasoMM <- matrix(NA, ncol = nIDs, nrow = 5)
-LTSdengueMM <- matrix(NA, ncol = nIDs, nrow = 5)
+AmjjasoMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF))
+LTSdengueMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF))
 
 #fixed epimelogical (meta)perameters
 
