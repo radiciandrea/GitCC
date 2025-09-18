@@ -162,11 +162,12 @@ st_write(depDemMetrShp, paste0(folderShp, "/DemHist_ScenariosOmphaleCentrHighDep
 
 ## Demography: create comm shp ----
 
-communesShp <- st_read(paste0(folderAdminShp, "/communes-20180101-shp/communes-20181110-metr-simp001.shp"))
+# communesShp <- st_read(paste0(folderAdminShp, "/communes-20180101-shp/communes-20181110-metr-simp001.shp"))
+communesShp <- st_read(paste0(folderAdminShp, "/communes-20220101-shp/communes-20220101_metr_simp.shp")) #works better
 
 communesShp <- communesShp %>%
   rename(code_insee = insee)  %>%
-  select(-c("nom"))
+  select(-c("nom", "wikipedia"))
 
 ##### Correct INSEE code associated to multiple municipalities ----
 # found with which(table(communesShp$code_insee) == 2)
@@ -468,6 +469,10 @@ sum(SafranDensDF$PopHg70, na.rm = T) #75.2
 SafranDensSF <- left_join(SafranGrid, SafranDensDF) %>%
   select(ID, PopKmHs99, PopKmCn35, PopKmCn55, PopKmCn70, PopKmHg35, PopKmHg55, PopKmHg70, surf_ha)
 
-# I keep the area since some boundaries cells have smaller areas
+# I keep the area since some boundaries cells have smaller areas (merged commons)
+
+SafranDensSF$surf_ha[SafranDensSF$ID %in% c(8000, 8001, 8089, 8090)] = mean(SafranDensSF$surf_ha[SafranDensSF$ID %in% (c(8000, 8001, 8089, 8090)+10)])
+
+# A posteriori correction of areas in cells
 
 st_write(SafranDensSF, paste0(folderShp, "/SafranDensOmphale.shp"))
