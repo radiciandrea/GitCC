@@ -59,10 +59,11 @@ for(k in 1:nrow(scenariosDF)){
   plotCut <- ggplot()+
     geom_sf(data = domain, aes(fill = E0SelCut), colour = NA)+ #
     scale_fill_manual(values = colPal)+
-    ggtitle(paste0("E0 (suitability), scenario: ", name, "; period: ", min(years), "-", max(years)))
+    ggtitle(paste0("E0 (suitability), scenario: ", name, "; period: ", min(years), "-", max(years)))+
+    theme(plot.background  = element_blank())
   
   ggsave(file = 
            paste0(folderPlot, "/E0_", name, "_", min(years), "-", max(years), ".png"),
-         plot= plotCut , units="in", width=5.5, height=7, dpi=300)
+         plot= plotCut , units="in", width=5.5, dpi=300)
 
   }

@@ -187,11 +187,12 @@ for(i in 1:nrow(scenariosDF)){
   plotCut <- ggplot()+
     geom_sf(data = domain, aes(fill = AmjjasoCut), colour = NA)+ #
     scale_fill_manual(values = colPal)+
-    ggtitle(paste0("Adult density, scenario: ", name, "; period: ", min(years), "-", max(years)))
+    ggtitle(paste0("Adult density, scenario: ", name, "; period: ", min(years), "-", max(years)))+
+    theme(plot.background  = element_blank())
   
   ggsave(file = 
            paste0(folderPlotSim4, "/Amjjaso_", name, "_", min(years), "-", max(years), ".png"),
-         plot= plotCut , units="in", width=5.5, height=7, dpi=300)
+         plot= plotCut , units="in", width=5.5, dpi=300)
   
 }
 
@@ -216,11 +217,12 @@ for(i in 1:nrow(scenariosDF)){
   plotCut <- ggplot()+
     geom_sf(data = domain, aes(fill = LTSSelCut), colour = NA)+ #
     scale_fill_manual(values = colPal)+
-    ggtitle(paste0("LTS (dengue), scenario: ", name, "; period: ", min(years), "-", max(years)))
+    ggtitle(paste0("LTS (dengue), scenario: ", name, "; period: ", min(years), "-", max(years)))+
+    theme(plot.background  = element_blank())
   
   ggsave(file = 
            paste0(folderPlotSim4, "/LTS_dengue_", name, "_", min(years), "-", max(years), ".png"),
-         plot= plotCut , units="in", width=5.5, height=7, dpi=300)
+         plot= plotCut , units="in", width=5.5, dpi=300)
   
   
 }
@@ -246,11 +248,12 @@ for(i in 1:nrow(scenariosDF)){
   plotCut <- ggplot()+
     geom_sf(data = domain, aes(fill = SecCaseCut), colour = NA)+ #
     scale_fill_manual(values = colPal)+
-    ggtitle(paste0("Secondary cases (dengue), scenario: ", name, "; period: ", min(years), "-", max(years)))
+    ggtitle(paste0("Secondary cases (dengue), scenario: ", name, "; period: ", min(years), "-", max(years)))+
+    theme(plot.background  = element_blank())
   
   ggsave(file = 
            paste0(folderPlotSim4, "/SecCase_", name, "_", min(years), "-", max(years), ".png"),
-         plot= plotCut , units="in", width=5.5, height=7, dpi=300)
+         plot= plotCut , units="in", width=5.5, dpi=300)
   
 }
 
@@ -275,11 +278,12 @@ for(i in 1:nrow(scenariosDF)){
   plotCut <- ggplot()+
     geom_sf(data = domain, aes(fill = PrevSelCut), colour = NA)+ #
     scale_fill_manual(values = colPal)+
-    ggtitle(paste0("Prev (dengue), scenario: ", name, "; period: ", min(years), "-", max(years)))
+    ggtitle(paste0("Prev (dengue), scenario: ", name, "; period: ", min(years), "-", max(years)))+
+    theme(plot.background  = element_blank())
   
   ggsave(file = 
            paste0(folderPlotSim4, "/Prev_dengue_", name, "_", min(years), "-", max(years), ".png"),
-         plot= plotCut , units="in", width=5.5, height=7, dpi=300)
+         plot= plotCut , units="in", width=5.5, dpi=300)
   
   
 }
