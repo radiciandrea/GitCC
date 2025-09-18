@@ -133,6 +133,10 @@ X0 = c(X0[0*8981+IDsSubSet],
        AE0,
        AI0) # per ha
 
+#to correct for reduced K
+
+X0 = sqrt(X0)
+
 #integration step during inactivity period(should be 1/100) (I)
 iSI = 1/4
 #integration step during diapause beginning and ending (D)
