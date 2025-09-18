@@ -48,9 +48,11 @@ if(!exists("IDsSubSet")){
 
 if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
   folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
+  folderX0 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim"
   folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_020"
 } else {
   folderDrias = "DRIAS_elab"
+  folderX0 = "DRIAS_sim"
   folderOut = "DRIAS_sim_020"
 }
 
