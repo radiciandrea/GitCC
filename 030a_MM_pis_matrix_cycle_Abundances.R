@@ -48,9 +48,11 @@ if(!exists("IDsSubSet")){
 
 if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
   folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
+  folderX0 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim"
   folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_030"
 } else {
   folderDrias = "DRIAS_elab"
+  folderX0 = "DRIAS_sim"
   folderOut = "DRIAS_sim_030"
 }
 
@@ -74,8 +76,13 @@ CTTs = 11 #critical temperature over one week in spring (°C )
 CPPs = 11.25 #critical photoperiod in spring
 CPPa = 10.058 + 0.08965 * LAT # critical photperiod in autumn
 deltaE = 1/7.1 #normal egg development rate (1/day)
-# lambda = 10^6 # capacity parameter (larvae/day/ha)
-lambdaM2 = 10^2 # capacity parameter (larvae/day/m2)
+
+#parameters for modified carryong capacity
+lambda = 42000 # to reach 2/3* max carryin capacity with a daily rain of 10 mm
+KmaxR = 375 # *5/4 max arbocarto
+KmaxH = 250 # *5/4 max arbocarto
+atanCoefR = 2*KmaxR/pi # for arctan
+atanCoefH = 2*KmaxH/pi # for arctan
 
 # advanced parameter for carrying capacity
 alphaEvap = 0.9
@@ -90,7 +97,7 @@ epsDens = 0.01
 epsFac = 0.01
 
 ## System initialization ----
-X0 = readRDS(file = paste0(folderOut, "/X0_Drias_", name, "_", years[1], ".rds"))
+X0 = readRDS(file = paste0(folderX0, "/X0_Drias_", name, "_", years[1], ".rds"))
 
 # and select subset:
 
@@ -191,16 +198,16 @@ for (year in years){
     (exp(-epsVar*(prec-epsOpt)^2)+ eps0) +
     epsRat*epsDens/(epsDens + exp(-epsFac*H))
   
+  # Compute modified K
+  KR = atanCoefR*atan(sapply(1:nIDs, function(y){return(lambda * (1-alphaEvap)/(1-alphaEvap^DOSy)*
+                                                          sapply(DOSy, function(x){return(sum(alphaEvap^(x:1-1) * alphaDens*prec[1:x,y]))}))})/
+                        atanCoefR) 
+  KH = atanCoefH*(atan(lambda*alphaRain*H/atanCoefH))
+  
+  K = KR+KH
+  
   # Compute K per m2
-  KM2 = sapply(1:nIDs, function(y){return(lambdaM2 * (1-alphaEvap)/(1 - alphaEvap^DOSy)*
-                                            sapply(DOSy, function(x){return(sum(alphaEvap^(x:1-1) * (alphaDens*prec[1:x,y] + alphaRain*H[x,y])))}))
-  }) 
-  
-  
-  ### modified k ----
-  Kmax = 0.05 # arbocarto
-  artancoef = 2*Kmax/pi
-  KM2 = artancoef*(atan(KM2/artancoef))
+  KM2 = K*10^(-4)
   
   ## Call integration fucntion ----
   source("02b_MM_integration_functions.R")

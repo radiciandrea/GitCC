@@ -1,11 +1,11 @@
 # Model by Metelmann 2019 ----
-# to estimate E0
+# to simulate secondary cases within a month
 
 # Running on SAFRAN
 
 # Notes from "Esperimenti/Scenari climatici"
 
-# inspired by ModelMetelmann_pis_matrix_EOBS_cycle
+# inspired by ModelMetelmann_pis_matrix_EOBS_cycle AND MM_PM_EOBS_CC_01_Epidemic.R
 
 # per scenarios:
 
@@ -17,7 +17,7 @@
 # high + rcp  8.5 2046-2065
 # high + rcp 8.5 2066-2085
 
-# modified K
+# with modified k
 
 # rm(list = ls())
 
@@ -44,22 +44,30 @@ if(!exists("IDsSubSet")){
   IDsSubSet = 1:8981 # put to compute only a subset of cells (8981 in total)
 }
 
+if(!exists("NIntro")){
+  NIntro = 1 # number of introduced infected people
+}
+
+if(!exists("IntroMonthCalendar")){
+  IntroMonthCalendar = 1:12 # imported case: one for each month
+}
+
 # folder names
 
 if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
   folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
-  folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_020"
+  folderX0 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim"
+  folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_040"
 } else {
   folderDrias = "DRIAS_elab"
-  folderOut = "DRIAS_sim_020"
+  folderX0 = "DRIAS_sim"
+  folderOut = "DRIAS_sim_040"
 }
-
-dir.create(folderOut)
 
 # get ID, lat, lon
 IDsDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", years[1], ".rds")) %>%
   distinct(ID, .keep_all = TRUE) %>%
-  dplyr::select(c("ID", "lat", "lon", "pop")) %>%
+  dplyr::select(c("ID", "lat", "lon", "pop", "surfHa")) %>%
   filter(ID %in% IDsSubSet)
 
 nIDs = length(IDsSubSet)
@@ -76,12 +84,6 @@ CTTs = 11 #critical temperature over one week in spring (°C )
 CPPs = 11.25 #critical photoperiod in spring
 CPPa = 10.058 + 0.08965 * LAT # critical photperiod in autumn
 deltaE = 1/7.1 #normal egg development rate (1/day)
-lambda = 10^6 # capacity parameter (larvae/day/ha)
-
-# advanced parameter for carrying capacity
-alphaEvap = 0.9
-alphaDens = 0.001
-alphaRain = 0.00001
 
 #parameters for modified carryong capacity
 lambda = 42000 # to reach 2/3* max carryin capacity with a daily rain of 10 mm
@@ -90,6 +92,11 @@ KmaxH = 250 # *5/4 max arbocarto
 atanCoefR = 2*KmaxR/pi # for arctan
 atanCoefH = 2*KmaxH/pi # for arctan
 
+# advanced parameter for carrying capacity
+alphaEvap = 0.9
+alphaDens = 0.001
+alphaRain = 0.00001
+
 epsRat = 0.2
 eps0 = 1.5
 epsVar = 0.05
@@ -97,15 +104,41 @@ epsOpt = 8
 epsDens = 0.01
 epsFac = 0.01
 
-## System initialization ----
-E0 = rep(0, nIDs)
-J0 = rep(0, nIDs)
-I0 = rep(0, nIDs)
-A0 = rep(0, nIDs)
-Ed_0 = 1*rep(1, nIDs) # at 1st of January (10^6)
+### Epidemic parameters
 
-#integration step (chould be 1/100)
-iS = 1/60
+# Epidemic parameters 1
+bH2v = 0.31 # beta Mtl 2021 (dengue)
+bv2H = 0.5 # b Blagrove 2020
+phiAU = 0.9 # vector preference (urban)
+phiAR = 0.5 # vector preference (rural) #Caminade 2016
+RTh = 50 # threshold, in term of people density, to distinguish rural and urban
+
+deltaM = 4.5 #ind/ha max number of mosquito bitten for (goniotrophic cycle)
+DHV = 5 # 1/host recovery rate, duration of hte host viremia days (Benkimoun)
+
+# Epidemic sysem initialization
+AE0 = rep(0, nIDs) # exposed vectors
+AI0 = rep(0, nIDs) # infected vectors
+
+## System initialization ----
+X0 = readRDS(file = paste0(folderX0, "/X0_Drias_", name, "_", years[1], ".rds"))
+
+# and select subset:
+
+X0 = c(X0[0*8981+IDsSubSet],
+       X0[1*8981+IDsSubSet],
+       X0[2*8981+IDsSubSet],
+       X0[3*8981+IDsSubSet],
+       X0[4*8981+IDsSubSet],
+       AE0,
+       AI0) # per ha
+
+#integration step during inactivity period(should be 1/100) (I)
+iSI = 1/4
+#integration step during diapause beginning and ending (D)
+iSD = 1/120
+#integration step during activty period (should be 1/100) (A)
+iSA = 1/72
 
 tic()
 for (year in years){
@@ -149,8 +182,11 @@ for (year in years){
     tasMin <- tas
   }
   
-  # reshape human matrix
-  H =   matrix(rep(IDsDT$pop, nD), nrow = nD, byrow = T )
+  #reshape human matrix
+  H =   matrix(rep(IDsDT$pop, nD), nrow = nD, byrow = T ) 
+  
+  #reshape area matrix (km²)
+  AreaKm2 = matrix(rep(IDsDT$surfHa*10^-2, nD), nrow = nD, byrow = T )
   
   #elaborate tas and prec + sapply transpose matrices: need to t()
   tas7 = tas[1,]
@@ -189,20 +225,38 @@ for (year in years){
   
   # Compute modified K
   KR = atanCoefR*atan(sapply(1:nIDs, function(y){return(lambda * (1-alphaEvap)/(1-alphaEvap^DOSy)*
-                                          sapply(DOSy, function(x){return(sum(alphaEvap^(x:1-1) * alphaDens*prec[1:x,y]))}))})/
+                                                          sapply(DOSy, function(x){return(sum(alphaEvap^(x:1-1) * alphaDens*prec[1:x,y]))}))})/
                         atanCoefR) 
   KH = atanCoefH*(atan(lambda*alphaRain*H/atanCoefH))
   
   K = KR+KH
   
-  X0 = c(E0, J0, I0, A0, Ed_0)
+  # Compute K per m2
+  KM2 = K*10^(-4)
+  
+  ## Compute epidemic parameters ----
+  A = (0.0043*tas + 0.0943)/2 #biting rate
+  EIP = 1.03*(4*exp(5.15 - 0.123*tas)) #Metelmann 2021 (Dengue)
+  ni = 1/EIP #of the vector
+  phiA = phiAU*(H>RTh)+phiAR*(H<=RTh) #vector preference
+  
+  #Epidemic scenario (as a matrix)
+  InfectedHosts <- rep(0, nD)
+  IntroDates <- yday(as.Date(paste0(year, "-", IntroMonthCalendar, "-01", "%d/%m/%y")))
+  InfectedHostDates <- c(t(sapply(-1+1:DHV, function(x){IntroDates+x}))) # repeat for a duration of DHV
+  InfectedHosts[InfectedHostDates] = NIntro #hab
+  InfectedHostDensityM = matrix(rep(InfectedHosts, nIDs), ncol = nIDs)/AreaKm2
+  InfectedHostPrevalenceM = InfectedHostDensityM/H
+  
+  SH0 = H[1,]/100 # susceptible hosts per ha
+  X0 = c(X0, SH0) # included in the system
   
   ## Call integration fucntion ----
-  source("02b_MM_integration_functions.R")
+  source("04b_MM_SEI_integration_functions.R")
   
   parms = list(omega = omega,
                h = h,
-               K = K,
+               K = KM2,
                muA = muA,
                deltaE = deltaE,
                sigma = sigma,
@@ -210,12 +264,24 @@ for (year in years){
                tasMax = tasMax,
                tasMin = tasMin,
                nIDs = nIDs,
-               tSr = tSr)
+               tSr = tSr,
+               A = A,
+               phiA = phiA,
+               bH2v = bH2v,
+               bv2H = bv2H,
+               deltaM = deltaM,
+               ni = ni,
+               IC = IntroDates,
+               iCm = InfectedHostPrevalenceM,
+               SH0 = SH0)
   
   #transform into log+1 AND giving names
-  X0log1 = log(X0+1)
+  X0m2 <- X0/10^4 #per m2
+  X0log1 = log(X0m2+1)
   
   names(X0log1) =as.character(1:(length(X0)))
+  
+  ## Set events ----
   
   #set event: zeroing diapausing eggs on FoA
   
@@ -224,31 +290,79 @@ for (year in years){
                              value = 0,
                              method = "rep")
   
-  # define finer integration grid
-  DOSiS = seq(tS, tEnd, by = iS)
+  # event: zero mosquito infection. Beware, this way they are simply "killed" and not added to the "S". (They are very few btw)
+  eventZeroAE <- data.frame(var = names(X0log1)[(nIDs*5+1):(nIDs*6)], 
+                            time = rep(IntroDates, each = nIDs),
+                            value = 0,
+                            method = "rep")
+  
+  eventZeroAI <- data.frame(var = names(X0log1)[(nIDs*6+1):(nIDs*7)], 
+                            time = rep(IntroDates, each = nIDs),
+                            value = 0,
+                            method = "rep")
+  
+  #event reset SH
+  eventResetSH <- data.frame(var = names(X0log1)[(nIDs*7+1):(nIDs*8)], 
+                             time = rep(IntroDates, each = nIDs),
+                             value = log(SH0*10^-4+1) ,
+                             method = "rep")
+  
+  #cbind and sort
+  
+  eventReset <- rbind(eventZeroEd1, eventZeroAE, eventZeroAI, eventResetSH) %>%
+    arrange(time)
+  
+  # define finer integration grid during diapause haching
+  tbDH = which(rowSums(sigma)>0)[1]-1
+  tfDH = which(rowSums(sigma)== max(rowSums(sigma)))[1]+1
+  
+  # define finer integration grid during diapause enterin
+  tbDE = which(rowSums(omega)>0)[1]-1
+  tfDE = which(rowSums(omega)== max(rowSums(omega)))[1]+1
+  
+  # cbind integration grid
+  DOSiS = c(seq(tS, tbDH-iSI, by = iSI),
+            seq(tbDH, tfDH-iSD, by = iSD),
+            seq(tfDH, tbDE-iSA, by = iSA),
+            seq(tbDE, tfDE-iSD, by = iSD),
+            seq(tfDE, tEnd, by = iSI))
   
   ## Integration  ----
   SimLog1DOSiS<- deSolve::ode(y = X0log1, 
                               times = DOSiS,
-                              func = dfLog1, 
+                              func = dfLogSEI, 
                               parms = parms,
                               method = "rk4",
-                              events = list(data = eventZeroEd1))
+                              events = list(data = eventReset))
   
   # extract values from finer grid
-  SimLog1 <-SimLog1DOSiS[1+(0:(tEnd-tS))/iS,]
+  whichDOSiS = which((DOSiS %% 1)==0)
+  SimLog1 <-SimLog1DOSiS[whichDOSiS,]
   
-  # untransform variables
-  Sim = cbind(SimLog1[,1], exp(SimLog1[, 1+1:(nIDs*5)])-1)
+  # untransform variables and transform to ha
+  Sim = cbind(SimLog1[,1], 10^4*(exp(SimLog1[, 1+1:(nIDs*8)])-1))
   
-  #compute E0
-  E0v = pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 0)/Ed_0
+  # update X0 (E0 are AT LEAST 1)
+  X0 = c(rep(0, 4*nIDs), pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 1), rep(0, 2*nIDs))
+  X0[which(is.na(X0))] = 1
+  
+  AI <- Sim[,1+(nIDs*6+1):(nIDs*7)]
+  AE <- Sim[,1+(nIDs*5+1):(nIDs*6)]
+  AS <- Sim[,1+(nIDs*3+1):(nIDs*4)]
+  Atot <- AS + AE + AI
+  
+  # first checks, to be removed
+  # PrevMosquito = AI/Atot
+  # 
+  # SH <- Sim[,1+(nIDs*7+1):(nIDs*8)]
+  # SecondayCasesContCum = (H - SH*100)*AreaKm2
+  # 
+  # PrevHost = 100*SecondayCasesContCum/(H*AreaKm2)
   
   ## Save results ----
-  saveRDS(Sim, file = paste0(folderOut, "/Sim_Drias_", name, "_", year, ".rds"))
-  saveRDS(E0v, file = paste0(folderOut, "/E0_Drias_", name, "_", year, ".rds"))
+  saveRDS(Sim, file = paste0(folderOut, "/Sim_Drias_SEIS_", name, "_", year, ".rds"))
   
-  cat("UPDATE\nYear:", year, "\nAverage E0:", mean(E0v), "\nAnd")
+  cat("UPDATE\nYear:", year, "\n")
   
   toc()
 }
