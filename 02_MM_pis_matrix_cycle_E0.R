@@ -233,7 +233,7 @@ for (year in years){
   E0v = pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 0)/Ed_0
   
   ## Save results ----
-  saveRDS(Sim, file = paste0(folderOut, "/Sim_Drias_", name, "_", year, ".rds"))
+  # saveRDS(Sim, file = paste0(folderOut, "/Sim_Drias_", name, "_", year, ".rds"))
   saveRDS(E0v, file = paste0(folderOut, "/E0_Drias_", name, "_", year, ".rds"))
   
   cat("UPDATE\nYear:", year, "\nAverage E0:", mean(E0v), "\nAnd")
