@@ -275,8 +275,8 @@ for (year in years){
   betaApprox = (33.2*exp(-0.5*((tas-70.3)/14.1)^2)*(38.8 - tas)^1.5)*(tas<= 38.8) #fertility rate
   
   ## Save results ----
-  saveRDS(Sim, file = paste0(folderOut, "/Sim_Drias_", name, "_", year, ".rds"))
-  saveRDS(betaApprox, file = paste0(folderOut, "/Beta_Drias_", name, "_", year, ".rds"))
+  saveRDS(Sim, file = paste0(folderOut, "/030a_Sim_Drias_", name, "_", year, ".rds"))
+  saveRDS(betaApprox, file = paste0(folderOut, "/030a_Beta_Drias_", name, "_", year, ".rds"))
   
   cat("UPDATE\nYear:", year, "\n")
   

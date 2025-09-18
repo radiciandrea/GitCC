@@ -234,7 +234,7 @@ for (year in years){
   
   ## Save results ----
   # saveRDS(Sim, file = paste0(folderOut, "/Sim_Drias_", name, "_", year, ".rds"))
-  saveRDS(E0v, file = paste0(folderOut, "/E0_Drias_", name, "_", year, ".rds"))
+  saveRDS(E0v, file = paste0(folderOut, "/02_E0_Drias_", name, "_", year, ".rds"))
   
   cat("UPDATE\nYear:", year, "\nAverage E0:", mean(E0v), "\nAnd")
   
