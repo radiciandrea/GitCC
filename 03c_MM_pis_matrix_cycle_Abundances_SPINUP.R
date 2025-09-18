@@ -46,10 +46,10 @@ if(!exists("IDsSubSet")){
 
 if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
   folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
-  folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_03"
+  folderX0 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim"
 } else {
   folderDrias = "DRIAS_elab"
-  folderOut = "DRIAS_sim_03"
+  folderX0 = "DRIAS_sim"
 }
 
 dir.create(folderOut)
@@ -257,4 +257,4 @@ for (year in years){
 }
 
 ## Save results ----
-saveRDS(X0, file = paste0(folderOut, "/X0_Drias_", name, "_", year, ".rds"))
+saveRDS(X0, file = paste0(folderX0, "/X0_Drias_", name, "_", year, ".rds"))

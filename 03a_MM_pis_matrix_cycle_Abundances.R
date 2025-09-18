@@ -45,10 +45,12 @@ if(!exists("IDsSubSet")){
 # folder names
 
 if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
-  folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
+  folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"*
+  folderX0 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim"
   folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_03"
 } else {
   folderDrias = "DRIAS_elab"
+  folderX0 = "DRIAS_sim"
   folderOut = "DRIAS_sim_03"
 }
 
@@ -88,7 +90,7 @@ epsDens = 0.01
 epsFac = 0.01
 
 ## System initialization ----
-X0 = readRDS(file = paste0(folderOut, "/X0_Drias_", name, "_", years[1], ".rds"))
+X0 = readRDS(file = paste0(folderX0, "/X0_Drias_", name, "_", years[1], ".rds"))
 
 # and select subset:
 
