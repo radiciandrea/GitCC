@@ -15,7 +15,7 @@ folderPlot = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperim
 
 files = list.files(paste0(folderData,"/"), pattern = "E0")
 
-namesAll = substring(files, 10, nchar(files)-9)
+namesAll = substring(files, nchar(files)-12, nchar(files)-9)
 yearsAll = substring(files, nchar(files)-7, nchar(files)-4) 
 
 # load for 1 dimension
@@ -35,7 +35,7 @@ domain <- st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Da
 # Metelmann palette & cuts
 colPal= c("#384AB4", "#5570DF", "#8EB0FE", "#C5D7F3", "#F2CDBB", "#F29878", "#D04B45", "#B00026")
 cutPal = c(0, 10^(-3:3), 10^10)
-
+dev.new(height=3)
 # scenarios
 
 scenariosDF= data.frame(name = c("Hs99", "Cn35", "Cn55", "Cn70", "Hg35", "Hg55", "Hg70"),
@@ -55,15 +55,21 @@ for(k in 1:nrow(scenariosDF)){
   
   E0SelCut <- cut(E0Sel, breaks=cutPal,
                   labels=sapply(cutPal [-length(cutPal )], function(x){paste0(">", as.character(x))}))
-  
-  plotCut <- ggplot()+
+ 
+   plotCut <- ggplot()+
     geom_sf(data = domain, aes(fill = E0SelCut), colour = NA)+ #
     scale_fill_manual(values = colPal)+
-    ggtitle(paste0("E0 (suitability), scenario: ", name, "; period: ", min(years), "-", max(years)))+
-    theme(plot.background  = element_blank())
+    ggtitle(paste0("E0, ", name, ", ", min(years), "-", max(years)))+
+    theme(plot.background  = element_blank(),
+          aspect.ratio = 1)
+  
+  if(!(name %in% c("Cn70", "Hg70"))){
+    plotCut <- plotCut +
+      theme(legend.position = "none")
+  }
   
   ggsave(file = 
            paste0(folderPlot, "/E0_", name, "_", min(years), "-", max(years), ".png"),
-         plot= plotCut , units="in", width=5.5, dpi=300)
+         plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
 
   }
