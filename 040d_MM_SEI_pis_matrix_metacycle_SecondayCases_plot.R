@@ -60,9 +60,7 @@ for(k in 1:nrow(scenariosDF)){
   name = scenariosDF$name[k]
   years = scenariosDF$yearStart[k]:scenariosDF$yearEnd[k]
   
-  
-  #files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_SEIS_", name))
-  files = paste0("Sim_Drias_SEIS_", name, "_", years, ".rds")
+  files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_SEIS_", name))
   
   # matrices of indicators
   
