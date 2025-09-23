@@ -160,11 +160,17 @@ for(i in 1:nrow(scenariosDF)){
     geom_sf(data = domain, aes(fill = AmjjasoCut), colour = NA)+ #
     scale_fill_manual(values = colPal)+
     ggtitle(paste0("Adult density, scenario: ", name, "; period: ", min(years), "-", max(years)))+
-    theme(plot.background  = element_blank())
+    theme(plot.background  = element_blank(),
+          aspect.ratio = 1)
+  
+  if(!(name %in% c("Cn70", "Hg70"))){
+    plotCut <- plotCut +
+      theme(legend.position = "none")
+  }
   
   ggsave(file = 
            paste0(folderPlot, "/Amjjaso_", name, "_", min(years), "-", max(years), ".png"),
-         plot= plotCut , units="in", width=5.5, dpi=300)
+         plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
   
 }
 
@@ -190,11 +196,17 @@ for(i in 1:nrow(scenariosDF)){
     geom_sf(data = domain, aes(fill = LTSSelCut), colour = NA)+ #
     scale_fill_manual(values = colPal)+
     ggtitle(paste0("LTS (dengue), scenario: ", name, "; period: ", min(years), "-", max(years)))+
-    theme(plot.background  = element_blank())
+    theme(plot.background  = element_blank(),
+          aspect.ratio = 1)
+  
+  if(!(name %in% c("Cn70", "Hg70"))){
+    plotCut <- plotCut +
+      theme(legend.position = "none")
+  }
   
   ggsave(file = 
            paste0(folderPlot, "/LTS_dengue_", name, "_", min(years), "-", max(years), ".png"),
-         plot= plotCut , units="in", width=5.5, dpi=300)
+         plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
   
 }
 
