@@ -1,21 +1,26 @@
 # repeat codes 02 and 04, but with fixed population to 1999
 
+library(dplyr)
+
 rm(list = ls())
 
-IDsSubSet = 1
+IDsSubSet = 8981
 
 if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
   folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_06"
   folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
+  folderX0 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim"
 } else {
   folderOut = "DRIAS_sim_06"
   folderDrias = "/DRIAS_elab"
+  folderX0 = "DRIAS_sim"
 }
 
 # get ID, lat, lon
 IDsDT <- readRDS(paste0(folderDrias, "/Drias_Hs99_1986.rds")) %>%
   distinct(ID, .keep_all = TRUE) %>%
-  dplyr::select(c("ID", "lat", "lon", "pop")) 
+  dplyr::select(c("ID", "lat", "lon", "pop", "surfHa")) %>%
+  filter(ID %in% IDsSubSet)
 
 
 ## Central RCP 4.5 short term----
