@@ -348,8 +348,15 @@ for (year in years){
   # 
   # PrevHost = 100*SecondayCasesContCum/(H*AreaKm2)
   
+  #extract Adults 
+  Adults <- Sim[,1+3*nIDs + 1:nIDs]
+  
+  #and SH
+  SH <- Sim[,7*nIDs + 1:nIDs]
+  
   ## Save results ----
-  saveRDS(Sim, file = paste0(folderOut, "/04a_Sim_Drias_SEIS_", name, "_", year, ".rds"))
+  saveRDS(Adults, file = paste0(folderOut, "/04a_Adults_Drias_SEIS_", name, "_", year, ".rds"))
+  saveRDS(SH, file = paste0(folderOut, "/04a_SH_Drias_SEIS_", name, "_", year, ".rds"))
   
   cat("UPDATE\nYear:", year, "\n")
   
