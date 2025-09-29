@@ -45,24 +45,27 @@ if(!exists("IDsSubSet")){
 }
 
 # folder names
+if(!exists("folderOut")){
+  if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
+    folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
+    folderX0 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim"
+    folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_020"
+  } else {
+    folderDrias = "DRIAS_elab"
+    folderX0 = "DRIAS_sim"
+    folderOut = "DRIAS_sim_020"
+  }
+}
 
-if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
-  folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
-  folderX0 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim"
-  folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_020"
-} else {
-  folderDrias = "DRIAS_elab"
-  folderX0 = "DRIAS_sim"
-  folderOut = "DRIAS_sim_020"
+if(!exists("IDsDT")){
+  # get ID, lat, lon
+  IDsDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", years[1], ".rds")) %>%
+    distinct(ID, .keep_all = TRUE) %>%
+    dplyr::select(c("ID", "lat", "lon", "pop")) %>%
+    filter(ID %in% IDsSubSet)
 }
 
 dir.create(folderOut)
-
-# get ID, lat, lon
-IDsDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", years[1], ".rds")) %>%
-  distinct(ID, .keep_all = TRUE) %>%
-  dplyr::select(c("ID", "lat", "lon", "pop")) %>%
-  filter(ID %in% IDsSubSet)
 
 nIDs = length(IDsSubSet)
 IDs = IDsSubSet
@@ -191,7 +194,7 @@ for (year in years){
   
   # Compute modified K
   KR = atanCoefR*atan(sapply(1:nIDs, function(y){return(lambda * (1-alphaEvap)/(1-alphaEvap^DOSy)*
-                                          sapply(DOSy, function(x){return(sum(alphaEvap^(x:1-1) * alphaDens*prec[1:x,y]))}))})/
+                                                          sapply(DOSy, function(x){return(sum(alphaEvap^(x:1-1) * alphaDens*prec[1:x,y]))}))})/
                         atanCoefR) 
   KH = atanCoefH*(atan(lambda*alphaRain*H/atanCoefH))
   

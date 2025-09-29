@@ -51,24 +51,27 @@ if(!exists("IntroMonthCalendar")){
 }
 
 # folder names
+if(!exists("folderOut")){
+  if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
+    folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
+    folderX0 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim"
+    folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_04"
+  } else {
+    folderDrias = "DRIAS_elab"
+    folderX0 = "DRIAS_sim"
+    folderOut = "DRIAS_sim_04"
+  }
+}
 
-if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
-  folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
-  folderX0 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim"
-  folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_04"
-} else {
-  folderDrias = "DRIAS_elab"
-  folderX0 = "DRIAS_sim"
-  folderOut = "DRIAS_sim_04"
+if(!exists("IDsDT")){
+  # get ID, lat, lon
+  IDsDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", years[1], ".rds")) %>%
+    distinct(ID, .keep_all = TRUE) %>%
+    dplyr::select(c("ID", "lat", "lon", "pop")) %>%
+    filter(ID %in% IDsSubSet)
 }
 
 dir.create(folderOut)
-
-# get ID, lat, lon
-IDsDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", years[1], ".rds")) %>%
-  distinct(ID, .keep_all = TRUE) %>%
-  dplyr::select(c("ID", "lat", "lon", "pop", "surfHa")) %>%
-  filter(ID %in% IDsSubSet)
 
 nIDs = length(IDsSubSet)
 IDs = IDsSubSet
@@ -281,9 +284,9 @@ for (year in years){
   
   # event: zero mosquito infection. Beware, this way they are simply "killed" and not added to the "S". (They are very few btw)
   eventZeroAE <- data.frame(var = names(X0log1)[(nIDs*5+1):(nIDs*6)], 
-                              time = rep(IntroDates, each = nIDs),
-                              value = 0,
-                              method = "rep")
+                            time = rep(IntroDates, each = nIDs),
+                            value = 0,
+                            method = "rep")
   
   eventZeroAI <- data.frame(var = names(X0log1)[(nIDs*6+1):(nIDs*7)], 
                             time = rep(IntroDates, each = nIDs),
@@ -292,9 +295,9 @@ for (year in years){
   
   #event reset SH
   eventResetSH <- data.frame(var = names(X0log1)[(nIDs*7+1):(nIDs*8)], 
-                            time = rep(IntroDates, each = nIDs),
-                            value = log(SH0*10^-4+1) ,
-                            method = "rep")
+                             time = rep(IntroDates, each = nIDs),
+                             value = log(SH0*10^-4+1) ,
+                             method = "rep")
   
   #cbind and sort
   

@@ -42,23 +42,34 @@ if(!exists("IDsSubSet")){
   IDsSubSet = 1:8981 # put to compute only a subset of cells (8981 in total)
 }
 
-# folder names
+if(!exists("IDsDT")){
+  # get ID, lat, lon
+  IDsDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", years[1], ".rds")) %>%
+    distinct(ID, .keep_all = TRUE) %>%
+    dplyr::select(c("ID", "lat", "lon", "pop")) %>%
+    filter(ID %in% IDsSubSet)
+}
 
-if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
-  folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
-  folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_02"
-} else {
-  folderDrias = "DRIAS_elab"
-  folderOut = "DRIAS_sim_02"
+# folder names
+if(!exists("folderOut")){
+  if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
+    folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
+    folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_02"
+  } else {
+    folderDrias = "DRIAS_elab"
+    folderOut = "DRIAS_sim_02"
+  }
+}
+
+if(!exists("IDsDT")){
+  # get ID, lat, lon
+  IDsDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", years[1], ".rds")) %>%
+    distinct(ID, .keep_all = TRUE) %>%
+    dplyr::select(c("ID", "lat", "lon", "pop")) %>%
+    filter(ID %in% IDsSubSet)
 }
 
 dir.create(folderOut)
-
-# get ID, lat, lon
-IDsDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", years[1], ".rds")) %>%
-  distinct(ID, .keep_all = TRUE) %>%
-  dplyr::select(c("ID", "lat", "lon", "pop")) %>%
-  filter(ID %in% IDsSubSet)
 
 nIDs = length(IDsSubSet)
 IDs = IDsSubSet
@@ -129,7 +140,7 @@ for (year in years){
   tas = matrix(WTotDT$tas, nrow = nD)
   prec = matrix(WTotDT$pr, nrow = nD)
   tasDJF = rbind(matrix(WdDT$tasMin, nrow = 31),
-                   matrix(WTotDT$tasMin[which(WTotDT$DOS <= FoM)], nrow = FoM))
+                 matrix(WTotDT$tasMin[which(WTotDT$DOS <= FoM)], nrow = FoM))
   
   if (any(names(WTotDT)=="tasMax")){
     tasMax <- matrix(WTotDT$tasMax, nrow = nD)
@@ -151,7 +162,7 @@ for (year in years){
                                 function(x){return(colMeans(tas[max(1,(x-7)):x,]))}))) # tas of precedent 7 days
   } else {
     tas7 = c(tas7, sapply(2:nD,
-                                function(x){mean(tas[max(1,(x-7)):x,])})) # tas of precedent 7 days
+                          function(x){mean(tas[max(1,(x-7)):x,])})) # tas of precedent 7 days
   }
   
   tasMinDJF = apply(tasDJF, 2, function(x){min(x)}) #min tas of last winter 
@@ -180,7 +191,7 @@ for (year in years){
   
   # Compute K
   K = sapply(1:nIDs, function(y){return(lambda * (1-alphaEvap)/(1 - alphaEvap^DOSy)*
-                                         sapply(DOSy, function(x){return(sum(alphaEvap^(x:1-1) * (alphaDens*prec[1:x,y] + alphaRain*H[x,y])))}))
+                                          sapply(DOSy, function(x){return(sum(alphaEvap^(x:1-1) * (alphaDens*prec[1:x,y] + alphaRain*H[x,y])))}))
   }) 
   
   X0 = c(E0, J0, I0, A0, Ed_0)
@@ -204,7 +215,7 @@ for (year in years){
   X0log1 = log(X0+1)
   
   names(X0log1) =as.character(1:(length(X0)))
-    
+  
   #set event: zeroing diapausing eggs on FoA
   
   eventZeroEd1 <- data.frame(var = names(X0log1)[(nIDs*4+1):(nIDs*5)], #1+(nIDs*4+1):(nIDs*5)
