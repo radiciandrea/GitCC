@@ -54,6 +54,8 @@ if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codi
   folderOut = "DRIAS_sim_03"
 }
 
+dir.create(folderOut)
+
 # get ID, lat, lon
 IDsDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", years[1], ".rds")) %>%
   distinct(ID, .keep_all = TRUE) %>%
