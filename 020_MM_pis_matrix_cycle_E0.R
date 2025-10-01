@@ -116,12 +116,12 @@ tic()
 for (year in years){
   
   #Extract only tas in December -getting weather from previous year
-  WdDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", max(year, years[1]), ".rds")) %>%
+  WdDT <- readRDS(paste0(folderDrias, "/Drias_", substr(name, 1,4), "_", max(year, years[1]), ".rds")) %>%
     filter(DOS >= (max(DOS)-30)) %>%
     filter(ID %in% IDsSubSet)
   
   #Getting weather from DRIAS
-  WTotDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", year, ".rds")) %>%
+  WTotDT <- readRDS(paste0(folderDrias, "/Drias_", substr(name, 1,4), "_", year, ".rds")) %>%
     filter(ID %in% IDsSubSet) 
   
   #Create a matrix over which integrate; each colums is a city, each row is a date

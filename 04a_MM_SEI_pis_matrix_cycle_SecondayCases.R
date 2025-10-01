@@ -65,7 +65,7 @@ if(!exists("folderOut")){
 
 if(!exists("IDsDT")){
   # get ID, lat, lon
-  IDsDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", years[1], ".rds")) %>%
+  IDsDT <- readRDS(paste0(folderDrias, "/Drias_", substr(name, 1,4), "_", years[1], ".rds")) %>%
     distinct(ID, .keep_all = TRUE) %>%
     dplyr::select(c("ID", "lat", "lon", "pop", "surfHa")) %>%
     filter(ID %in% IDsSubSet)
@@ -119,7 +119,7 @@ AE0 = rep(0, nIDs) # exposed vectors
 AI0 = rep(0, nIDs) # infected vectors
 
 ## System initialization ----
-X0 = readRDS(file = paste0(folderX0, "/X0_Drias_", name, "_", years[1], ".rds"))
+X0 = readRDS(file = paste0(folderX0, "/X0_Drias_", substr(name, 1,4), "_", years[1], ".rds"))
 
 # and select subset:
 
@@ -142,12 +142,12 @@ tic()
 for (year in years){
   
   #Extract only tas in December -getting weather from previous year
-  WdDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", max(year, years[1]), ".rds")) %>%
+  WdDT <- readRDS(paste0(folderDrias, "/Drias_", substr(name, 1,4), "_", max(year, years[1]), ".rds")) %>%
     filter(DOS >= (max(DOS)-30)) %>%
     filter(ID %in% IDsSubSet)
   
   #Getting weather from DRIAS
-  WTotDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", year, ".rds")) %>%
+  WTotDT <- readRDS(paste0(folderDrias, "/Drias_", substr(name, 1,4), "_", year, ".rds")) %>%
     filter(ID %in% IDsSubSet) 
   
   #Create a matrix over which integrate; each colums is a city, each row is a date
