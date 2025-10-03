@@ -234,6 +234,7 @@ for(i in 1:nrow(scenariosDF)){
            paste0(folderPlotSim4, "/LTS_dengue_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
   
+  cat("name:", name, ", LTS>1: ", round(100*sum(LTSdengueMM[i,]>1, na.rm = T)/8981, 0), "\n")
   
 }
 
