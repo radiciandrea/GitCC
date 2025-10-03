@@ -4,7 +4,7 @@ library(dplyr)
 
 rm(list = ls())
 
-IDsSubSet = 1
+IDsSubSet = 1:8981
 
 if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
   folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_06a"
