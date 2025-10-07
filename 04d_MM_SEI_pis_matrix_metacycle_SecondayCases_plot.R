@@ -225,10 +225,15 @@ for(i in 1:nrow(scenariosDF)){
     theme(plot.background  = element_blank(),
           aspect.ratio = 1)
   
-  if(!(name %in% c("Cn70", "Hg70"))){
-    plotCut <- plotCut +
-      theme(legend.position = "none")
-  }
+  # if(!(name %in% c("Cn70", "Hg70"))){
+  plotCut <- plotCut +
+    theme(legend.position = "none",
+          panel.grid = element_blank(), 
+          line = element_blank(), 
+          rect = element_blank(), 
+          text = element_blank(), 
+          plot.background = element_rect(fill = "transparent", color = "transparent"))
+  # }
   
   ggsave(file = 
            paste0(folderPlotSim4, "/LTS_dengue_", name, "_", min(years), "-", max(years), ".png"),

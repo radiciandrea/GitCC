@@ -55,23 +55,28 @@ for(k in 1:nrow(scenariosDF)){
   
   E0SelCut <- cut(E0Sel, breaks=cutPal,
                   labels=sapply(cutPal [-length(cutPal )], function(x){paste0(">", as.character(x))}))
- 
-   plotCut <- ggplot()+
+  
+  plotCut <- ggplot()+
     geom_sf(data = domain, aes(fill = E0SelCut), colour = NA)+ #
     scale_fill_manual(values = colPal)+
     ggtitle(paste0("E0, ", name, ", ", min(years), "-", max(years)))+
     theme(plot.background  = element_blank(),
           aspect.ratio = 1)
   
-  if(!(name %in% c("Cn70", "Hg70"))){
-    plotCut <- plotCut +
-      theme(legend.position = "none")
-  }
+  # if(!(name %in% c("Cn70", "Hg70"))){
+  plotCut <- plotCut +
+    theme(legend.position = "none",
+          panel.grid = element_blank(), 
+          line = element_blank(), 
+          rect = element_blank(), 
+          text = element_blank(), 
+          plot.background = element_rect(fill = "transparent", color = "transparent"))
+  # }
   
   ggsave(file = 
            paste0(folderPlot, "/E0_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
   
   cat("name:", name, ", E0>1: ", round(100*sum(E0Sel>1, na.rm = T)/8981, 0), "\n")
-
-  }
+  
+}
