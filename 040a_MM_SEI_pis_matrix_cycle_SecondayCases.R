@@ -372,7 +372,7 @@ for (year in years){
   Adults <- Sim[,1+3*nIDs + 1:nIDs]
   
   #and SH
-  SH <- Sim[,7*nIDs + 1:nIDs]
+  SH <- Sim[,1+7*nIDs + 1:nIDs]
   
   ## Save results ----
   saveRDS(Adults, file = paste0(folderOut, "/040a_Adults_Drias_SEIS_", name, "_", year, ".rds"))
