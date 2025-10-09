@@ -304,27 +304,20 @@ for (year in years){
                               times = DOSiSInv,
                               func = dfLogSEInv, 
                               parms = parmsInv,
-                              method = "rk4",
+                              method = "bdf",
                               events = list(data = eventZeroEd1))
   
   # extract values from finer grid
-  whichDOSiS = which((DOSiSInv %% 1)==0)
+  whichDOSiS = which((SimLog1DOSiS[, 1] %% 1)==0)
   SimLog1 <-SimLog1DOSiS[whichDOSiS,]
   
   # untransform variables and transform to ha
   Sim = cbind(SimLog1[,1], 10^4*(exp(SimLog1[, 1+1:(nIDs*8)])-1))
   
-  # update X0 (E0 are AT LEAST 1)
-  X0 = c(rep(0, 4*nIDs), pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 1), rep(0, 2*nIDs))
-  X0[which(is.na(X0))] = 1
-  
   AI <- Sim[,1+(nIDs*6+1):(nIDs*7)]
   AE <- Sim[,1+(nIDs*5+1):(nIDs*6)]
   AS <- Sim[,1+(nIDs*3+1):(nIDs*4)]
-  Atot <- AS + AE + AI
-  
-  #extract Adults 
-  Adults <- Sim[,1+3*nIDs + 1:nIDs]
+  Adults <- AS + AE + AI
   
   #and SH
   SH <- Sim[,1+7*nIDs + 1:nIDs]

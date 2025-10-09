@@ -358,18 +358,7 @@ for (year in years){
   AI <- Sim[,1+(nIDs*6+1):(nIDs*7)]
   AE <- Sim[,1+(nIDs*5+1):(nIDs*6)]
   AS <- Sim[,1+(nIDs*3+1):(nIDs*4)]
-  Atot <- AS + AE + AI
-  
-  # first checks, to be removed
-  # PrevMosquito = AI/Atot
-  # 
-  # SH <- Sim[,1+(nIDs*7+1):(nIDs*8)]
-  # SecondayCasesContCum = (H - SH*100)*AreaKm2
-  # 
-  # PrevHost = 100*SecondayCasesContCum/(H*AreaKm2)
-  
-  #extract Adults 
-  Adults <- Sim[,1+3*nIDs + 1:nIDs]
+  Adults <- AS + AE + AI
   
   #and SH
   SH <- Sim[,1+7*nIDs + 1:nIDs]

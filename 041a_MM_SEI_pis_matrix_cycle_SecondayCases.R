@@ -319,10 +319,7 @@ for (year in years){
   AI <- Sim[,1+(nIDs*6+1):(nIDs*7)]
   AE <- Sim[,1+(nIDs*5+1):(nIDs*6)]
   AS <- Sim[,1+(nIDs*3+1):(nIDs*4)]
-  Atot <- AS + AE + AI
-  
-  #extract Adults 
-  Adults <- Sim[,1+3*nIDs + 1:nIDs]
+  Adults <- AS + AE + AI
   
   #and SH
   SH <- Sim[,1+7*nIDs + 1:nIDs]
