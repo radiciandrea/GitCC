@@ -56,11 +56,11 @@ if(!exists("folderOut")){
   if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
     folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
     folderX0 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim"
-    folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_041"
+    folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_04e"
   } else {
     folderDrias = "DRIAS_elab"
     folderX0 = "DRIAS_sim"
-    folderOut = "DRIAS_sim_041"
+    folderOut = "DRIAS_sim_04e"
   }
 }
 
@@ -324,8 +324,8 @@ for (year in years){
   SH <- Sim[,1+7*nIDs + 1:nIDs]
   
   ## Save results ----
-  saveRDS(Adults, file = paste0(folderOut, "/041a_Adults_Drias_SEIS_", name, "_", year, ".rds"))
-  saveRDS(SH, file = paste0(folderOut, "/041a_SH_Drias_SEIS_", name, "_", year, ".rds"))
+  saveRDS(Adults, file = paste0(folderOut, "/04e_Adults_Drias_SEIS_", name, "_", year, ".rds"))
+  saveRDS(SH, file = paste0(folderOut, "/04e_SH_Drias_SEIS_", name, "_", year, ".rds"))
   
   cat("UPDATE\nYear:", year, "\n")
   
