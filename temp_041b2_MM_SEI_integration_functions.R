@@ -65,12 +65,20 @@ dfLogSEInv <- function(t, x, parms) {
     dlogI1 = -0.5*deltaJ*J1 + (deltaI + muA[tN, ])*I1
     dlogEd1 = -beta*omega[tN, ]*AS1 +  h[tN, ]*sigma[tN, ]*Ed1
     
-    # with SEI
-    dlogAS1 = -deltaI*I1 - (muA[tN, ] + A[tN, ]*phiA[tN, ]*bH2v*iCm[tN, ])*AS1
-    dlogAE1 = -A[tN, ]*phiA[tN, ]*bH2v*iCm[tN, ]*AS1 - (muA[tN, ] - ni[tN, ])*AE1
-    dlogAI1 = -ni[tN, ]*AE1 - muA[tN, ]*AI1
+    # # with SEI
+    # dlogAS1 = -deltaI*I1  + muA[tN, ]*AS1
+    # dlogAE1 = 0
+    # dlogAI1 =  0
+    # 
+    # #and S loss 
+    # dlogSH1 = 0
     
-    #and S loss 
+    # # with SEI
+    dlogAS1 = -deltaI*I1  + (muA[tN, ] + A[tN, ]*phiA[tN, ]*bH2v*iCm[tN, ])*AS1
+    dlogAE1 = -A[tN, ]*phiA[tN, ]*bH2v*iCm[tN, ]*AS1 + (muA[tN, ] - ni[tN, ])*AE1
+    dlogAI1 =  -ni[tN, ]*AE1 + muA[tN, ]*AI1
+
+    #and S loss
     dlogSH1 = +A[tN, ]*bv2H*deltaM*phiA[tN, ]*AI1*SH1/(SH0/10^4)
     
     # and complete transformation

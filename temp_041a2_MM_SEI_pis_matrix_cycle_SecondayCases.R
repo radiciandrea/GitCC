@@ -263,9 +263,9 @@ for (year in years){
                   bv2H = bv2H,
                   deltaM = deltaM,
                   ni = ni[nrow(ni):1,, drop = FALSE],
-                  IC = IntroDates,
                   iCm = InfectedHostPrevalenceM[nrow(InfectedHostPrevalenceM):1,, drop = FALSE],
                   SH0 = SH0)
+  
   
   #transform into log+1 AND giving names
   X0m2 <- X0/10^4 #per m2
@@ -275,12 +275,12 @@ for (year in years){
   
   ## Set events ----
   
-  #set event: zeroing diapausing eggs on FoA
-  
-  eventZeroEd1 <- data.frame(var = names(X0log1)[(nIDs*4+1):(nIDs*5)], #1+(nIDs*4+1):(nIDs*5)
-                             time = FoA,
-                             value = 0,
-                             method = "rep")
+  # #set event: zeroing diapausing eggs on FoA
+  # 
+  # eventZeroEd1 <- data.frame(var = names(X0log1)[(nIDs*4+1):(nIDs*5)], #1+(nIDs*4+1):(nIDs*5)
+  #                            time = FoA,
+  #                            value = 0,
+  #                            method = "rep")
   
   # define finer integration grid during diapause haching
   tbDH = which(rowSums(sigma)>0)[1]-1
@@ -304,8 +304,7 @@ for (year in years){
                               times = DOSiSInv,
                               func = dfLogSEInv, 
                               parms = parmsInv,
-                              method = "bdf",
-                              events = list(data = eventZeroEd1))
+                              method = "rk4") #method = "bdf"
   
   # extract values from finer grid
   whichDOSiS = which((SimLog1DOSiS[, 1] %% 1)==0)
