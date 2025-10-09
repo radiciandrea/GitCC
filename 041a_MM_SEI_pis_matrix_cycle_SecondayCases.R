@@ -263,7 +263,6 @@ for (year in years){
                bv2H = bv2H,
                deltaM = deltaM,
                ni = ni,
-               IC = IntroDates,
                iCm = InfectedHostPrevalenceM,
                SH0 = SH0)
   
