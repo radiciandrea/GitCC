@@ -27,7 +27,11 @@ if(!exists("NIntro")){
 }
 
 if(!exists("IntroCalendar")){
-  IntroCalendar = "05-08"  # just the first of the year
+  IntroCalendar = "08-05"  # month, day
+}
+
+if(!exists("OutroCalendar")){
+  OutroCalendar = "09-05"  # month, day
 }
 
 # folder names
@@ -35,11 +39,11 @@ if(!exists("folderOut")){
   if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
     folderMF = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/MeteoFrance_elab"
     folderX0 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim"
-    folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/MeteoFrance_sim_04"
+    folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/MeteoFrance_sim_07b"
   } else {
     folderMF = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/MeteoFrance_elab"
     folderX0 = "DRIAS_sim"
-    folderOut = "MeteoFrance_sim_04"
+    folderOut = "MeteoFrance_sim_07b"
   }
 }
 
@@ -220,6 +224,8 @@ for (year in years){
   InfectedHostDensityM = matrix(rep(InfectedHosts, nIDs), ncol = nIDs)/AreaKm2
   InfectedHostPrevalenceM = InfectedHostDensityM/H
   
+  OutroDates <- yday(as.Date(paste0(year, "-", OutroCalendar, "%d/%m/%y")))
+  
   SH0 = H[1,]/100 # susceptible hosts per ha
   X0 = c(X0, SH0) # included in the system
   
@@ -243,7 +249,6 @@ for (year in years){
                bv2H = bv2H,
                deltaM = deltaM,
                ni = ni,
-               IC = IntroDates,
                iCm = InfectedHostPrevalenceM,
                SH0 = SH0)
   
@@ -264,12 +269,12 @@ for (year in years){
   
   # event: zero mosquito infection. Beware, this way they are simply "killed" and not added to the "S". (They are very few btw)
   eventZeroAE <- data.frame(var = names(X0log1)[(nIDs*5+1):(nIDs*6)], 
-                            time = rep(IntroDates, each = nIDs),
+                            time = rep(OutroDates, each = nIDs),
                             value = 0,
                             method = "rep")
   
   eventZeroAI <- data.frame(var = names(X0log1)[(nIDs*6+1):(nIDs*7)], 
-                            time = rep(IntroDates, each = nIDs),
+                            time = rep(OutroDates, each = nIDs),
                             value = 0,
                             method = "rep")
   
@@ -317,6 +322,8 @@ for (year in years){
   # update X0 (E0 are AT LEAST 1)
   X0 = c(rep(0, 4*nIDs), pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 1), rep(0, 2*nIDs))
   X0[which(is.na(X0))] = 1
+  
+  cat(E0 = mean(pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 1)))
   
   AI <- Sim[,1+(nIDs*6+1):(nIDs*7)]
   AE <- Sim[,1+(nIDs*5+1):(nIDs*6)]
