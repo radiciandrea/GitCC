@@ -31,7 +31,8 @@ df_cities = data.frame(name = c("LA CRAU", "SAINTE CECILE LES VIGNES"),
                        dep = c("83", "84"),
                        weather_station = c("HYERES","ORANGE"),
                        cell = c("582", "1858"),
-                       popKm2 = c(513, 133))
+                       popKm2 = c(513, 133),
+                       surfHa = c(3787, 1982))
 
 # download data MétéoFrance
 
@@ -56,19 +57,19 @@ for(name_x in df_cities$name) {
   df_meteofrance_2024 <- read_delim(paste0(path, "/dpt_", dep_x,"_2024_2025_RR-T-Vent.csv.gz"), delim = ";", na = "", show_col_types = FALSE) %>%
     filter(NOM_USUEL %in% c(weather_station_x)) %>%
     mutate(date = parse_date_time(AAAAMMJJ,"ymd"), year = year(date), month = month(date), week = week(date)) %>%
-    filter(year < 2025) %>%
+    filter(year <= max(years)) %>%
     group_by(NOM_USUEL,date,year,month,week) %>%
-    summarise(RFD = sum(RR, na.rm = T),
-              TMN = mean(TM, na.rm = T),
-              TMIN = mean(TN, na.rm = T),
-              TMAX = mean(TX, na.rm = T)) %>%
+    summarise(prec = sum(RR, na.rm = T),
+              tas = mean(TM, na.rm = T),
+              tasMin = mean(TN, na.rm = T),
+              tasMax = mean(TX, na.rm = T)) %>%
     rename(nom_commune = NOM_USUEL)
   
   
   df_meteofrance_pre_2024 <- read_delim(paste0(path, "/dpt_", dep_x,"_historique_RR-T-Vent.csv.gz"), delim = ";", na = "", show_col_types = FALSE) %>%
     filter(NOM_USUEL %in% c(weather_station_x)) %>%
     mutate(date = parse_date_time(AAAAMMJJ,"ymd"), year = year(date), month = month(date), week = week(date)) %>%
-    filter(year > 2018) %>%
+    filter(year >= min(years)) %>%
     group_by(NOM_USUEL,date,year,month,week) %>%
     summarise(prec = sum(RR, na.rm = T),
               tas = mean(TM, na.rm = T),
@@ -92,7 +93,7 @@ for(name_x in df_cities$name) {
   lat_x =  st_coordinates(st_centroid(cell_geo))[2]
   lon_x = st_coordinates(st_centroid(cell_geo))[1]
   pop_x = df_cities %>% filter(name == name_x) %>% pull(popKm2)
-  surfHa_x = cell_geo$surf_ha
+  surfHa_x = df_cities %>% filter(name == name_x) %>% pull(surfHa)
     
   for(y in years){
     
