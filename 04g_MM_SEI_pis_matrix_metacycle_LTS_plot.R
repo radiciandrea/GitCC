@@ -127,7 +127,7 @@ for(k in 1:nrow(scenariosDF)){
     EpiStart <- sapply(IDs, function(x){which(SHabs[,x]<(max(SHabs[,x])-0.5))[1]-1})
     EpiEnd <- sapply(IDs, function(x){which(SHabs[,x]<(min(SHabs[,x])+0.5))[1]+1})
   
-    LTSSecCaseM[i, ] <- pmax(EpiStart - EpiEnd, 0)
+    LTSSecCaseM[i, ] <- pmax(EpiEnd - EpiStart, 0)
   
   }
   
