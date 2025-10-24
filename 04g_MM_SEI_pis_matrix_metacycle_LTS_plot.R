@@ -233,9 +233,13 @@ for(i in 1:nrow(scenariosDF)){
 
 ### LTS Secondary cases ----
 
-cutPal = c(105, 56, 21, 1, 0)
-cutPalLab = c("e 15 or more", "d 8 to 15", "c 3 to 8", "b 0 to 3", "a 0")
-colPal<- c("#450054", "#3A528A", "#21908C", "#5CC963", "#FCE724")
+# small post processing correction
+
+LTSSecCasedengueMM[which(is.na(LTSSecCasedengueMM))]=0
+
+cutPal = c(21, 14, 7, 3, 0)*7
+cutPalLab = c("e 21 or more", "d 14 to 21", "c 3 to 7", "b 0 to 3", "a 0")
+colPal<- c("#fcfdbf", "#fc8961", "#b73779", "#51127c", "#000004")
 
 # Cycle
 
