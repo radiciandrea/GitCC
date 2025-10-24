@@ -126,14 +126,15 @@ if(!exists("X0_E0")){
          AI0) # per ha
 }
 
-
-
 #integration step during inactivity period(should be 1/100) (I)
 iSI = 1/4
 #integration step during diapause beginning and ending (D)
 iSD = 1/120
 #integration step during activty period (should be 1/100) (A)
 iSA = 1/72
+
+## Call integration fucntion ----
+source("04b_MM_SEI_integration_functions.R")
 
 tic()
 for (year in years){
@@ -263,9 +264,6 @@ for (year in years){
   SH0 = H[1,]/100 # susceptible hosts per ha
   X0 = c(X0, SH0) # included in the system
   
-  ## Call integration fucntion ----
-  source("04b_MM_SEI_integration_functions.R")
-  
   parms = list(omega = omega,
                h = h,
                K = KM2,
@@ -367,9 +365,9 @@ for (year in years){
   #and SH
   SH <- Sim[,1+7*nIDs + 1:nIDs]
   
-  ## Save results ----
-  saveRDS(Adults, file = paste0(folderOut, "/07a_Adults_Safran_SEIS_", name, "_", year, ".rds"))
-  saveRDS(SH, file = paste0(folderOut, "/07a_SH_Safran_SEIS_", name, "_", year, ".rds"))
+  # ## Save results ----
+  # saveRDS(Adults, file = paste0(folderOut, "/07a_Adults_Safran_SEIS_", name, "_", year, ".rds"))
+  # saveRDS(SH, file = paste0(folderOut, "/07a_SH_Safran_SEIS_", name, "_", year, ".rds"))
   
   cat("UPDATE\nYear:", year, "\n")
   
