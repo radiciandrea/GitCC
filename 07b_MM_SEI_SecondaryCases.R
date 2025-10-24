@@ -224,7 +224,7 @@ for (year in years){
                                              sapply(DOSy, function(x){return(sum(alphaEvap^(x:1-1) *alphaDens*prec[1:x,y]))}))
   })
   
-  KHM2 = lambdaM2*alphaRain*H
+  KHM2 = lambdaM2*alphaRain*(H^exp_H)
   
   KM2 = KRM2+KHM2
   
