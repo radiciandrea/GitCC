@@ -41,7 +41,7 @@ if(!exists("folderOut")){
     folderX0 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim"
     folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/MeteoFrance_sim_07b"
   } else {
-    folderMF = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/MeteoFrance_elab"
+    folderMF = "MeteoFrance_elab"
     folderX0 = "DRIAS_sim"
     folderOut = "MeteoFrance_sim_07b"
   }
@@ -226,7 +226,7 @@ for (year in years){
   
   KHM2 = lambdaM2*alphaRain*H
   
-  KM2 = KRM2+KRM2
+  KM2 = KRM2+KHM2
   
   # #parameters for modified carryong capacity
   # lambda = 42000 # to reach 2/3* max carryin capacity with a daily rain of 10 mm
