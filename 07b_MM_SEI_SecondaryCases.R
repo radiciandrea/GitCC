@@ -103,17 +103,30 @@ AE0 = rep(0, nIDs) # exposed vectors
 AI0 = rep(0, nIDs) # infected vectors
 
 ## System initialization: approximatively ----
-X0 = readRDS(file = paste0(folderX0, "/X0_Drias_Cn35_2026.rds"))
 
-# and select subset:
+if(!exists("X0_E0")){
+  X0 = readRDS(file = paste0(folderX0, "/X0_Drias_Cn35_2026.rds"))
+  
+  # and select subset:
+  
+  X0 = c(X0[0*8981+IDsSubSet],
+         X0[1*8981+IDsSubSet],
+         X0[2*8981+IDsSubSet],
+         X0[3*8981+IDsSubSet],
+         X0[4*8981+IDsSubSet],
+         AE0,
+         AI0) # per ha
+} else {
+  X0 = c(rep(0, times = nIDs),
+         rep(0, times = nIDs),
+         rep(0, times = nIDs),
+         rep(0, times = nIDs),
+         X0_E0,
+         AE0,
+         AI0) # per ha
+}
 
-X0 = c(X0[0*8981+IDsSubSet],
-       X0[1*8981+IDsSubSet],
-       X0[2*8981+IDsSubSet],
-       X0[3*8981+IDsSubSet],
-       X0[4*8981+IDsSubSet],
-       AE0,
-       AI0) # per ha
+
 
 #integration step during inactivity period(should be 1/100) (I)
 iSI = 1/4
@@ -323,7 +336,7 @@ for (year in years){
   X0 = c(rep(0, 4*nIDs), pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 1), rep(0, 2*nIDs))
   X0[which(is.na(X0))] = 1
   
-  cat(E0 = mean(pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 1)))
+  cat("E0 =", mean(pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 1)), "\n")
   
   AI <- Sim[,1+(nIDs*6+1):(nIDs*7)]
   AE <- Sim[,1+(nIDs*5+1):(nIDs*6)]
