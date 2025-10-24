@@ -219,9 +219,30 @@ for (year in years){
     epsRat*epsDens/(epsDens + exp(-epsFac*H))
   
   # Compute K per m2
-  KM2 = sapply(1:nIDs, function(y){return(lambdaM2 * (1-alphaEvap)/(1 - alphaEvap^DOSy)*
-                                            sapply(DOSy, function(x){return(sum(alphaEvap^(x:1-1) * (alphaDens*prec[1:x,y] + alphaRain*H[x,y])))}))
-  }) 
+  KRM2 = lambdaM2* sapply(1:nIDs, function(y){return((1-alphaEvap)/(1 - alphaEvap^DOSy)*
+                                             sapply(DOSy, function(x){return(sum(alphaEvap^(x:1-1) *alphaDens*prec[1:x,y]))}))
+  })
+  
+  KHM2 = lambdaM2*alphaRain*H
+  
+  KM2 = KRM2+KRM2
+  
+  # #parameters for modified carryong capacity
+  # lambda = 42000 # to reach 2/3* max carryin capacity with a daily rain of 10 mm
+  # KmaxR = 375 # *5/4 max arbocarto
+  # KmaxH = 250 # *5/4 max arbocarto
+  # atanCoefR = 2*KmaxR/pi # for arctan
+  # atanCoefH = 2*KmaxH/pi # for arctan
+  # # Compute modified K
+  # KR = atanCoefR*atan(sapply(1:nIDs, function(y){return(lambda * (1-alphaEvap)/(1-alphaEvap^DOSy)*
+  #                                                         sapply(DOSy, function(x){return(sum(alphaEvap^(x:1-1) * alphaDens*prec[1:x,y]))}))})/
+  #                       atanCoefR)
+  # KH = atanCoefH*(atan(lambda*alphaRain*H/atanCoefH))
+  # 
+  # K = KR+KH
+  # 
+  # # Compute K per m2
+  # KM2 = K*10^(-4)
   
   ## Compute epidemic parameters ----
   A = (0.0043*tas + 0.0943)/2 #biting rate
