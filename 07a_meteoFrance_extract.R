@@ -4,6 +4,8 @@
  
 # S. Ceclie le Vignes 2024 (18)
 
+# and others
+
 
 # Function buld by Paul to download data
 
@@ -27,13 +29,15 @@ folder_out = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Me
 
 years <- 2019:2024
 
-df_cities = data.frame(name = c("LA CRAU", "SAINTE CECILE LES VIGNES"),
-                       dep = c("83", "84"),
-                       weather_station = c("HYERES","ORANGE"),
-                       cell = c("582", "1858"),
-                       popKm2 = c(513, 133),
-                       surfHa = c(3787, 1982))
+df_cities = data.frame(name = c("LA CRAU", "SAINTE CECILE LES VIGNES", "FREJUS", "VALLAURIS"),
+                       dep = c("83", "84", "83", "06"),
+                       weather_station = c("HYERES","ORANGE", "FREJUS", "ANTIBES_SAPC"),
+                       cell = c("582", "1858", "897", "1072"),
+                       popKm2 = c(513, 133, 572, 2163),
+                       surfHa = c(3787, 1982, 10227, 1304))
 
+
+#ANTIBES GOLF ha pochi dati
 # download data MétéoFrance
 
 
@@ -46,6 +50,11 @@ for(i in 1:length(list_departements)){
   # donnees historiques
   httr::GET(paste0("https://object.files.data.gouv.fr/meteofrance/data/synchro_ftp/BASE/QUOT/Q_",list_departements[i],"_previous-1950-2023_RR-T-Vent.csv.gz"),httr::write_disk(file.path(path,paste0("dpt_",list_departements[i],"_historique_RR-T-Vent.csv.gz")), overwrite = T),httr::progress(),config = list(maxredirs=-1))
 }
+
+# #extract weather stattion
+dep_x = list_departements[3]
+df_meteofrance_2024 <- read_delim(paste0(path, "/dpt_", dep_x,"_2024_2025_RR-T-Vent.csv.gz"), delim = ";", na = "", show_col_types = FALSE)
+unique(df_meteofrance_2024 %>% pull(NOM_USUEL))
 
 # prepare data
 
@@ -112,10 +121,9 @@ for(name_x in df_cities$name) {
                          tasMax = df_meteofrance_y %>% pull(tasMax),
                          tasMin = df_meteofrance_y %>% pull(tasMin))
     
+    WTotDT$tas[which(is.na(WTotDT$tas))] = 0.5*(WTotDT$tasMax[which(is.na(WTotDT$tas))]+WTotDT$tasMin[which(is.na(WTotDT$tas))])
+    
     saveRDS(WTotDT,
             file = paste0(folder_out, "/", name_x, "_", y, "_Safran.rds"))
   }
 } 
-
-
-
