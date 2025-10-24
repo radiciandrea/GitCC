@@ -34,7 +34,7 @@ scenariosDF= data.frame(name = c("Hs99", "Cn35", "Cn55", "Cn70", "Hg35", "Hg55",
 
 AmjjasoMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF))
 LTSR0dengueMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF))
-LTSSecCaseMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF)) # Secondary Cases metamatrix
+LTSSecCasedengueMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF)) # Secondary Cases metamatrix
 
 #host preference
 phiAU = 0.9 #human biting preference (urban)
@@ -56,7 +56,7 @@ for(k in 1:nrow(scenariosDF)){
   
   AmjjasoM = matrix(NA, nrow = length(years), ncol = nIDs)
   LTSR0dengueM = matrix(NA, nrow = length(years), ncol = nIDs)
-  LTSSecCaseM = matrix(NA, nrow = length(years), ncol = nIDs) # Secondary Cases matrix
+  LTSSecCasedengueM = matrix(NA, nrow = length(years), ncol = nIDs) # Secondary Cases matrix
   
   filesSH <- list.files(paste0(folderSim,"/"), paste0("04e_SH_Drias_SEIS_", name))
   filesAdults <- list.files(paste0(folderSim,"/"), paste0("04e_Adults_Drias_SEIS_", name))
@@ -127,7 +127,7 @@ for(k in 1:nrow(scenariosDF)){
     EpiStart <- sapply(IDs, function(x){which(SHabs[,x]<(max(SHabs[,x])-0.5))[1]-1})
     EpiEnd <- sapply(IDs, function(x){which(SHabs[,x]<(min(SHabs[,x])+0.5))[1]+1})
   
-    LTSSecCaseM[i, ] <- pmax(EpiEnd - EpiStart, 0)
+    LTSSecCasedengueM[i, ] <- pmax(EpiEnd - EpiStart, 0)
   
   }
   
@@ -135,17 +135,17 @@ for(k in 1:nrow(scenariosDF)){
   
   AmjjasoMM[k,] <- colMeans(AmjjasoM, na.rm =T)
   LTSR0dengueMM[k,] <- colMeans(LTSR0dengueM, na.rm =T)
-  LTSSecCaseMM[k,] <- colMeans(LTSSecCaseM, na.rm =T)
+  LTSSecCasedengueMM[k,] <- colMeans(LTSSecCasedengueM, na.rm =T)
 }
 
 # Save and load----
 saveRDS(AmjjasoMM, file = paste0(folderSim, "/AmjjasoMM.rds"))
-saveRDS(LTSR0dengueMM, file = paste0(folderSim, "/LTSR0dengueMM.rds"))
-saveRDS(LTSSecCaseMM, file = paste0(folderSim, "/LTSSecCaseMM.rds"))
+saveRDS(LTSR0dengueMM, file = paste0(folderSim, "/LTSR0DengueMM.rds"))
+saveRDS(LTSSecCasedengueMM, file = paste0(folderSim, "/LTSSecCaseDengueMM.rds"))
 
 AmjjasoMM <- readRDS(file = paste0(folderSim, "/AmjjasoMM.rds"))
-LTSR0dengueMM <- readRDS(file = paste0(folderSim, "/LTSR0dengueMM.rds"))
-LTSSecCaseMM <- readRDS(file = paste0(folderSim, "/LTSSecCaseMM.rds"))
+LTSR0dengueMM <- readRDS(file = paste0(folderSim, "/LTSR0DengueMM.rds"))
+LTSSecCasedengueMM <- readRDS(file = paste0(folderSim, "/LTSSecCaseDengueMM.rds"))
 
 # Plot----
 
@@ -286,11 +286,11 @@ for(i in 1:nrow(scenariosDF)){
 #   name = scenariosDF$name[i]
 #   years = scenariosDF$yearStart[i]:scenariosDF$yearEnd[i]
 #   
-#   LTSSecCaseCut <- case_when(LTSSecCaseMM[i,] >= cutPal[1] ~ cutPalLab[1],
-#                           LTSSecCaseMM[i,] >= cutPal[2] ~ cutPalLab[2],
-#                           LTSSecCaseMM[i,] >= cutPal[3] ~ cutPalLab[3],
-#                           LTSSecCaseMM[i,] >= cutPal[4] ~ cutPalLab[4],
-#                           LTSSecCaseMM[i,] <= cutPal[4] ~ cutPalLab[5])
+#   LTSSecCaseCut <- case_when(LTSSecCasedengueMM[i,] >= cutPal[1] ~ cutPalLab[1],
+#                           LTSSecCasedengueMM[i,] >= cutPal[2] ~ cutPalLab[2],
+#                           LTSSecCasedengueMM[i,] >= cutPal[3] ~ cutPalLab[3],
+#                           LTSSecCasedengueMM[i,] >= cutPal[4] ~ cutPalLab[4],
+#                           LTSSecCasedengueMM[i,] <= cutPal[4] ~ cutPalLab[5])
 #   
 #   plotCut <- ggplot()+
 #     geom_sf(data = domain, aes(fill = LTSSecCaseCut), colour = NA)+ #
