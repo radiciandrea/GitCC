@@ -1,15 +1,29 @@
 # code to run the metacycle of the 07bSEI (running on météo france)
 
 library(foreach)
+library(dplyr)
 
 rm(list = ls())
+
+# folder names
+if(!exists("folderOut")){
+  if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
+    folderMF = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/MeteoFrance_elab"
+    folderX0 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim"
+    folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/MeteoFrance_sim_07b"
+  } else {
+    folderMF = "MeteoFrance_elab"
+    folderX0 = "DRIAS_sim"
+    folderOut = "MeteoFrance_sim_07b"
+  }
+}
 
 # years <- 2024
 years <- 2019:2024
 
 # https://www.santepubliquefrance.fr/maladies-et-traumatismes/maladies-a-transmission-vectorielle/chikungunya/articles/donnees-en-france-metropolitaine/chikungunya-dengue-et-zika-donnees-de-la-surveillance-renforcee-en-france-hexagonale-2024
 
-df_cities = data.frame(name = c("LA CRAU", "SAINTE CECILE LES VIGNES", "FREJUS", "VALLAURIS"),
+dfCities = data.frame(name = c("LA CRAU", "SAINTE CECILE LES VIGNES", "FREJUS", "VALLAURIS"),
                        dep = c("83", "84", "83", "06"),
                        weather_station = c("HYERES","ORANGE", "FREJUS", "ANTIBES-GOLF"),
                        IntroCalendar  = c("08-05", "07-19", "08-08", "08-14"),
@@ -23,41 +37,79 @@ df_cities = data.frame(name = c("LA CRAU", "SAINTE CECILE LES VIGNES", "FREJUS",
 
 # exp_H= 0.9 # to saturate, values between 
 
-df_Sim = data.frame(exp_H = seq(0.85, 1, length.out = 200),
+dfSim = data.frame(exp_H = seq(0.85, 1, length.out = 200),
                        simLaCrau = NA,
                        simSCeclie = NA,
                        simFrejus = NA,
                        simVallauris = NA)
 
-for(j in 1:nrow(df_Sim)){
-  # foreach(i = 1:nrow(df_cities)) %do% { # dopar
-  exp_H = df_Sim$exp_H[j]
+for(j in 1:nrow(dfSim)){
+  # foreach(i = 1:nrow(dfCities)) %do% { # dopar
+  expH = dfSim$exp_H[j]
   
-  for(i in 1:nrow(df_cities)) { # dopar
-    name = df_cities$name[i]
-    IDsSubSet = df_cities$cell[i]
-    IntroCalendar = df_cities$IntroCalendar[i]
+  for(i in 1:nrow(dfCities)) { # dopar
+    name = dfCities$name[i]
+    IDsSubSet = dfCities$cell[i]
+    IntroCalendar = dfCities$IntroCalendar[i]
     
     # let's consider: exp_H
-    X0_E0 = (df_cities$X0_E0[i])^exp_H
+    X0_E0 = (dfCities$X0_E0[i])^exp_H
     
     source("07b_MM_SEI_SecondaryCases.R")
     plot((max(SH) - SH)*IDsDT$surfHa, main = name)
-    lines(rep(df_cities$cases[i], times = length(SH)), col = 'blue')
+    lines(rep(dfCities$cases[i], times = length(SH)), col = 'blue')
     
-    df_cities$simCases[i] = (max(SH) - min(SH))*IDsDT$surfHa
+    dfCities$simCases[i] = (max(SH) - min(SH))*IDsDT$surfHa
     
-    df_Sim[j, i+1] = df_cities$simCases[i]
+    dfSim[j, i+1] = dfCities$simCases[i]
     
     rm(IDsDT)
   }
 }
 
-saveRDS(df_Sim, file = "df_Sim.rds")
+saveRDS(dfSim, file = paste0(folderOut,"/dfSim.rds"))
+
+### Part 2
+
+dfSim <- readRDS(paste0(folderOut,"/df_Sim.rds"))
+mSim <- cbind(dfSim %>% pull(simLaCrau),
+               dfSim %>% pull(simSCeclie),
+               dfSim %>% pull(simFrejus),
+               dfSim %>% pull(simVallauris))
+
+mCases <- matrix(dfCities$cases, nrow = nrow(mSim), ncol = ncol(dfCities), byrow = T) # 4 or the number of cases
+
+dfSim$RMSE = sqrt(rowMeans((mSim-mCases)^2))
+dfSim$RMSLE = sqrt(rowMeans((log(1+mSim)-log(1+mCases))^2))
 
 
-# mean(sqrt((df_cities$simCases - df_cities$cases)^2))
+# by city
+plot(dfSim$exp_H, dfSim$RMSLE, ylim = c(0,1))
+colv = c('darkorange', 'darkgreen', 'darkblue', 'brown')
+for(i in 1:nrow(dfCities)) {
+  lines(dfSim$exp_H, sqrt((log(1+mSim[,i])-log(1+mCases[,i]))^2), col = colv[i])
+  
+}
 
-#exp_H == 1, err = 17.66691
-#exp_H == 0.95, 
-#exp_H == 0.9, err = df_cities
+minExpHRMSE = dfSim$exp_H[which(dfSim$RMSE==min(dfSim$RMSE))]
+minExpHRMSLE = dfSim$exp_H[which(dfSim$RMSLE==min(dfSim$RMSLE))]
+
+#re-simulate
+
+expH = 0.92
+
+plot(mCases[1,], dfSim[(dfSim$exp_H == minExpHRMSLE),1 +1:4], xlim = c(0,30), ylim = c(0,30))
+lines(0:30, 0:30)
+
+for(i in 1:nrow(dfCities)) { # dopar
+  name = dfCities$name[i]
+  IDsSubSet = dfCities$cell[i]
+  IntroCalendar = dfCities$IntroCalendar[i]
+  
+  # let's consider: exp_H
+  X0_E0 = (dfCities$X0_E0[i])^expH
+  
+  source("07b_MM_SEI_SecondaryCases.R")
+  plot((max(SH) - SH)*IDsDT$surfHa, main = name)
+  lines(rep(dfCities$cases[i], times = length(SH)), col = 'blue')
+}
