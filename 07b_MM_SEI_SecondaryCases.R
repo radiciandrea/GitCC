@@ -34,6 +34,10 @@ if(!exists("OutroCalendar")){
   OutroCalendar = "09-05"  # month, day
 }
 
+if(!exists("expH")){
+  expH = 1
+}
+
 # folder names
 if(!exists("folderOut")){
   if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
@@ -224,7 +228,7 @@ for (year in years){
                                              sapply(DOSy, function(x){return(sum(alphaEvap^(x:1-1) *alphaDens*prec[1:x,y]))}))
   })
   
-  KHM2 = lambdaM2*alphaRain*(H^exp_H)
+  KHM2 = lambdaM2*alphaRain*(H^expH)
   
   KM2 = KRM2+KHM2
   
