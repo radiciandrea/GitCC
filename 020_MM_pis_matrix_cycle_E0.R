@@ -88,12 +88,9 @@ alphaEvap = 0.9
 alphaDens = 0.001
 alphaRain = 0.00001
 
-#parameters for modified carryong capacity
-lambda = 42000 # to reach 2/3* max carryin capacity with a daily rain of 10 mm
-KmaxR = 375 # *5/4 max arbocarto
-KmaxH = 250 # *5/4 max arbocarto
-atanCoefR = 2*KmaxR/pi # for arctan
-atanCoefH = 2*KmaxH/pi # for arctan
+#parameters for modified carrying capacity
+lambda = 10^6 # capacity parameter (larvae/day/ha)
+expH = 0.91
 
 epsRat = 0.2
 eps0 = 1.5
@@ -192,11 +189,12 @@ for (year in years){
     (exp(-epsVar*(prec-epsOpt)^2)+ eps0) +
     epsRat*epsDens/(epsDens + exp(-epsFac*H))
   
-  # Compute modified K
-  KR = atanCoefR*atan(sapply(1:nIDs, function(y){return(lambda * (1-alphaEvap)/(1-alphaEvap^DOSy)*
-                                                          sapply(DOSy, function(x){return(sum(alphaEvap^(x:1-1) * alphaDens*prec[1:x,y]))}))})/
-                        atanCoefR) 
-  KH = atanCoefH*(atan(lambda*alphaRain*H/atanCoefH))
+  # Compute K 
+  KR = lambda* sapply(1:nIDs, function(y){return((1-alphaEvap)/(1 - alphaEvap^DOSy)*
+                                                       sapply(DOSy, function(x){return(sum(alphaEvap^(x:1-1) *alphaDens*prec[1:x,y]))}))
+  })
+  
+  KH = lambda*alphaRain*(H^expH)
   
   K = KR+KH
   
