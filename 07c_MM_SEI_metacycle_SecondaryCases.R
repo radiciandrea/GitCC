@@ -96,7 +96,7 @@ minExpHRMSLE = dfSim$exp_H[which(dfSim$RMSLE==min(dfSim$RMSLE))]
 
 #re-simulate
 
-expH = 0.92
+expH = 0.91
 
 plot(mCases[1,], dfSim[(dfSim$exp_H == minExpHRMSLE),1 +1:4], xlim = c(0,30), ylim = c(0,30))
 lines(0:30, 0:30)
