@@ -99,7 +99,7 @@ epsDens = 0.01
 epsFac = 0.01
 
 ## System initialization ----
-X0 = readRDS(file = paste0(folderX0, "/X0_Drias_", substr(name, 1,4), "_", years[1], ".rds"))
+X0 = readRDS(file = paste0(folderX0, "/X00_Drias_", substr(name, 1,4), "_", years[1], ".rds"))
 
 # and select subset:
 
@@ -107,11 +107,9 @@ X0 = c(X0[0*8981+IDsSubSet],
        X0[1*8981+IDsSubSet],
        X0[2*8981+IDsSubSet],
        X0[3*8981+IDsSubSet],
-       X0[4*8981+IDsSubSet]) # per ha
-
-#to correct for reduced K
-
-X0 = sqrt(X0)
+       X0[4*8981+IDsSubSet],
+       AE0,
+       AI0) # per ha
 
 #integration step during inactivity period(should be 1/100) (I)
 iSI = 1/4
