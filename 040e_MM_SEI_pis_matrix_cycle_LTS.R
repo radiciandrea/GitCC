@@ -236,6 +236,8 @@ for (year in years){
   
   KHM2 = lambdaM2*alphaRain*(H^expH)
   
+  KM2 = KRM2 + KHM2
+  
   ## Compute epidemic parameters ----
   A = (0.0043*tas + 0.0943)/2 #biting rate
   EIP = 1.03*(4*exp(5.15 - 0.123*tas)) #Metelmann 2021 (Dengue)
