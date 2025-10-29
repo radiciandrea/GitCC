@@ -107,9 +107,7 @@ X0 = c(X0[0*8981+IDsSubSet],
        X0[1*8981+IDsSubSet],
        X0[2*8981+IDsSubSet],
        X0[3*8981+IDsSubSet],
-       X0[4*8981+IDsSubSet],
-       AE0,
-       AI0) # per ha
+       X0[4*8981+IDsSubSet]) # per ha
 
 #integration step during inactivity period(should be 1/100) (I)
 iSI = 1/4
