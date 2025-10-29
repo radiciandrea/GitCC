@@ -27,38 +27,47 @@ library(data.table)
 path = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/MeteoFrance"
 folder_out = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/MeteoFrance_elab" 
 
-years <- 2019:2024
+years <- 2019:2025
 
-df_cities = data.frame(name = c("LA CRAU", "SAINTE CECILE LES VIGNES", "FREJUS", "VALLAURIS"),
+df_cities_2024 = data.frame(name = c("LA CRAU", "SAINTE CECILE LES VIGNES", "FREJUS", "VALLAURIS"),
                        dep = c("83", "84", "83", "06"),
-                       weather_station = c("HYERES","ORANGE", "FREJUS", "ANTIBES_SAPC"),
+                       weather_station = c("HYERES","ORANGE", "FREJUS", "ANTIBES_SAPC"), #Antibes_golf misses data
                        cell = c("582", "1858", "897", "1072"),
                        popKm2 = c(513, 133, 572, 2163),
                        surfHa = c(3787, 1982, 10227, 1304))
 
+df_cities_2025 = data.frame(name = c("ROGNAC", "AUBAGNE"),
+                            dep = c("13", "13"),
+                            weather_station = c("MARIGNANE", "AUBAGNE"),
+                            cell = c("882", "721"),
+                            popKm2 = c(706, 869),
+                            surfHa = c(1746, 5490))
 
-#ANTIBES GOLF ha pochi dati
+df_cities = rbind(df_cities_2024, df_cities_2025)
+  
 # download data MétéoFrance
 
 
-list_departements <- unique(df_cities$dep)
+departements <- unique(df_cities$dep)
 
-for(i in 1:length(list_departements)){
+for(i in 1:length(departements)){
   # données 2024-2025
-  httr::GET(paste0("https://object.files.data.gouv.fr/meteofrance/data/synchro_ftp/BASE/QUOT/Q_",list_departements[i],"_latest-2024-2025_RR-T-Vent.csv.gz"),httr::write_disk(file.path(path,paste0("dpt_",list_departements[i],"_2024_2025_RR-T-Vent.csv.gz")), overwrite = T),httr::progress(),config = list(maxredirs=-1))
+  httr::GET(paste0("https://object.files.data.gouv.fr/meteofrance/data/synchro_ftp/BASE/QUOT/Q_",departements[i],"_latest-2024-2025_RR-T-Vent.csv.gz"),httr::write_disk(file.path(path,paste0("dpt_",departements[i],"_2024_2025_RR-T-Vent.csv.gz")), overwrite = T),httr::progress(),config = list(maxredirs=-1))
   
   # donnees historiques
-  httr::GET(paste0("https://object.files.data.gouv.fr/meteofrance/data/synchro_ftp/BASE/QUOT/Q_",list_departements[i],"_previous-1950-2023_RR-T-Vent.csv.gz"),httr::write_disk(file.path(path,paste0("dpt_",list_departements[i],"_historique_RR-T-Vent.csv.gz")), overwrite = T),httr::progress(),config = list(maxredirs=-1))
+  httr::GET(paste0("https://object.files.data.gouv.fr/meteofrance/data/synchro_ftp/BASE/QUOT/Q_",departements[i],"_previous-1950-2023_RR-T-Vent.csv.gz"),httr::write_disk(file.path(path,paste0("dpt_",departements[i],"_historique_RR-T-Vent.csv.gz")), overwrite = T),httr::progress(),config = list(maxredirs=-1))
 }
 
 # #extract weather stattion
-dep_x = list_departements[3]
-df_meteofrance_2024 <- read_delim(paste0(path, "/dpt_", dep_x,"_2024_2025_RR-T-Vent.csv.gz"), delim = ";", na = "", show_col_types = FALSE)
-unique(df_meteofrance_2024 %>% pull(NOM_USUEL))
+# dep_x = departements[3]
+# df_meteofrance_2024 <- read_delim(paste0(path, "/dpt_", dep_x,"_2024_2025_RR-T-Vent.csv.gz"), delim = ";", na = "", show_col_types = FALSE)
+# unique(df_meteofrance_2024 %>% pull(NOM_USUEL))
 
 # prepare data
 
 for(name_x in df_cities$name) {
+  
+  cat(name_x, "\n")
   
   weather_station_x = df_cities %>% filter(name == name_x) %>% pull(weather_station)
   dep_x = df_cities %>% filter(name == name_x) %>% pull(dep)
@@ -87,6 +96,11 @@ for(name_x in df_cities$name) {
     rename(nom_commune = NOM_USUEL)
   
   df_meteofrance <- rbind(df_meteofrance_pre_2024, df_meteofrance_2024)
+  
+  cat("NAs in tas:", sum(is.na(df_meteofrance$tas)), "\n")
+  cat("NAs in tasMax:", sum(is.na(df_meteofrance$tasMax)), "\n")
+  cat("NAs in tasMin:", sum(is.na(df_meteofrance$tasMin)), "\n")
+  cat("NAs in prec:", sum(is.na(df_meteofrance$prec)), "\n")
   
   # # na in TM
   # 
