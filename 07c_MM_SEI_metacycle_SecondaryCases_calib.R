@@ -26,9 +26,9 @@ years <- 2019:2024
 dfCities = data.frame(name = c("LA CRAU", "SAINTE CECILE LES VIGNES", "FREJUS", "VALLAURIS"),
                        dep = c("83", "84", "83", "06"),
                        weather_station = c("HYERES","ORANGE", "FREJUS", "ANTIBES-GOLF"),
-                       IntroCalendar  = c("08-05", "07-19", "08-08", "08-14"),
-                       OutroCalendar  = c("09-05", "08-25", "10-11", "09-27"),
-                       X0_E0 = c(191000, 21000, 156000, 1898000),# month, day
+                       IntroCalendar  = c("08-05", "07-19", "08-08", "08-14"), # month, day
+                       OutroCalendar  = c("09-05", "08-25", "10-11", "09-27"), # month, day
+                       X0_E0 = c(191000, 21000, 156000, 1898000),
                        cases = c(25, 18, 15, 14), 
                        simCases = NA,
                        cell = c(582, 1858, 897, 1072),
