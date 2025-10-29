@@ -28,6 +28,7 @@ dfCities =  data.frame(name = c("ROGNAC", "AUBAGNE"),
                        weather_station = c("MARIGNANE", "AUBAGNE"),
                        IntroCalendar  = c("07-05", "08-23"),
                        OutroCalendar  = c("07-27", "09-14"),
+                       X0_E0 = c(252000, 87200),
                        cases = c(5, 9),
                        simCases1 = NA, #to record cases
                        simCases091 = NA,#to record cases 
@@ -35,10 +36,20 @@ dfCities =  data.frame(name = c("ROGNAC", "AUBAGNE"),
                        popKm2 = c(706, 869),
                        surfHa = c(1746, 5490))
 
-X0 = readRDS(file = paste0(folderX0, "/X00_Drias_Cn35_2026.rds"))
-X0[4*8981+as.numeric(dfCities$cell)]
+# year = 2022
+# name = "ROGNAC"
+# WTotDT <- readRDS(paste0(folderMF, "/", name, "_", year, "_Safran.rds"))
+# plot(WTotDT %>% pull(tas), col = 'red')
+# mean(WTotDT %>% pull(tas))
+# 
+# name = "AUBAGNE"
+# WTotDT <- readRDS(paste0(folderMF, "/", name, "_", year, "_Safran.rds"))
+# points(WTotDT %>% pull(tas), col = 'blue')
+# mean(WTotDT %>% pull(tas))
 
-dfCities$X0091 = X0[4*8981+as.numeric(dfCities$cell)]
+
+# X0 = readRDS(file = paste0(folderX0, "/X00_Drias_Cn35_2026.rds"))
+# dfCities$X0091 = X0[4*8981+as.numeric(dfCities$cell)]
 
 #re-simulate
 
@@ -53,7 +64,7 @@ for(i in 1:nrow(dfCities)) { # dopar
   X0_E0 = (dfCities$X0091[i])
   
   source("07b_MM_SEI_SecondaryCases.R")
-  plot((max(SH) - SH)*IDsDT$surfHa, main = paste0(name, "expH = ", expH))
+  plot((max(SH) - SH)*IDsDT$surfHa, main = paste0(name, ", expH = ", expH))
   lines(rep(dfCities$cases[i], times = length(SH)), col = 'blue')
   
   dfCities$simCases1[i] = (max(SH) - min(SH))*IDsDT$surfHa
@@ -61,9 +72,7 @@ for(i in 1:nrow(dfCities)) { # dopar
 
 
 #re-simulate
-
 X0 = readRDS(file = paste0(folderX0, "/X0_Drias_Cn35_2026.rds"))
-X0[4*8981+as.numeric(dfCities$cell)]
 
 dfCities$X01 = X0[4*8981+as.numeric(dfCities$cell)]
 
@@ -78,7 +87,7 @@ for(i in 1:nrow(dfCities)) { # dopar
   X0_E0 = (dfCities$dfCities$X01[i])^expH
   
   source("07b_MM_SEI_SecondaryCases.R")
-  plot((max(SH) - SH)*IDsDT$surfHa, main = paste0(name, "expH = ", expH))
+  plot((max(SH) - SH)*IDsDT$surfHa, main = paste0(name, ", expH = ", expH))
   lines(rep(dfCities$cases[i], times = length(SH)), col = 'blue')
   
   dfCities$simCases1[i] = (max(SH) - min(SH))*IDsDT$surfHa
