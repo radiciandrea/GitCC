@@ -35,9 +35,9 @@ dfCities = data.frame(name = c("LA CRAU", "SAINTE CECILE LES VIGNES", "FREJUS", 
                        popKm2 = c(513, 133, 572, 2163),
                        surfHa = c(3787, 1982, 10227, 1304))
 
-# exp_H= 0.9 # to saturate, values between 
+# expH= 0.9 # to saturate, values between 
 
-dfSim = data.frame(exp_H = seq(0.85, 1, length.out = 200),
+dfSim = data.frame(expH = c(seq(0, 0.78, length.out = 40), seq(0.8, 1, length.out = 50), seq(1.05, 2, length.out = 20)),
                        simLaCrau = NA,
                        simSCeclie = NA,
                        simFrejus = NA,
@@ -45,15 +45,15 @@ dfSim = data.frame(exp_H = seq(0.85, 1, length.out = 200),
 
 for(j in 1:nrow(dfSim)){
   # foreach(i = 1:nrow(dfCities)) %do% { # dopar
-  expH = dfSim$exp_H[j]
+  expH = dfSim$expH[j]
   
   for(i in 1:nrow(dfCities)) { # dopar
     name = dfCities$name[i]
     IDsSubSet = dfCities$cell[i]
     IntroCalendar = dfCities$IntroCalendar[i]
     
-    # let's consider: exp_H
-    X0_E0 = (dfCities$X0_E0[i])^exp_H
+    # let's consider: expH
+    X0_E0 = (dfCities$X0_E0[i])^expH
     
     source("07b_MM_SEI_SecondaryCases.R")
     plot((max(SH) - SH)*IDsDT$surfHa, main = name)
@@ -77,28 +77,28 @@ mSim <- cbind(dfSim %>% pull(simLaCrau),
                dfSim %>% pull(simFrejus),
                dfSim %>% pull(simVallauris))
 
-mCases <- matrix(dfCities$cases, nrow = nrow(mSim), ncol = ncol(dfCities), byrow = T) # 4 or the number of cases
+mCases <- matrix(dfCities$cases, nrow = nrow(mSim), ncol = nrow(dfCities), byrow = T) # 4 or the number of cases
 
 dfSim$RMSE = sqrt(rowMeans((mSim-mCases)^2))
 dfSim$RMSLE = sqrt(rowMeans((log(1+mSim)-log(1+mCases))^2))
 
 
 # by city
-plot(dfSim$exp_H, dfSim$RMSLE, ylim = c(0,1))
+plot(dfSim$expH, dfSim$RMSLE, ylim = c(0,1))
 colv = c('darkorange', 'darkgreen', 'darkblue', 'brown')
 for(i in 1:nrow(dfCities)) {
-  lines(dfSim$exp_H, sqrt((log(1+mSim[,i])-log(1+mCases[,i]))^2), col = colv[i])
+  lines(dfSim$expH, sqrt((log(1+mSim[,i])-log(1+mCases[,i]))^2), col = colv[i])
   
 }
 
-minExpHRMSE = dfSim$exp_H[which(dfSim$RMSE==min(dfSim$RMSE))]
-minExpHRMSLE = dfSim$exp_H[which(dfSim$RMSLE==min(dfSim$RMSLE))]
+minExpHRMSE = dfSim$expH[which(dfSim$RMSE==min(dfSim$RMSE))]
+minExpHRMSLE = dfSim$expH[which(dfSim$RMSLE==min(dfSim$RMSLE))]
 
 #re-simulate
 
 expH = 0.91
 
-plot(mCases[1,], dfSim[(dfSim$exp_H == minExpHRMSLE),1 +1:4], xlim = c(0,30), ylim = c(0,30))
+plot(mCases[1,], dfSim[(dfSim$expH == minExpHRMSLE),1 +1:4], xlim = c(0,30), ylim = c(0,30))
 lines(0:30, 0:30)
 
 for(i in 1:nrow(dfCities)) { # dopar
@@ -106,7 +106,7 @@ for(i in 1:nrow(dfCities)) { # dopar
   IDsSubSet = dfCities$cell[i]
   IntroCalendar = dfCities$IntroCalendar[i]
   
-  # let's consider: exp_H
+  # let's consider: expH
   X0_E0 = (dfCities$X0_E0[i])^expH
   
   source("07b_MM_SEI_SecondaryCases.R")
