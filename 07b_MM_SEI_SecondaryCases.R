@@ -149,7 +149,7 @@ for (year in years){
     filter(ID %in% IDsSubSet)
   
   #Getting weather from DRIAS
-  WTotDT <- readRDS(paste0(folderMF, "/", name, "_", years[1], "_Safran.rds")) %>%
+  WTotDT <- readRDS(paste0(folderMF, "/", name, "_", year, "_Safran.rds")) %>%
     filter(ID %in% IDsSubSet) 
   
   #Create a matrix over which integrate; each colums is a city, each row is a date
