@@ -71,7 +71,7 @@ saveRDS(dfSim, file = paste0(folderOut,"/dfSim.rds"))
 
 ### Part 2
 
-dfSim <- readRDS(paste0(folderOut,"/df_Sim.rds"))
+dfSim <- readRDS(paste0(folderOut,"/dfSim.rds"))
 mSim <- cbind(dfSim %>% pull(simLaCrau),
                dfSim %>% pull(simSCeclie),
                dfSim %>% pull(simFrejus),
@@ -87,7 +87,9 @@ dfSim$RMSLE = sqrt(rowMeans((log(1+mSim)-log(1+mCases))^2))
 plot(dfSim$expH, dfSim$RMSLE, ylim = c(0,1))
 colv = c('darkorange', 'darkgreen', 'darkblue', 'brown')
 for(i in 1:nrow(dfCities)) {
-  lines(dfSim$expH, sqrt((log(1+mSim[,i])-log(1+mCases[,i]))^2), col = colv[i])
+  y = sqrt((log(1+mSim[,i])-log(1+mCases[,i]))^2)
+  cat(dfCities$name[i], "optim expH value = ", dfSim$expH[which(y == min(y))], "\n")
+  lines(dfSim$expH, y, col = colv[i])
   
 }
 
@@ -96,7 +98,7 @@ minExpHRMSLE = dfSim$expH[which(dfSim$RMSLE==min(dfSim$RMSLE))]
 
 #re-simulate
 
-expH = 0.91
+expH = 0.85
 
 plot(mCases[1,], dfSim[(dfSim$expH == minExpHRMSLE),1 +1:4], xlim = c(0,30), ylim = c(0,30))
 lines(0:30, 0:30)

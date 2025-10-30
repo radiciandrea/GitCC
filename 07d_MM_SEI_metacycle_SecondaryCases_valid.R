@@ -31,7 +31,7 @@ dfCities =  data.frame(name = c("ROGNAC", "AUBAGNE"),
                        X0_E0 = c(252000, 87200),
                        cases = c(5, 9),
                        simCases1 = NA, #to record cases
-                       simCases091 = NA,#to record cases 
+                       simCasesexpH = NA,#to record cases 
                        cell = c("882", "721"),
                        popKm2 = c(706, 869),
                        surfHa = c(1746, 5490))
@@ -53,7 +53,7 @@ dfCities =  data.frame(name = c("ROGNAC", "AUBAGNE"),
 
 #re-simulate
 
-expH = 0.91
+expH = 0.85
 
 for(i in 1:nrow(dfCities)) { # dopar
   name = dfCities$name[i]
@@ -61,15 +61,23 @@ for(i in 1:nrow(dfCities)) { # dopar
   IntroCalendar = dfCities$IntroCalendar[i]
   
   # let's consider: exp_H
-  X0_E0 = (dfCities$X0091[i])
+  X0_E0 = (dfCities$X0_E0[i])^expH
   
   source("07b_MM_SEI_SecondaryCases.R")
   plot((max(SH) - SH)*IDsDT$surfHa, main = paste0(name, ", expH = ", expH))
   lines(rep(dfCities$cases[i], times = length(SH)), col = 'blue')
   
-  dfCities$simCases1[i] = (max(SH) - min(SH))*IDsDT$surfHa
+  dfCities$simCasesexpH[i] = (max(SH) - min(SH))*IDsDT$surfHa
 }
 
+
+# compute error
+cat("Error with expH =", expH, "\n")
+sqrt(mean((dfCities$simCasesexpH-dfCities$cases)^2))
+sqrt(mean((log(1+dfCities$simCasesexpH)-log(1+dfCities$cases))^2))
+
+plot(dfCities$cases, dfCities$simCasesexpH, xlim = c(0,60), ylim = c(0,60))
+lines(0:60, 0:60)
 
 #re-simulate
 X0 = readRDS(file = paste0(folderX0, "/X0_Drias_Cn35_2026.rds"))
@@ -84,7 +92,7 @@ for(i in 1:nrow(dfCities)) { # dopar
   IntroCalendar = dfCities$IntroCalendar[i]
   
   # let's consider: exp_H
-  X0_E0 = (dfCities$dfCities$X01[i])^expH
+  X0_E0 = (dfCities$X0_E0[i])^expH
   
   source("07b_MM_SEI_SecondaryCases.R")
   plot((max(SH) - SH)*IDsDT$surfHa, main = paste0(name, ", expH = ", expH))
@@ -92,3 +100,11 @@ for(i in 1:nrow(dfCities)) { # dopar
   
   dfCities$simCases1[i] = (max(SH) - min(SH))*IDsDT$surfHa
 }
+
+# compute error
+cat("Error with expH =", expH, "\n")
+sqrt(mean((dfCities$simCases1-dfCities$cases)^2))
+sqrt(mean((log(1+dfCities$simCases1)-log(1+dfCities$cases))^2))
+
+
+points(dfCities$cases, dfCities$simCases1, xlim = c(0,60), ylim = c(0,60), col = 'red')
