@@ -74,7 +74,7 @@ for(name_x in df_cities$name) {
   
   df_meteofrance_2024 <- read_delim(paste0(path, "/dpt_", dep_x,"_2024_2025_RR-T-Vent.csv.gz"), delim = ";", na = "", show_col_types = FALSE) %>%
     filter(NOM_USUEL %in% c(weather_station_x)) %>%
-    mutate(date = parse_date_time(AAAAMMJJ,"ymd"), year = year(date), month = month(date), week = week(date)) %>%
+    mutate(date = as.Date(parse_date_time(AAAAMMJJ,"ymd")), year = year(date), month = month(date), week = week(date)) %>%
     filter(year <= max(years)) %>%
     group_by(NOM_USUEL,date,year,month,week) %>%
     summarise(prec = sum(RR, na.rm = T),
@@ -86,7 +86,7 @@ for(name_x in df_cities$name) {
   
   df_meteofrance_pre_2024 <- read_delim(paste0(path, "/dpt_", dep_x,"_historique_RR-T-Vent.csv.gz"), delim = ";", na = "", show_col_types = FALSE) %>%
     filter(NOM_USUEL %in% c(weather_station_x)) %>%
-    mutate(date = parse_date_time(AAAAMMJJ,"ymd"), year = year(date), month = month(date), week = week(date)) %>%
+    mutate(date = as.Date(parse_date_time(AAAAMMJJ,"ymd")), year = year(date), month = month(date), week = week(date)) %>%
     filter(year >= min(years)) %>%
     group_by(NOM_USUEL,date,year,month,week) %>%
     summarise(prec = sum(RR, na.rm = T),
@@ -107,6 +107,8 @@ for(name_x in df_cities$name) {
   # df_meteofrance$TMN[which(is.na(df_meteofrance$TMN))] = 0.5*(df_meteofrance$TMIN[which(is.na(df_meteofrance$TMN))]+df_meteofrance$TMAX[which(is.na(df_meteofrance$TMN))])
   
   
+  
+  
   #extract lat, lon, pop
   domain = st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDensOmphale.shp")
   
@@ -123,12 +125,43 @@ for(name_x in df_cities$name) {
     df_meteofrance_y <- df_meteofrance %>%
       filter(year == y)
     
+    # Correction for Aubagne
+    # Aubagne: "2021-03-10 UTC" "2021-03-12 UTC" ("2021-03-11 UTC" is missing)
+    
+    jdays = yday(df_meteofrance_y %>% pull(date))
+    
+    if(nrow(df_meteofrance_y)<max(jdays)){
+      dateVec = as.Date(1:max(jdays), origin = paste0(y-1, "-12-31"))
+      missingDates = dateVec[!(dateVec %in% df_meteofrance_y$date)]
+      
+      for(i in 1:length(missingDates)){
+        
+        missingDate = missingDates[i] #forced to do so, otherwise it becomes a double...
+        
+        df_meteofrance_yPre = df_meteofrance_y %>%
+          filter(date < missingDate)
+        
+        #replace with previous day
+        df_meteofrance_yDate = df_meteofrance_y %>%
+          filter(date == missingDate - 1)
+        
+        df_meteofrance_yDate$date = missingDate
+        
+        df_meteofrance_yPost = df_meteofrance_y %>%
+          filter(date > missingDate)
+        
+        df_meteofrance_y = rbind(df_meteofrance_yPre, df_meteofrance_yDate, df_meteofrance_yPost)
+        
+      }
+    }
+    
+    
     WTotDT <- data.table(ID = cell_x,
                          lat = lat_x,
                          lon = lon_x,
                          pop = pop_x,
                          surfHa = surfHa_x,
-                         DOS = as.numeric(strftime(df_meteofrance_y %>% pull(date), format = "%j")),
+                         DOS = yday(df_meteofrance_y %>% pull(date)),
                          date = df_meteofrance_y %>% pull(date),
                          prec = df_meteofrance_y %>% pull(prec),
                          tas = df_meteofrance_y %>% pull(tas),
