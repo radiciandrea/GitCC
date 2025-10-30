@@ -155,12 +155,12 @@ for (year in years){
   #Create a matrix over which integrate; each colums is a city, each row is a date
   DOSy = unique(WTotDT$DOS)
   
-  # set simulation horizon
+  # set simulation horizon (max is added to account fo incomplete weather time series)
   tS = DOSy[1] 
   tEnd = tail(DOSy, n = 1)
-  FoA = tEnd-152 # first of august: last day of diapause hatching
-  FoJul = tEnd-183 # first of july: first day of (possible) diapause entrance
-  FoM = tEnd-306
+  FoA = max(213, tEnd-152) # first of august: last day of diapause hatching
+  FoJul = max(182, tEnd-183) # first of july: first day of (possible) diapause entrance
+  FoM = max(60, tEnd-306)
   
   date = WTotDT$date
   
