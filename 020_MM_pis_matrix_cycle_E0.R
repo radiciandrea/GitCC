@@ -90,7 +90,7 @@ alphaRain = 0.00001
 
 #parameters for modified carrying capacity
 lambda = 10^6 # capacity parameter (larvae/day/ha)
-expH = 0.91
+expH = 0.85
 
 epsRat = 0.2
 eps0 = 1.5

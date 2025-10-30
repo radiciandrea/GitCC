@@ -92,7 +92,7 @@ deltaE = 1/7.1 #normal egg development rate (1/day)
 
 #parameters for modified carrying capacity
 lambdaM2 = 10^2 # capacity parameter (larvae/day/m2)
-expH = 0.91
+expH = 0.85
 
 # advanced parameter for carrying capacity
 alphaEvap = 0.9
