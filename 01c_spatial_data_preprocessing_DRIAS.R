@@ -29,27 +29,27 @@ library(leaflet)
 
 #folders
 
-sim = "" # "", cold, hot
+mod = "cold" # "", cold, hot
 
-ShpFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab"
+folderShp = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab"
 
-if(sim ==""){
+if(mod ==""){
   dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS/"
   folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab/"
   codeMod = "CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63"
-} else if((sim =="cold")) {
-  dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS^cold/"
-  folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS^cold_elab/"
+} else if((mod =="cold")) {
+  dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAScold/"
+  folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAScold_elab/"
   codeMod = "MPI-M-MPI-ESM-LR_MPI-CSC-REMO2009"
-} else if((sim =="hot")) {
-  dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS^hot/"
-  folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS^hot_elab/"
+} else if((mod =="hot")) {
+  dataFolder = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAShot/"
+  folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAShot_elab/"
   codeMod = "MOHC-HadGEM2-ES_CLMcom-CCLM4-8-17"
 }
 
 dir.create(folderOut)
 
-safranGridGeom <- st_read(paste0(ShpFolder,"/SafranDomain.shp"))
+safranGridGeom <- st_read(paste0(folderShp,"/SafranDomain.shp"))
 safranGridDT = as.data.table(safranGridGeom)
 
 ## Cycle ----
@@ -171,37 +171,3 @@ for(s in scenariosDT[,name]){
   
   
 }
-
-## Old code ----
-# 
-# # website 0 https://www.earthdata.nasa.gov/data/projects/gpw
-# # website 1 https://sedac.ciesin.columbia.edudatacollectiongpw-v4
-# # website 2 http://sedac.ciesin.columbia.edu/data/collection/gpw-v4/sets/browse
-# 
-# # documentation  http://sedac.ciesin.columbia.edu/data/collection/gpw-v4/documentation
-# 
-# # inactive: doing it here
-# 
-# # read domain
-# 
-# domain = st_read(paste0(ShpFolder,"/SafranDomain.shp"))
-# 
-# # read 2000 GWv4 (number of persons per square kilometer)
-# 
-# GPW <- rast("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/GPW_4/Global_2000_PopulationDensity30sec_GPWv4.tiff")
-# 
-# GPWCrop <- crop(GPW, ext(domain)) # France only
-# 
-# # writeRaster(GPW_crop, "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/GPW_4/Global_2000_PopulationDensity30sec_GPWv4_France.tiff")
-# 
-# GPWCropExtract <- raster::extract(GPWCrop, domain) %>%
-#   group_by(ID) %>%
-#   summarise(pop = sum(Global_2000_PopulationDensity30sec_GPWv4, na.rm = T)/
-#               n()) %>%
-#   ungroup()
-# 
-# domainPop <- left_join(domain, GPWCropExtract)
-# 
-# st_write(domainPop, paste0(ShpFolder,"/SafranDomainPopHist_2000.shp"))
-
-
