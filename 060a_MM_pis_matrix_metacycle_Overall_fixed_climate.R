@@ -6,16 +6,19 @@ rm(list = ls())
 
 IDsSubSet = 1:8981
 
-if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
-  folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_060a"
-  folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
-  folderX0 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim"
-} else {
-  folderOut = "DRIAS_sim_060a"
-  folderDrias = "DRIAS_elab"
-  folderX0 = "DRIAS_sim"
-}
+## climatic model
 
+mod = "" # "" = CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63, cold = MPI-M-MPI-ESM-LR_MPI-CSC-REMO2009, hot = MOHC-HadGEM2-ES_CLMcom-CCLM4-8-17
+
+if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
+  folderOut = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS",mod,"_sim_060a")
+  folderDrias = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS",mod,"_elab")
+  folderX0 = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS",mod,"_sim")
+} else {
+  folderOut = paste0("DRIAS",mod,"_sim_060a")
+  folderDrias = paste0("DRIAS",mod,"_elab")
+  folderX0 = paste0("DRIAS",mod,"_sim")
+}
 # pop scenarios
 
 scenariosDF= data.frame(popScenario = c("Cn35", "Cn55", "Cn70", "Hg35", "Hg55", "Hg70"),

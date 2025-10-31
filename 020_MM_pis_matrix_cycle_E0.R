@@ -44,18 +44,20 @@ if(!exists("IDsSubSet")){
   IDsSubSet = 1:8981 # put to compute only a subset of cells (8981 in total)
 }
 
-# folder names
-if(!exists("folderOut")){
-  if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
-    folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
-    folderX0 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim"
-    folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_020"
-  } else {
-    folderDrias = "DRIAS_elab"
-    folderX0 = "DRIAS_sim"
-    folderOut = "DRIAS_sim_020"
-  }
+if(!exists("mod")){
+  mod = ""
 }
+
+# folder names
+
+if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
+  folderDrias = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS",mod,"_elab")
+  folderOut = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS",mod,"_sim_020")
+} else {
+  folderDrias = paste0("DRIAS",mod,"_elab")
+  folderOut = paste0("DRIAS",mod,"_sim_020")
+}
+
 
 if(!exists("IDsDT")){
   # get ID, lat, lon

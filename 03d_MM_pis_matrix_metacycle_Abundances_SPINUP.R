@@ -6,6 +6,10 @@ IDsSubSet = 1:8981 # put to compute only a subset of cells (8981 in total)
 
 nRep = 5
 
+## climatic model
+
+mod = "" # "" = CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63, cold = MPI-M-MPI-ESM-LR_MPI-CSC-REMO2009, hot = MOHC-HadGEM2-ES_CLMcom-CCLM4-8-17
+
 ## historical ----
 
 name = "Hs99"

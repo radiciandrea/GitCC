@@ -53,17 +53,20 @@ if(!exists("IntroCalendar")){
   IntroCalendar = "01-01"  # just the first of the year
 }
 
+if(!exists("mod")){
+  mod = ""
+}
+
 # folder names
-if(!exists("folderOut")){
-  if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
-    folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
-    folderX0 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim"
-    folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_040e"
-  } else {
-    folderDrias = "DRIAS_elab"
-    folderX0 = "DRIAS_sim"
-    folderOut = "DRIAS_sim_040e"
-  }
+
+if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
+  folderDrias = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS",mod,"_elab")
+  folderX0 = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS",mod,"_sim")
+  folderOut = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS",mod,"_sim_040e")
+} else {
+  folderDrias = paste0("DRIAS",mod,"_elab")
+  folderX0 = paste0("DRIAS",mod,"_sim")
+  folderOut = paste0("DRIAS",mod,"_sim_040e") 
 }
 
 if(!exists("IDsDT")){

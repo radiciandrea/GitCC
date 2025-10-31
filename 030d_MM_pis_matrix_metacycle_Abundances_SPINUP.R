@@ -6,9 +6,14 @@ IDsSubSet = 1:8981 # put to compute only a subset of cells (8981 in total)
 
 nRep = 5
 
+## climatic model
+
+mod = "" # "" = CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63, cold = MPI-M-MPI-ESM-LR_MPI-CSC-REMO2009, hot = MOHC-HadGEM2-ES_CLMcom-CCLM4-8-17
+
 ## historical ----
 
 name = "Hs99"
+
 years = rep(1986, nRep) 
 
 source("030c_MM_pis_matrix_cycle_Abundances_SPINUP.R")

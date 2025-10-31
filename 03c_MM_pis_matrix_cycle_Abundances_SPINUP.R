@@ -42,14 +42,18 @@ if(!exists("IDsSubSet")){
   IDsSubSet = 1:8981 # put to compute only a subset of cells (8981 in total)
 }
 
+if(!exists("mod")){
+  mod = ""
+}
+
 # folder names
 
 if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
-  folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
-  folderX0 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim"
+  folderDrias = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS",mod,"_elab")
+  folderX0 = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS",mod,"_sim")
 } else {
-  folderDrias = "DRIAS_elab"
-  folderX0 = "DRIAS_sim"
+  folderDrias = paste0("DRIAS",mod,"_elab")
+  folderX0 = paste0("DRIAS",mod,"_sim")
 }
 
 dir.create(folderX0)

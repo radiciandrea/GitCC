@@ -50,15 +50,18 @@ if(!exists("IDsDT")){
     filter(ID %in% IDsSubSet)
 }
 
+if(!exists("mod")){
+  mod = ""
+}
+
 # folder names
-if(!exists("folderOut")){
-  if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
-    folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
-    folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_02"
-  } else {
-    folderDrias = "DRIAS_elab"
-    folderOut = "DRIAS_sim_02"
-  }
+
+if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
+  folderDrias = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS",mod,"_elab")
+  folderOut = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS",mod,"_sim_02")
+} else {
+  folderDrias = paste0("DRIAS",mod,"_elab")
+  folderOut = paste0("DRIAS",mod,"_sim_02")
 }
 
 if(!exists("IDsDT")){
