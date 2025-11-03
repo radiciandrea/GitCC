@@ -61,7 +61,7 @@ for(k in 1:nrow(scenariosDF)){
   name = scenariosDF$name[k]
   years = scenariosDF$yearStart[k]:scenariosDF$yearEnd[k]
   
-  filesAdults <- list.files(paste0(folderSim,"/"), paste0("03a_Adults_Drias_SEIS_", name))
+  filesAdults <- list.files(paste0(folderSim,"/"), paste0("030a_Adults_Drias_", name))
   
   # matrices of indicators: average adults and R0
   
@@ -72,7 +72,7 @@ for(k in 1:nrow(scenariosDF)){
     
     file = files[i]
     
-    Adults <- readRDS(paste0(folderSim, "/", file))
+    Adults <- readRDS(paste0(filesAdults, "/", file))
     year <- years[i] # substr(file, nchar(file)-7, nchar(file)-4)
     
     #determine mjjaso
@@ -143,7 +143,7 @@ domain <- st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Da
 
 cutPal = c(10^3, 10^2, 10^1, 1, 1)
 cutPalLab = c("e > 1000", "d > 100", "c > 10", "b > 1", "a < 1")
-colPal<- c( "#a63603", "#e6550d", "#fd8d3c", "#fdbe85", "#feedde")
+colPal<- c("#feedde", "#feedde", "#fdbe85", "#fd8d3c", "#e6550d", "#a63603")
 
 # Cycle
 

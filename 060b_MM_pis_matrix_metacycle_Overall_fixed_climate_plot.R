@@ -227,7 +227,7 @@ domain <- st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Da
 
 cutPal = c(10^3, 10^2, 10^1, 1, 1)
 cutPalLab = c("e > 1000", "d > 100", "c > 10", "b > 1", "a < 1")
-colPal<- c( "#a63603", "#e6550d", "#fd8d3c", "#fdbe85", "#feedde")
+colPal<- c("#feedde", "#feedde", "#fdbe85", "#fd8d3c", "#e6550d", "#a63603")
 
 # Cycle
 
@@ -257,6 +257,7 @@ for(i in 1:nrow(scenariosDF)){
            paste0(folderPlot, "/Amjjaso_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
   
+  cat("name:", name, ", Adults>1: ", round(100*sum(AmjjasoMM[i,]>1, na.rm = T)/8981, 0), "\n")
   
 }
 

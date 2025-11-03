@@ -34,9 +34,6 @@ scenariosDF= data.frame(name = c("Hs99", "Cn35", "Cn55", "Cn70", "Hg35", "Hg55",
                         yearStart = c(1986, 2026, 2046, 2066, 2026, 2046, 2066),
                         yearEnd = c(1986, 2026, 2046, 2066, 2026, 2046, 2066)+19)
 
-scenariosDF <- scenariosDF %>%
-  filter(name %in% c("Hs99", "Cn55", "Cn70", "Hg55", "Hg70"))
-
 # create meta matrices for each scenario (hist, ssp2, ssp5) for both adults and MTS for dengue
 
 AmjjasoMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF))
@@ -63,7 +60,7 @@ for(k in 1:nrow(scenariosDF)){
   name = scenariosDF$name[k]
   years = scenariosDF$yearStart[k]:scenariosDF$yearEnd[k]
   
-  filesAdults <- list.files(paste0(folderSim,"/"), paste0("030a_Adults_Drias_SEIS_", name))
+  filesAdults <- list.files(paste0(folderSim,"/"), paste0("030a_Adults_Drias_", name))
   
   # matrices of indicators: average adults and R0
   
@@ -143,7 +140,7 @@ domain <- st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Da
 
 cutPal = c(10^3, 10^2, 10^1, 1, 1)
 cutPalLab = c("e > 1000", "d > 100", "c > 10", "b > 1", "a < 1")
-colPal<- c( "#a63603", "#e6550d", "#fd8d3c", "#fdbe85", "#feedde")
+colPal<- c("#feedde", "#feedde", "#fdbe85", "#fd8d3c", "#e6550d", "#a63603")
 
 # Cycle
 
@@ -172,6 +169,8 @@ for(i in 1:nrow(scenariosDF)){
   ggsave(file = 
            paste0(folderPlot, "/Amjjaso_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
+  
+  cat("name:", name, ", Adults>1: ", round(100*sum(AmjjasoMM[i,]>1, na.rm = T)/8981, 0), "\n")
   
 }
 
@@ -208,6 +207,8 @@ for(i in 1:nrow(scenariosDF)){
   ggsave(file = 
            paste0(folderPlot, "/LTS_dengue_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
+  
+  cat("name:", name, ", LTS>1: ", round(100*sum(LTSdengueMM[i,]>1, na.rm = T)/8981, 0), "\n")
   
 }
 
