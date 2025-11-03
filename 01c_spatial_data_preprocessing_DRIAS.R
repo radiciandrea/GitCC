@@ -29,7 +29,7 @@ library(leaflet)
 
 #folders
 
-mod = "cold" # "", cold, hot
+mod = "hot" # "", cold, hot
 
 folderShp = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab"
 
@@ -74,9 +74,16 @@ for(s in scenariosDT[,name]){
   yearS = scenariosDT[name == s, yearS]
   yearE = scenariosDT[name == s, yearE]
   rcp = scenariosDT[name == s, rcp]
+  dateEnd ="1231"
   
   codeOmphale = paste0("PopKm", s)
   years = yearS:yearE
+  
+  if((scenariosDT %>% filter(name == s) %>% pull(rcp)) == "rcp4.5") # little proble with rcp4.5: they end at nov 30. I took one year more
+  {
+    dateEnd = "1130"
+    yearE = yearE+1
+  }
   
   
   # read domainPop (beware: each cell has people/m² and a given area)
@@ -88,7 +95,7 @@ for(s in scenariosDT[,name]){
   # load tas (temperature)
   
   tasHistNCDF <- nc_open(paste0(dataFolder, "tasAdjust_France_", codeMod,"_",
-                                rcp ,"_METEO-FRANCE_ADAMONT-France_SAFRAN_day_", yearS,"0101-", yearE,"1231.nc"))
+                                rcp ,"_METEO-FRANCE_ADAMONT-France_SAFRAN_day_", yearS,"0101-", yearE, dateEnd,".nc"))
   
   print(tasHistNCDF)
   attributes(tasHistNCDF$var)
@@ -101,11 +108,11 @@ for(s in scenariosDT[,name]){
   yearRep = sapply(date, function(x){substr(x, 1, 4)})
   
   tasMaxHistNCDF <- nc_open(paste0(dataFolder, "tasmaxAdjust_France_", codeMod,"_",
-                                   rcp ,"_METEO-FRANCE_ADAMONT-France_SAFRAN_day_", yearS,"0101-", yearE,"1231.nc"))
+                                   rcp ,"_METEO-FRANCE_ADAMONT-France_SAFRAN_day_", yearS,"0101-", yearE, dateEnd,".nc"))
   tasMinHistNCDF <- nc_open(paste0(dataFolder, "tasminAdjust_France_", codeMod,"_",
-                                   rcp ,"_METEO-FRANCE_ADAMONT-France_SAFRAN_day_", yearS,"0101-", yearE,"1231.nc"))
+                                   rcp ,"_METEO-FRANCE_ADAMONT-France_SAFRAN_day_", yearS,"0101-", yearE, dateEnd,".nc"))
   prTotHistNCDF <- nc_open(paste0(dataFolder, "prtotAdjust_France_", codeMod,"_",
-                                  rcp ,"_METEO-FRANCE_ADAMONT-France_SAFRAN_day_", yearS,"0101-", yearE,"1231.nc"))
+                                  rcp ,"_METEO-FRANCE_ADAMONT-France_SAFRAN_day_", yearS,"0101-", yearE, dateEnd,".nc"))
   
   #extract 3Dmatrices with ncvar_get
   
