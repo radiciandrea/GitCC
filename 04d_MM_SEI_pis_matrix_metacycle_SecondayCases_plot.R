@@ -63,7 +63,8 @@ for(k in 1:nrow(scenariosDF)){
   name = scenariosDF$name[k]
   years = scenariosDF$yearStart[k]:scenariosDF$yearEnd[k]
   
-  files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_SEIS_", name))
+  filesSH <- list.files(paste0(folderSim,"/"), paste0("04a_SH_Drias_SEIS_", name))
+  filesAdults <- list.files(paste0(folderSim,"/"), paste0("04a_Adults_Drias_SEIS_", name))
   
   # matrices of indicators
   
@@ -74,19 +75,18 @@ for(k in 1:nrow(scenariosDF)){
   
   for(i in  1:length(years)){
     
-    file = files[i]
+    fileAdults = filesAdults[i]
+    fileSH = filesSH[i]
     
-    Sim <- readRDS(paste0(folderSim, "/", file))
+    Adults <- readRDS(paste0(folderSim, "/", fileAdults))
     year <- years[i] # substr(file, nchar(file)-7, nchar(file)-4)
     
     #determine mjjaso
-    nD <- nrow(Sim)
+    nD <- nrow(Adults)
     FMay <- yday(as.Date(paste0(year, "-05-01"))) 
     LOct <- yday(as.Date(paste0(year, "-10-31"))) 
     
     ### Adults ----
-    Adults <- Sim[,1+3*nIDs + 1:nIDs]
-    
     Amjjaso <- colMeans(Adults[FMay:LOct,], na.rm =T)
     AmjjasoM[i, ] <- Amjjaso
     
@@ -131,7 +131,7 @@ for(k in 1:nrow(scenariosDF)){
     # Secondary Cases and Prevalence: one introduction per month---- 
     # let's take "the worst"
     
-    SH <- Sim[,7*nIDs + 1:nIDs]
+    SH <- readRDS(paste0(folderSim, "/", fileSH))
     
     MaxSH <-sapply(1:ncol(SH), function(x){max(SH[,x])})
     MinSH <-sapply(1:ncol(SH), function(x){min(SH[,x])})

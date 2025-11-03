@@ -61,7 +61,7 @@ for(k in 1:nrow(scenariosDF)){
   name = scenariosDF$name[k]
   years = scenariosDF$yearStart[k]:scenariosDF$yearEnd[k]
   
-  files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_", name))
+  filesAdults <- list.files(paste0(folderSim,"/"), paste0("03a_Adults_Drias_SEIS_", name))
   
   # matrices of indicators: average adults and R0
   
@@ -72,11 +72,11 @@ for(k in 1:nrow(scenariosDF)){
     
     file = files[i]
     
-    Sim <- readRDS(paste0(folderSim, "/", file))
+    Adults <- readRDS(paste0(folderSim, "/", file))
     year <- years[i] # substr(file, nchar(file)-7, nchar(file)-4)
     
     #determine mjjaso
-    nD <- nrow(Sim)
+    nD <- nrow(Adults)
     FMay <- yday(as.Date(paste0(year, "-05-01"))) 
     LOct <- yday(as.Date(paste0(year, "-10-31"))) 
     
