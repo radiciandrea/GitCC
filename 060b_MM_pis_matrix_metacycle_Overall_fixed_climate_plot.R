@@ -120,8 +120,8 @@ for(k in 1:nrow(scenariosDF)){
   name = scenariosDF$name[k]
   years = scenariosDF$yearStart[k]:scenariosDF$yearEnd[k]
   
-  filesSH <- list.files(paste0(folderSim,"/"), paste0("04a_SH_Drias_SEIS_", name))
-  filesAdults <- list.files(paste0(folderSim,"/"), paste0("04a_Adults_Drias_SEIS_", name))
+  filesSH <- list.files(paste0(folderSim,"/"), paste0("040a_SH_Drias_SEIS_Hs99_pop", name))
+  filesAdults <- list.files(paste0(folderSim,"/"), paste0("040a_Adults_Drias_SEIS_Hs99_pop", name))
   
   # matrices of indicators
   
