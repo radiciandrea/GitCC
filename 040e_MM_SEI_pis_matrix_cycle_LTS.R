@@ -127,7 +127,7 @@ AE0 = rep(0, nIDs) # exposed vectors
 AI0 = rep(0, nIDs) # infected vectors
 
 ## System initialization ----
-X0 = readRDS(file = paste0(folderX0, "/X0_Drias_", substr(name, 1,4), "_", years[1], ".rds"))
+X0 = readRDS(file = paste0(folderX0, "/X00_Drias_", substr(name, 1,4), "_", years[1], ".rds"))
 
 # and select subset:
 
