@@ -74,5 +74,7 @@ for(k in 1:nrow(scenariosDF)){
            paste0(folderPlot, "/E0_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
   
+  cat("name:", name, ", E0>1: ", round(100*sum(E0Sel>1, na.rm = T)/8981, 0), "\n")
+  
 }
 
