@@ -120,6 +120,9 @@ for(k in 1:nrow(scenariosDF)){
   name = scenariosDF$name[k]
   years = scenariosDF$yearStart[k]:scenariosDF$yearEnd[k]
   
+  filesSH <- list.files(paste0(folderSim,"/"), paste0("04a_SH_Drias_SEIS_", name))
+  filesAdults <- list.files(paste0(folderSim,"/"), paste0("04a_Adults_Drias_SEIS_", name))
+  
   # matrices of indicators
   
   AmjjasoM = matrix(NA, nrow = length(years), ncol = nIDs)
@@ -227,7 +230,7 @@ domain <- st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Da
 
 cutPal = c(10^3, 10^2, 10^1, 1, 1)
 cutPalLab = c("e > 1000", "d > 100", "c > 10", "b > 1", "a < 1")
-colPal<- c("#feedde", "#feedde", "#fdbe85", "#fd8d3c", "#e6550d", "#a63603")
+colPal<- c("#feedde", "#fdbe85", "#fd8d3c", "#e6550d", "#a63603")
 
 # Cycle
 
