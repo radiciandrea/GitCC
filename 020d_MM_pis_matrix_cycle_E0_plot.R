@@ -10,22 +10,24 @@ library(pracma)
 library(sf)
 library(data.table)
 
-folderData = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_020"
-folderPlot = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/DRIAS_sim_020"
+mod = "" # "" = CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63, cold = MPI-M-MPI-ESM-LR_MPI-CSC-REMO2009, hot = MOHC-HadGEM2-ES_CLMcom-CCLM4-8-17
 
-files = list.files(paste0(folderData,"/"), pattern = "E0")
+folderSim = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod, "_sim_020")
+folderPlot = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/DRIAS", mod, "_sim_020")
+
+files = list.files(paste0(folderSim,"/"), pattern = "E0")
 
 namesAll = substring(files, nchar(files)-12, nchar(files)-9)
 yearsAll = substring(files, nchar(files)-7, nchar(files)-4) 
 
 # load for 1 dimension
-E01 <- readRDS(paste0(folderData, "/", files[1]))
+E01 <- readRDS(paste0(folderSim, "/", files[1]))
 
 E0m = matrix(NA, ncol = length(E01), nrow = length(files))
 
 for (i in 1:length(files)){
   file = files[i]
-  E0v <- readRDS(paste0(folderData, "/", file))
+  E0v <- readRDS(paste0(folderSim, "/", file))
   E0m[i,]= E0v
 }
 

@@ -10,10 +10,12 @@ library(pracma)
 library(sf)
 library(data.table)
 
-folderSim = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_040"
-folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
+mod = "" # "" = CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63, cold = MPI-M-MPI-ESM-LR_MPI-CSC-REMO2009, hot = MOHC-HadGEM2-ES_CLMcom-CCLM4-8-17
+
+folderSim = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod, "_sim_040")
+folderPlot = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/DRIAS", mod, "_sim_040")
+folderDrias = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod, "_elab")
 folderShape = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab"
-folderPlotSim4 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/Drias_sim_040"
 
 ## initial settings----
 
@@ -195,7 +197,7 @@ for(i in 1:nrow(scenariosDF)){
   }
   
   ggsave(file = 
-           paste0(folderPlotSim4, "/Amjjaso_", name, "_", min(years), "-", max(years), ".png"),
+           paste0(folderPlot, "/Amjjaso_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
   
 }
@@ -231,7 +233,7 @@ for(i in 1:nrow(scenariosDF)){
   }
   
   ggsave(file = 
-           paste0(folderPlotSim4, "/LTS_dengue_", name, "_", min(years), "-", max(years), ".png"),
+           paste0(folderPlot, "/LTS_dengue_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
   
   
@@ -268,7 +270,7 @@ for(i in 1:nrow(scenariosDF)){
   }
   
   ggsave(file = 
-           paste0(folderPlotSim4, "/SecCase_", name, "_", min(years), "-", max(years), ".png"),
+           paste0(folderPlot, "/SecCase_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
   
 }
@@ -304,7 +306,7 @@ for(i in 1:nrow(scenariosDF)){
   }
   
   ggsave(file = 
-           paste0(folderPlotSim4, "/Prev_dengue_", name, "_", min(years), "-", max(years), ".png"),
+           paste0(folderPlot, "/Prev_dengue_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
   
   

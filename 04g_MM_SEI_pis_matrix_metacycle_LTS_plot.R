@@ -10,10 +10,12 @@ library(pracma)
 library(sf)
 library(data.table)
 
-folderSim = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_04e"
-folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
+mod = "" # "" = CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63, cold = MPI-M-MPI-ESM-LR_MPI-CSC-REMO2009, hot = MOHC-HadGEM2-ES_CLMcom-CCLM4-8-17
+
+folderSim = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod, "_sim_04e")
+folderPlot = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/DRIAS", mod, "_sim_04e")
+folderDrias = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod, "_elab")
 folderShape = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab"
-folderPlotSim = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/Drias_sim_04e"
 
 ## initial settings----
 
@@ -183,7 +185,7 @@ for(i in 1:nrow(scenariosDF)){
   }
   
   ggsave(file = 
-           paste0(folderPlotSim, "/Amjjaso_", name, "_", min(years), "-", max(years), ".png"),
+           paste0(folderPlot, "/Amjjaso_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
   
 }
@@ -224,7 +226,7 @@ for(i in 1:nrow(scenariosDF)){
   # }
   
   ggsave(file = 
-           paste0(folderPlotSim, "/LTSR0_dengue_", name, "_", min(years), "-", max(years), ".png"),
+           paste0(folderPlot, "/LTSR0_dengue_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
   
   cat("name:", name, ", LTSR0>1: ", round(100*sum(LTSR0dengueMM[i,]>1, na.rm = T)/8981, 0), "\n")
@@ -271,7 +273,7 @@ for(i in 1:nrow(scenariosDF)){
   # }
   
   ggsave(file = 
-           paste0(folderPlotSim, "/LTSSecCase_dengue_", name, "_", min(years), "-", max(years), ".png"),
+           paste0(folderPlot, "/LTSSecCase_dengue_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
   
   cat("name:", name, ", LTSSecCase>1: ", round(100*sum(LTSSecCasedengueMM[i,]>1, na.rm = T)/8981, 0), "\n")
@@ -309,7 +311,7 @@ for(i in 1:nrow(scenariosDF)){
 #   }
 #   
 #   ggsave(file = 
-#            paste0(folderPlotSim, "/LTSSecCase_", name, "_", min(years), "-", max(years), ".png"),
+#            paste0(folderPlot, "/LTSSecCase_", name, "_", min(years), "-", max(years), ".png"),
 #          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
 #   
 # }
