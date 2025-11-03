@@ -21,10 +21,10 @@ folderShape = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/S
 
 # load 1 for dimension
 name = "Hs"
-files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_", name))
-Sim <- readRDS(paste0(folderSim, "/", files[1]))
+filesAdults = list.files(paste0(folderSim,"/"), pattern = "Adults")
+Adults <- readRDS(paste0(folderSim, "/", filesAdults[1]))
 nC = 5 # number of classes
-nIDs = (ncol(Sim)-1)/nC # number of regions
+nIDs = ncol(Adults) # number of regions
 IDs = 1:nIDs
 IDsSubSet = IDs
 
@@ -61,7 +61,7 @@ for(k in 1:nrow(scenariosDF)){
   name = scenariosDF$name[k]
   years = scenariosDF$yearStart[k]:scenariosDF$yearEnd[k]
   
-  files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_", name))
+  filesAdults <- list.files(paste0(folderSim,"/"), paste0("03a_Adults_Drias_SEIS_", name))
   
   # matrices of indicators: average adults and R0
   
@@ -72,11 +72,11 @@ for(k in 1:nrow(scenariosDF)){
     
     file = files[i]
     
-    Sim <- readRDS(paste0(folderSim, "/", file))
+    Adults <- readRDS(paste0(folderSim, "/", file))
     year <- years[i] # substr(file, nchar(file)-7, nchar(file)-4)
     
     #determine mjjaso
-    nD <- nrow(Sim)
+    nD <- nrow(Adults)
     FMay <- yday(as.Date(paste0(year, "-05-01"))) 
     LOct <- yday(as.Date(paste0(year, "-10-31"))) 
     

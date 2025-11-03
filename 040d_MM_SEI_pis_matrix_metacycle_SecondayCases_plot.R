@@ -21,10 +21,11 @@ folderShape = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/S
 
 # load 1 for dimension
 name = "Hs"
-files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_SEIS_", name))
-Sim <- readRDS(paste0(folderSim, "/", files[1]))
+filesAdults = list.files(paste0(folderSim,"/"), pattern = "Adults")
+filesSH = list.files(paste0(folderSim,"/"), pattern = "SH")
+Adults <- readRDS(paste0(folderSim, "/", filesAdults[1]))
 nC = 8 # number of classes: 5 + exposed + infexted + susceptible hosts
-nIDs = (ncol(Sim)-1)/nC # number of regions
+nIDs = ncol(Adults) # number of regions
 IDs = 1:nIDs
 IDsSubSet = IDs
 
@@ -62,7 +63,8 @@ for(k in 1:nrow(scenariosDF)){
   name = scenariosDF$name[k]
   years = scenariosDF$yearStart[k]:scenariosDF$yearEnd[k]
   
-  files = list.files(paste0(folderSim,"/"), paste0("Sim_Drias_SEIS_", name))
+  filesSH <- list.files(paste0(folderSim,"/"), paste0("04a_SH_Drias_SEIS_", name))
+  filesAdults <- list.files(paste0(folderSim,"/"), paste0("04a_Adults_Drias_SEIS_", name))
   
   # matrices of indicators
   
@@ -73,19 +75,18 @@ for(k in 1:nrow(scenariosDF)){
   
   for(i in  1:length(years)){
     
-    file = files[i]
+    fileAdults = filesAdults[i]
+    fileSH = filesSH[i]
     
-    Sim <- readRDS(paste0(folderSim, "/", file))
+    Adults <- readRDS(paste0(folderSim, "/", fileAdults))
     year <- years[i] # substr(file, nchar(file)-7, nchar(file)-4)
     
     #determine mjjaso
-    nD <- nrow(Sim)
+    nD <- nrow(Adults)
     FMay <- yday(as.Date(paste0(year, "-05-01"))) 
     LOct <- yday(as.Date(paste0(year, "-10-31"))) 
     
     ### Adults ----
-    Adults <- Sim[,1+3*nIDs + 1:nIDs]
-    
     Amjjaso <- colMeans(Adults[FMay:LOct,], na.rm =T)
     AmjjasoM[i, ] <- Amjjaso
     
@@ -130,7 +131,7 @@ for(k in 1:nrow(scenariosDF)){
     # Secondary Cases and Prevalence: one introduction per month---- 
     # let's take "the worst"
     
-    SH <- Sim[,7*nIDs + 1:nIDs]
+    SH <- readRDS(paste0(folderSim, "/", fileSH))
     
     MaxSH <-sapply(1:ncol(SH), function(x){max(SH[,x])})
     MinSH <-sapply(1:ncol(SH), function(x){min(SH[,x])})
@@ -200,6 +201,8 @@ for(i in 1:nrow(scenariosDF)){
            paste0(folderPlot, "/Amjjaso_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
   
+  cat("name:", name, ", Adults>1: ", round(100*sum(AmjjasoMM[i,]>1, na.rm = T)/8981, 0), "\n")
+  
 }
 
 ### R0 ----
@@ -236,6 +239,7 @@ for(i in 1:nrow(scenariosDF)){
            paste0(folderPlot, "/LTS_dengue_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
   
+  cat("name:", name, ", LTS>1: ", round(100*sum(LTSdengueMM[i,]>1, na.rm = T)/8981, 0), "\n")
   
 }
 
