@@ -7,6 +7,14 @@ library(reshape2)
 library(suncalc)
 library(pracma)
 
+if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
+  folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Synthetic_Exposure_Space"
+} else {
+  folderOut = "Synthetic_Exposure_Space"
+}
+
+dir.create(folderOut)
+
 mintasMinWin = -2
 maxtasMinWin = 14
 
@@ -81,14 +89,6 @@ saveRDS(WTotDT, file = paste0(folderOut, "/WTotDT.rds"))
 #### common code for suitability and concat simulations
 
 IDsSubSet = IndDT$ID # put to compute only a subset of cells (8981 in total)
-
-if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
-  folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Synthetic_Exposure_Space"
-} else {
-  folderOut = "Synthetic_Exposure_Space"
-}
-
-dir.create(folderOut)
 
 nIDs = length(IDsSubSet)
 IDs = IDsSubSet
