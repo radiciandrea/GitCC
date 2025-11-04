@@ -35,6 +35,7 @@ scenariosDF= data.frame(name = c("Hs99", "Cn35", "Cn55", "Cn70", "Hg35", "Hg55",
 # create meta matrices for each scenario (hist, ssp2, ssp5) for both Adults and MTS for dengue
 
 AmjjasoMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF))
+LASMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF))
 LTSR0dengueMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF))
 LTSSecCasedengueMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF)) # Secondary Cases metamatrix
 
@@ -48,6 +49,8 @@ IIPdengue = 5 #Benkimoun 2021
 bV2H = 0.5 # b Blagrove 2020
 bH2Vdengue = 0.31 # beta Metelmann 2021
 
+thA = 100 #mosqito per ha to define activity period
+
 ## cycle to calculate indicators ----
 
 for(k in 1:nrow(scenariosDF)){
@@ -57,6 +60,7 @@ for(k in 1:nrow(scenariosDF)){
   # matrices of indicators
   
   AmjjasoM = matrix(NA, nrow = length(years), ncol = nIDs)
+  LASM = matrix(NA, nrow = length(years), ncol = nIDs)
   LTSR0dengueM = matrix(NA, nrow = length(years), ncol = nIDs)
   LTSSecCasedengueM = matrix(NA, nrow = length(years), ncol = nIDs) # Secondary Cases matrix
   
@@ -82,6 +86,9 @@ for(k in 1:nrow(scenariosDF)){
     
     Amjjaso <- colMeans(Adults[FMay:LOct,], na.rm =T)
     AmjjasoM[i, ] <- Amjjaso
+    
+    LAS <- colSums(Adults>thA, na.rm =T)
+    LASM[i, ] <- LAS
     
     # load weather for R0
     
@@ -136,16 +143,18 @@ for(k in 1:nrow(scenariosDF)){
   rm(IDsDT)
   
   AmjjasoMM[k,] <- colMeans(AmjjasoM, na.rm =T)
+  LASMM[k,] <- colMeans(LASM, na.rm =T)
   LTSR0dengueMM[k,] <- colMeans(LTSR0dengueM, na.rm =T)
   LTSSecCasedengueMM[k,] <- colMeans(LTSSecCasedengueM, na.rm =T)
 }
 
 # Save and load----
 saveRDS(AmjjasoMM, file = paste0(folderSim, "/AmjjasoMM.rds"))
+saveRDS(LASMM, file = paste0(folderSim, "/LASMM.rds"))
 saveRDS(LTSR0dengueMM, file = paste0(folderSim, "/LTSR0DengueMM.rds"))
 saveRDS(LTSSecCasedengueMM, file = paste0(folderSim, "/LTSSecCaseDengueMM.rds"))
 
-AmjjasoMM <- readRDS(file = paste0(folderSim, "/AmjjasoMM.rds"))
+LASMM <- readRDS(file = paste0(folderSim, "/LASMM.rds"))
 LTSR0dengueMM <- readRDS(file = paste0(folderSim, "/LTSR0DengueMM.rds"))
 LTSSecCasedengueMM <- readRDS(file = paste0(folderSim, "/LTSSecCaseDengueMM.rds"))
 
@@ -189,6 +198,45 @@ for(i in 1:nrow(scenariosDF)){
          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
   
   cat("name:", name, ", Adults>1: ", round(100*sum(AmjjasoMM[i,]>1, na.rm = T)/8981, 0), "\n")
+  
+}
+
+
+### Adults, activity period ----
+
+cutPal = c(105, 56, 21, 1, 0)
+cutPalLab = c("e 15 or more", "d 8 to 15", "c 3 to 8", "b 0 to 3", "a 0")
+colPal<- c("#feedde",  "#fdbe85", "#fd8d3c", "#e6550d", "#a63603")
+
+# Cycle
+
+for(i in 1:nrow(scenariosDF)){
+  name = scenariosDF$name[i]
+  years = scenariosDF$yearStart[i]:scenariosDF$yearEnd[i]
+  
+  LASCut <- case_when(LASMM[i,] >= cutPal[1] ~ cutPalLab[1],
+                          LASMM[i,] >= cutPal[2] ~ cutPalLab[2],
+                          LASMM[i,] >= cutPal[3] ~ cutPalLab[3],
+                          LASMM[i,] >= cutPal[4] ~ cutPalLab[4],
+                          LASMM[i,] <= cutPal[4] ~ cutPalLab[5])
+  
+  plotCut <- ggplot()+
+    geom_sf(data = domain, aes(fill = LASCut), colour = NA)+ #
+    scale_fill_manual(values = colPal)+
+    ggtitle(paste0("Adult density, scenario: ", name, "; period: ", min(years), "-", max(years)))+
+    theme(plot.background  = element_blank(),
+          aspect.ratio = 1)
+  
+  if(!(name %in% c("Cn70", "Hg70"))){
+    plotCut <- plotCut +
+      theme(legend.position = "none")
+  }
+  
+  ggsave(file = 
+           paste0(folderPlot, "/LAS_", name, "_", min(years), "-", max(years), ".png"),
+         plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
+  
+  cat("name:", name, ", LAS>1: ", round(100*sum(LASMM[i,]>1, na.rm = T)/8981, 0), "\n")
   
 }
 
