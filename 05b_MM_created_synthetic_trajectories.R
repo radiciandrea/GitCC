@@ -29,6 +29,8 @@ IndDT <- IndDT %>%
   filter(tasAvgYea > tasMinWin)
 
 IndDT$ID = paste0(IndDT$tasAvgYea, "_", IndDT$tasMinWin)
+
+saveRDS(IndDT, file = paste0(folderOut, "/IndDT.rds"))
   
 lat = 46
 lon = 3
@@ -73,6 +75,8 @@ for(id in IndDT$ID){
 }
 
 WTotDT <- data.table::rbindlist(WList)
+
+saveRDS(WTotDT, file = paste0(folderOut, "/WTotDT.rds"))
 
 #### common code for suitability and concat simulations
 
@@ -404,8 +408,8 @@ for (y in fyears){
   # untransform variables and transform to ha
   Sim = cbind(SimLog1[,1], 10^4*(exp(SimLog1[, 1+1:(nIDs*8)])-1))
   
-  # update X0 (E0 are AT LEAST 1)
-  X0 = c(rep(0, 4*nIDs), pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 1), rep(0, 2*nIDs))
+  # update X0 ((E0 are AT LEAST 1)) conserve # adults
+  X0 = c(pmax(Sim[nrow(Sim), 1+1:(nIDs*5)], 1), rep(0, 2*nIDs))
   X0[which(is.na(X0))] = 1
   
   AI <- Sim[,1+(nIDs*6+1):(nIDs*7)]
