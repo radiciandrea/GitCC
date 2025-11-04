@@ -12,13 +12,15 @@ library(ggpubr)
 
 folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
 
-scenarios <- c("Cn70", "Cn55", "Cn35", "Hs99", "Hg35", "Hg55", "Hg70")
-cites <- c("Montpellier", "Nantes", "Rennes", "Lille", "Paris-est", "Lyon", "Grenoble", "Bordeaux", "Toulouse", "Marseille", "Nice")
+# we choose places with ~ inhabitants
+# scenarios <- c("Cn70", "Cn55", "Cn35", "Hs99", "Hg35", "Hg55", "Hg70")
+scenarios <- c("Cn70", "Hs99","Hg70")
+cities <- c("Montpellier", "Nantes", "Rennes", "Lille", "Paris-est", "Lyon", "Grenoble", "Bordeaux", "Toulouse", "Marseille", "Nice")
 IDsSubSet <- c(1040, 5243, 6482, 8915, 7542, 3500, 2936, 2472, 929, 642, 1249)
 
-MapDT <- data.table(city = rep(cites, length(scenarios)),
+MapDT <- data.table(city = rep(cities, length(scenarios)),
                     ID = rep(IDsSubSet, length(scenarios)),
-                    scenario = rep(scenarios,length(cites)),
+                    scenario = rep(scenarios,length(cities)),
                     tasAvgYea = 0, #average annual T
                     tasMinWin = 0) #average minimal in J
 
@@ -48,31 +50,43 @@ for(k in 1:length(scenarios)){
   }
 }
 
+
+# Sort DF
+
+MapDT <- MapDT %>%
+  mutate(scenario = factor(scenario, levels = c("Cn70", "Hs99", "Hg70"))) %>%
+  arrange(city, scenario)
+
+MapDT$cityLabel[MapDT$scenario == "Hs99"] = unique(MapDT$city)
+
 # fake background df
 
-bakcDF = data.table(tasAvgYea = rep(seq(8, 20, by = 0.5), each = 26),
-                    tasMinWin = rep(seq(-2, 10, by = 0.5), times = 26),
+step = 0.5
+recStep = 18/step
+
+backDF = data.table(tasAvgYea = rep(seq(9, 25, by = step), each = recStep),
+                    tasMinWin = rep(seq(-2, 14, by = step), times = recStep),
                     suitability = NA)
 
-bakcDF$suitability =  (bakcDF$tasMinWin - 3)^2 + (bakcDF$tasAvgYea)^1.7
+backDF$suitability =  (backDF$tasMinWin - 3)^2 + (backDF$tasAvgYea)^1.7
 
 ggplot() +
   geom_contour_fill(
-    data = bakcDF,
+    data = backDF,
     aes(x = tasAvgYea, y = tasMinWin, z = log(suitability))
   ) +
   ggtitle("Suitability")+
   geom_contour(
-    data = bakcDF,
+    data = backDF,
     aes(x = tasAvgYea, y = tasMinWin, z = suitability),
     color = "black", breaks = c(1))+
   theme_test()+
-  geom_path(data = MapDT, aes(x = tasAvgYea, y = tasMinWin, group = city), color= "white") +
-  geom_point(data = MapDT, aes(x = tasAvgYea, y = tasMinWin, shape = city), color = "white", size = 2) +
+  geom_path(data = MapDT, aes(x = tasAvgYea, y = tasMinWin, group = city)) + # , color= "white"
+  geom_point(data = MapDT, aes(x = tasAvgYea, y = tasMinWin, shape = scenario), size = 2) + #, color= "white", #shape = MapDT$pointShape, 
   guides(size = "legend", colour = "none")+
   scale_color_grey()+
   geom_label_repel(data = MapDT ,
-                   aes(x = tasAvgYea, y = tasMinWin, label = scenario),
+                   aes(x = tasAvgYea, y = tasMinWin, label = cityLabel),
                    label.padding = 0.15, segment.color = NA, size = 3) #size = 4
 
 # plot(MapDT$tasAvgYea, MapDT$tasMinWin)
