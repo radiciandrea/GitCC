@@ -86,7 +86,7 @@ WTotDT <- data.table::rbindlist(WList)
 
 saveRDS(WTotDT, file = paste0(folderOut, "/WTotDT.rds"))
 
-#### common code for suitability and concat simulations
+#### common code for suitability and concat simulations ----
 
 IDsSubSet = IndDT$ID # put to compute only a subset of cells (8981 in total)
 
@@ -102,7 +102,7 @@ IDsDT <- WTotDT %>%
 LAT = IDsDT$lat
 LON = IDsDT$lon
 
-## Model time-independent parameters ----
+## Model time-independent parameters 
 
 #parameters (Metelmann 2019)
 CTTs = 11 #critical temperature over one week in spring (°C )
@@ -127,19 +127,19 @@ epsOpt = 8
 epsDens = 0.01
 epsFac = 0.01
 
-#### run the code to estimate suitability (FROM 02 or 06)----
+#### run the code to estimate suitability (FROM 02 or 06)
 
-#integration step (chould be 1/100)
+#integration step (should be 1/100)
 iS = 1/60
 
-## System initialization ----
+## System initialization 
 E0 = rep(0, nIDs)
 J0 = rep(0, nIDs)
 I0 = rep(0, nIDs)
 A0 = rep(0, nIDs)
 Ed_0 = 1*rep(1, nIDs) # at 1st of January (10^6)
 
-# run E0 with one year only
+#### E0 with one year only ----
 
 #Extract only tas in December -getting weather from previous year
 WdDT <- WTotDT %>%
@@ -161,7 +161,7 @@ date = WTotDT$date
 #dimensions
 nD = length(DOSy) # simulation length
 
-### Extract weather ----
+### Extract weather 
 tas = matrix(WTotDT$tas, nrow = nD)
 prec = matrix(WTotDT$pr, nrow = nD)
 tasDJF = rbind(matrix(WdDT$tasMin, nrow = 31),
@@ -200,7 +200,7 @@ tSr = as.numeric(SunTimesDF$sunrise- as.POSIXct(SunTimesDF$date) +2) # time of s
 PhP = matrix(PhP, nrow = nD, byrow = F)
 tSr = matrix(tSr, nrow = nD, byrow = F)
 
-## Compute parameters ----
+## Compute parameters 
 sigma = 0.1 *(tas7 > CTTs)*(PhP > CPPs)*(matrix(rep(DOSy, nIDs), ncol = nIDs) < FoA) # spring hatching rate (1/day) (correction sigma = 0 after august)
 omega = 0.5 *(PhP < CPPa)*(matrix(rep(DOSy, nIDs), ncol = nIDs) > FoJul) # fraction of eggs going into diapause
 muA = -log(0.677 * exp(-0.5*((tas-20.9)/13.2)^6)*tas^0.1) # adult mortality rate
@@ -223,7 +223,7 @@ K = KR+KH
 
 X0 = c(E0, J0, I0, A0, Ed_0)
 
-## Call integration fucntion ----
+## Call integration fucntion 
 source("02b_MM_integration_functions.R")
 
 parms = list(omega = omega,
@@ -253,10 +253,10 @@ eventZeroEd1 <- data.frame(var = names(X0log1)[(nIDs*4+1):(nIDs*5)], #1+(nIDs*4+
 # define finer integration grid
 DOSiS = seq(tS, tEnd, by = iS)
 
-## Integration  ----
-SimLog1DOSiS<- deSolve::ode(y = X0log1, 
+## Integration
+SimLog1DOSiS<- deSolve::ode(y = X0log1,
                             times = DOSiS,
-                            func = dfLog1, 
+                            func = dfLog1,
                             parms = parms,
                             method = "rk4",
                             events = list(data = eventZeroEd1))
@@ -270,7 +270,7 @@ Sim = cbind(SimLog1[,1], exp(SimLog1[, 1+1:(nIDs*5)])-1)
 #compute E0
 E0v = pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 0)/Ed_0
 
-## Save results ----
+## Save results
 
 saveRDS(E0v, file = paste0(folderOut, "/020_E0_synthetic.rds"))
 
@@ -278,7 +278,7 @@ cat("UPDATE\nAverage E0:", mean(E0v), "\n")
 
 toc()
 
-#### run the code to estimate Adults, LTS and so on (FROM 04 or 06)----
+#### Adults, LTS and so on (FROM 04 or 06) ----
 
 ### Epidemic parameters
 
@@ -305,7 +305,7 @@ AI0 = rep(0, nIDs) # infected vectors
 NIntro = 1
 IntroCalendar = "01-01"
 
-## System initialization ----
+## System initialization
 
 # and select subset:
 
@@ -326,13 +326,13 @@ iSA = 1/72
 
 fyears= 1:20
 
-## Call integration fucntion ----
+## Call integration fucntion
 source("04b_MM_SEI_integration_functions.R")
 
 #reshape area matrix (km²)
 AreaKm2 = matrix(rep(IDsDT$surfHa*10^-2, nD), nrow = nD, byrow = T )
 
-## Compute epidemic parameters ----
+## Compute epidemic parameters
 A = (0.0043*tas + 0.0943)/2 #biting rate
 EIP = 1.03*(4*exp(5.15 - 0.123*tas)) #Metelmann 2021 (Dengue)
 ni = 1/EIP #of the vector
@@ -384,46 +384,133 @@ DOSiS = c(seq(tS, tbDH-iSI, by = iSI),
 
 tic()
 for (y in fyears){
-  
+
   X0 = c(X0, SH0) # included in the system
-  
+
   #transform into log+1 AND giving names
   X0m2 <- X0/10^4 #per m2
   X0log1 = log(X0m2+1)
-  
+
   names(X0log1) =as.character(1:(length(X0)))
-  
-  ## Integration  ----
-  SimLog1DOSiS<- deSolve::ode(y = X0log1, 
+
+  ## Integration
+  SimLog1DOSiS<- deSolve::ode(y = X0log1,
                               times = DOSiS,
-                              func = dfLogSEI, 
+                              func = dfLogSEI,
                               parms = parms,
                               method = "rk4",
                               events = list(data = eventZeroEd1))
-  
+
   # extract values from finer grid
   whichDOSiS = which((DOSiS %% 1)==0)
   SimLog1 <-SimLog1DOSiS[whichDOSiS,]
-  
+
   # untransform variables and transform to ha
   Sim = cbind(SimLog1[,1], 10^4*(exp(SimLog1[, 1+1:(nIDs*8)])-1))
-  
+
   # update X0 ((E0 are AT LEAST 1)) conserve # adults
   X0 = c(pmax(Sim[nrow(Sim), 1+1:(nIDs*5)], 1), rep(0, 2*nIDs))
   X0[which(is.na(X0))] = 1
-  
+
   AI <- Sim[,1+(nIDs*6+1):(nIDs*7)]
   AE <- Sim[,1+(nIDs*5+1):(nIDs*6)]
   AS <- Sim[,1+(nIDs*3+1):(nIDs*4)]
   Adults <- AS + AE + AI
-  
+
   #and SH
   SH <- Sim[,1+7*nIDs + 1:nIDs]
-  
+
   cat("UPDATE\nYear:", y, "\n")
   toc()
 }
 
-## Save results ----
+## Save results
 saveRDS(Adults, file = paste0(folderOut, "/040e_Adults_SEIS.rds"))
 saveRDS(SH, file = paste0(folderOut, "/040e_SH_SEIS.rds"))
+
+### A0: suitability of a non-diapausing population ----
+
+## System initialization 
+# E0 = rep(0, nIDs)
+# J0 = rep(0, nIDs)
+# I0 = rep(0, nIDs)
+A0 = 10*rep(1, nIDs) # at the 1st of July
+Ed_0 = rep(0, nIDs) 
+
+# we simply icreate a verlain of all matrices
+# xnew <- x[M:end, 1:(M-1)]
+
+#Create a matrix over which integrate; each colums is a city, each row is a date
+DOSy = unique(WTotDT$DOS)
+
+#dimensions
+nD = length(DOSy) # simulation length
+
+#reload tasMax and tasMin for size purposes
+if (any(names(WTotDT)=="tasMax")){
+  tasMax <- matrix(WTotDT$tasMax, nrow = nD)
+  tasMin <- matrix(WTotDT$tasMin, nrow = nD)
+} else {
+  cat("T_M and T_m are not available, repaced by T_av")
+  tasMax <- tas
+  tasMin <- tas
+}
+
+### Extract weather 
+omegaRev = 0*omega
+hRev = h[c(FoJul:nD, 1:(FoJul-1)),, drop = FALSE]
+KRev = K[c(FoJul:nD, 1:(FoJul-1)),, drop = FALSE]
+muARev = muA[c(FoJul:nD, 1:(FoJul-1)),, drop = FALSE]
+deltaERev = deltaE
+sigmaRev = 0*sigma
+gammaRev = gamma
+tasMaxRev = tasMax[c(FoJul:nD, 1:(FoJul-1)),, drop = FALSE]
+tasMinRev = tasMin[c(FoJul:nD, 1:(FoJul-1)),, drop = FALSE]
+
+X0 = c(E0, J0, I0, A0, Ed_0)
+
+## Call integration fucntion 
+source("02b_MM_integration_functions.R")
+
+parms = list(omega = omegaRev,
+             h = hRev,
+             K = KRev,
+             muA = muARev,
+             deltaE = deltaERev,
+             sigma = sigmaRev,
+             gamma = gammaRev,
+             tasMax = tasMaxRev,
+             tasMin = tasMinRev,
+             nIDs = nIDs,
+             tSr = tSr)
+
+#transform into log+1 AND giving names
+X0log1 = log(X0+1)
+
+names(X0log1) =as.character(1:(length(X0)))
+
+#set event: zeroing diapausing eggs on FoA
+
+# define finer integration grid
+DOSiS = seq(tS, tEnd, by = iS)
+
+## Integration  
+SimLog1DOSiS<- deSolve::ode(y = X0log1, 
+                            times = DOSiS,
+                            func = dfLog1, 
+                            parms = parms,
+                            method = "rk4")
+
+# extract values from finer grid
+SimLog1 <-SimLog1DOSiS[1+(0:(tEnd-tS))/iS,]
+
+# untransform variables
+Sim = cbind(SimLog1[,1], exp(SimLog1[, 1+1:(nIDs*5)])-1)
+
+#compute E0
+A0v = pmax(Sim[nrow(Sim), 1+(nIDs*3+1):(nIDs*4)], 0)/A0
+
+## Save results 
+
+saveRDS(A0v, file = paste0(folderOut, "/020_A0_synthetic.rds"))
+
