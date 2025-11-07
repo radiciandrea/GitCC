@@ -154,6 +154,7 @@ saveRDS(LASMM, file = paste0(folderSim, "/LASMM.rds"))
 saveRDS(LTSR0dengueMM, file = paste0(folderSim, "/LTSR0DengueMM.rds"))
 saveRDS(LTSSecCasedengueMM, file = paste0(folderSim, "/LTSSecCaseDengueMM.rds"))
 
+AmjjasoMM<- readRDS(file = paste0(folderSim, "/AmjjasoMM.rds"))
 LASMM <- readRDS(file = paste0(folderSim, "/LASMM.rds"))
 LTSR0dengueMM <- readRDS(file = paste0(folderSim, "/LTSR0DengueMM.rds"))
 LTSSecCasedengueMM <- readRDS(file = paste0(folderSim, "/LTSSecCaseDengueMM.rds"))
