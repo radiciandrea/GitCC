@@ -21,6 +21,7 @@ folderShape = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/S
 
 # load 1 for dimension
 name = "Hs"
+
 filesAdults = list.files(paste0(folderSim,"/"), pattern = "Adults")
 Adults <- readRDS(paste0(folderSim, "/", filesAdults[1]))
 nC = 5 # number of classes

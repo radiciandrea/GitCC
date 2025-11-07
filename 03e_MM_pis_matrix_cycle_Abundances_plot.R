@@ -72,7 +72,8 @@ for(k in 1:nrow(scenariosDF)){
     
     file = filesAdults[i]
     
-    Adults <- readRDS(paste0(filesAdults, "/", file))
+    Adults <- readRDS(paste0(folderSim, "/", file))
+
     year <- years[i] # substr(file, nchar(file)-7, nchar(file)-4)
     
     #determine mjjaso
