@@ -44,7 +44,6 @@ scenariosDF= data.frame(name = c("Hs99", "Cn35", "Cn55", "Cn70", "Hg35", "Hg55",
                         yearStart = c(1986, 2026, 2046, 2066, 2026, 2046, 2066),
                         yearEnd = c(1986, 2026, 2046, 2066, 2026, 2046, 2066)+19)
 
-
 for(k in 1:nrow(scenariosDF)){
   
   name = scenariosDF$name[k]
@@ -52,12 +51,25 @@ for(k in 1:nrow(scenariosDF)){
   
   nR <- which((namesAll == name) & (yearsAll %in% years))
   
-  E0Sel <-  apply(E0m[nR,], 2,
+  E0mSel = E0m[nR,]
+  
+  #replace 0 and nas with the average
+  id0nas = rbind(which(E0mSel==0, arr.ind = TRUE),which(is.na(E0mSel), arr.ind = TRUE))
+  
+  E0mSelcorr = E0mSel
+  
+  for(i in 1:nrow(id0nas)){
+    coli <- E0mSel[,id0nas[i,2]]
+    colicr <- coli[which(coli>0 & !is.na(coli))]
+    E0mSelcorr[id0nas[i,1], id0nas[i,2]]= exp(mean(log(colicr)))
+  }
+  
+  E0Sel <-  apply(E0mSelcorr, 2,
                   function(x){exp(mean(log(x), na.rm = T))})
 
   
   E0SelCut <- cut(E0Sel, breaks=cutPal,
-                  labels=sapply(cutPal [-length(cutPal )], function(x){paste0(">=", as.character(x))}))
+                  labels=sapply(cutPal [-length(cutPal )], function(x){paste0(">", as.character(x))}))
   
   plotCut <- ggplot()+
     geom_sf(data = domain, aes(fill = E0SelCut), colour = NA)+ #
