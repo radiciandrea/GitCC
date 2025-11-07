@@ -53,10 +53,11 @@ for(k in 1:nrow(scenariosDF)){
   nR <- which((namesAll == name) & (yearsAll %in% years))
   
   E0Sel <-  apply(E0m[nR,], 2,
-                  function(x){exp(mean(log(x)))})
+                  function(x){exp(mean(log(x), na.rm = T))})
+
   
   E0SelCut <- cut(E0Sel, breaks=cutPal,
-                  labels=sapply(cutPal [-length(cutPal )], function(x){paste0(">", as.character(x))}))
+                  labels=sapply(cutPal [-length(cutPal )], function(x){paste0(">=", as.character(x))}))
   
   plotCut <- ggplot()+
     geom_sf(data = domain, aes(fill = E0SelCut), colour = NA)+ #
@@ -74,7 +75,7 @@ for(k in 1:nrow(scenariosDF)){
            paste0(folderPlot, "/E0_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
   
-  cat("name:", name, ", E0>1: ", round(100*sum(E0Sel>1, na.rm = T)/8981, 0), "\n")
+  cat("name:", name, ", E0>1: ", round(100*sum(E0Sel>1, na.rm = T)/8981, 0), ", nas:", sum(is.nan(E0Sel)),"\n")
   
 }
 
