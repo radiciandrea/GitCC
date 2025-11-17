@@ -96,7 +96,7 @@ domain <- st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Da
 # tas
 
 # Metelmann palette & cuts
-colPal= c("#384AB4", "#5570DF", "#8EB0FE", "#C5D7F3", "#F2CDBB", "#F29878", "#D04B45", "#B00026")
+colPal= c("#332288", "#117733", "#44AA99", "#88CCEE", "#DDCC77", "#CC6677", "#AA4499", "#882255")
 cutPal = c(-3,2,6,9,11,13,16,20,25)
 
 for(i in 1:nrow(scenariosDF)){
