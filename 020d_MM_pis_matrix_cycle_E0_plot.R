@@ -15,7 +15,11 @@ mod = "" # "" = CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63, cold = MPI-M-MPI-ESM-LR_MPI
 folderSim = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod, "_sim_020")
 folderPlot = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/DRIAS", mod, "_sim_020")
 
-files = list.files(paste0(folderSim,"/"), pattern = "E0")
+nIDs = 8981 # number of regions
+IDs = 1:nIDs
+IDsSubSet = IDs
+
+files = list.files(paste0(folderSim,"/"), pattern = "E0_")
 
 namesAll = substring(files, nchar(files)-12, nchar(files)-9)
 yearsAll = substring(files, nchar(files)-7, nchar(files)-4) 
@@ -38,12 +42,19 @@ domain <- st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Da
 colPal= c("#384AB4", "#5570DF", "#8EB0FE", "#C5D7F3", "#F2CDBB", "#F29878", "#D04B45", "#B00026")
 cutPal = c(0, 10^(-3:3), 10^10)
 
+#simplified palette
+colPal= c("#384AB4", "#8EB0FE", "#F29878",  "#B00026")
+cutPal = c(0, 10^(-1:1), 10^10)
+
 # scenarios
 
 scenariosDF= data.frame(name = c("Hs99", "Cn35", "Cn55", "Cn70", "Hg35", "Hg55", "Hg70"),
                         yearStart = c(1986, 2026, 2046, 2066, 2026, 2046, 2066),
                         yearEnd = c(1986, 2026, 2046, 2066, 2026, 2046, 2066)+19)
 
+
+E0MM <-  matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF))
+  
 for(k in 1:nrow(scenariosDF)){
   
   name = scenariosDF$name[k]
@@ -68,6 +79,8 @@ for(k in 1:nrow(scenariosDF)){
                   function(x){exp(mean(log(x), na.rm = T))})
 
   
+  E0MM[k,] =  E0Sel
+  
   E0SelCut <- cut(E0Sel, breaks=cutPal,
                   labels=sapply(cutPal [-length(cutPal )], function(x){paste0(">", as.character(x))}))
   
@@ -78,10 +91,18 @@ for(k in 1:nrow(scenariosDF)){
     theme(plot.background  = element_blank(),
           aspect.ratio = 1)
   
-  if(!(name %in% c("Cn70", "Hg70"))){
-    plotCut <- plotCut +
-      theme(legend.position = "none")
-  }
+  # if(!(name %in% c("Cn70", "Hg70"))){
+  #   plotCut <- plotCut +
+  #     theme(legend.position = "none")
+  # }
+  
+  plotCut <- plotCut +
+    theme(legend.position = "none",
+          panel.grid = element_blank(), 
+          line = element_blank(), 
+          rect = element_blank(), 
+          text = element_blank(), 
+          plot.background = element_rect(fill = "transparent", color = "transparent"))
   
   ggsave(file = 
            paste0(folderPlot, "/E0_", name, "_", min(years), "-", max(years), ".png"),
@@ -91,3 +112,4 @@ for(k in 1:nrow(scenariosDF)){
   
 }
 
+saveRDS(E0MM, file = paste0(folderSim, "/E0MM.rds"))
