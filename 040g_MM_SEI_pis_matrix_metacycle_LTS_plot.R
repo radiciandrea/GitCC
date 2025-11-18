@@ -189,10 +189,13 @@ for(i in 1:nrow(scenariosDF)){
     theme(plot.background  = element_blank(),
           aspect.ratio = 1)
   
-  if(!(name %in% c("Cn70", "Hg70"))){
-    plotCut <- plotCut +
-      theme(legend.position = "none")
-  }
+  plotCut <- plotCut +
+    theme(legend.position = "none",
+          panel.grid = element_blank(), 
+          line = element_blank(), 
+          rect = element_blank(), 
+          text = element_blank(), 
+          plot.background = element_rect(fill = "transparent", color = "transparent"))
   
   ggsave(file = 
            paste0(folderPlot, "/Amjjaso_", name, "_", min(years), "-", max(years), ".png"),
@@ -207,7 +210,7 @@ for(i in 1:nrow(scenariosDF)){
 
 cutPal = c(105, 56, 21, 1, 0)
 cutPalLab = c("e 15 or more", "d 8 to 15", "c 3 to 8", "b 0 to 3", "a 0")
-colPal<- c("#feedde",  "#fdbe85", "#fd8d3c", "#e6550d", "#a63603")
+colPal<- rev(c("#fcfdbf", "#fc8961", "#b73779", "#51127c", "#000004"))
 
 # Cycle
 
@@ -228,10 +231,13 @@ for(i in 1:nrow(scenariosDF)){
     theme(plot.background  = element_blank(),
           aspect.ratio = 1)
   
-  if(!(name %in% c("Cn70", "Hg70"))){
-    plotCut <- plotCut +
-      theme(legend.position = "none")
-  }
+  plotCut <- plotCut +
+    theme(legend.position = "none",
+          panel.grid = element_blank(), 
+          line = element_blank(), 
+          rect = element_blank(), 
+          text = element_blank(), 
+          plot.background = element_rect(fill = "transparent", color = "transparent"))
   
   ggsave(file = 
            paste0(folderPlot, "/LAS_", name, "_", min(years), "-", max(years), ".png"),
