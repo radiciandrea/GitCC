@@ -93,6 +93,68 @@ scenariosDF <- readRDS(file = paste0(folderDrias, "/scenariosDF.rds"))
 ### # Load map
 domain <- st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomain.shp")
 
+# pop
+
+colPal0= c("#b3cde0", "#6497b1", "#005b96", "#03396c", "#011f4b")
+cutPal0 = c(0, 10, 100, 1000, 10000, 100000)
+
+colPal1= c("#2B2EA3", "#5768CD", "gray70", "#AAE9A4", "#47C751")
+cutPal1 = c(-4000, -300, -30, 30, 300, 4000)
+
+SafranDensSF <- st_read(paste0(folderShp, "/SafranDensOmphale.shp"))
+
+for(i in 1:nrow(scenariosDF)){
+  
+  name = scenariosDF$name[i]
+  years = scenariosDF$yearStart[i]:scenariosDF$yearEnd[i]
+  
+  if(i ==1){
+    
+    colPal = colPal0
+    cutPal = cutPal0
+    
+    popSel = unlist(SafranDensSF[,i+1] %>% st_drop_geometry())
+    
+    popSelCut <- cut(popSel, breaks=cutPal,
+                     labels=sapply(cutPal [-length(cutPal )], function(x){paste0(">", as.character(x))}))
+  } else {
+    
+    colPal = colPal1
+    cutPal = cutPal1
+    
+    popSel = unlist(SafranDensSF[,i+1] %>% st_drop_geometry()) - unlist(SafranDensSF[,2] %>% st_drop_geometry())
+    
+    popSelCut <- cut(popSel, breaks=cutPal,
+                     labels=sapply(cutPal [-length(cutPal )], function(x){paste0(">", as.character(x))}))
+  }
+  
+
+  
+  plotCut <- ggplot()+
+    geom_sf(data = domain, aes(fill = popSelCut), colour = NA)+ #
+    scale_fill_manual(values = colPal, drop = FALSE)+
+    ggtitle(paste0("pop, scenario: ", name, "; period: ", min(years), "-", max(years)))+
+    theme(plot.background  = element_blank(),
+          aspect.ratio = 1)
+  
+  # if(!(name %in% c("Cn70", "Hg70"))){
+  plotCut <- plotCut +
+    theme(legend.position = "none",
+          panel.grid = element_blank(), 
+          line = element_blank(), 
+          rect = element_blank(), 
+          text = element_blank(), 
+          plot.background = element_rect(fill = "transparent", color = "transparent"))
+  # }
+  
+  ggsave(file = 
+           paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/pop/pop_", name, "_", min(years), "-", max(years), ".png"),
+         plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
+  
+  
+}
+
+
 # tas
 
 # New palette & cuts
