@@ -189,6 +189,7 @@ for(i in 1:nrow(scenariosDF)){
     theme(plot.background  = element_blank(),
           aspect.ratio = 1)
   
+  # if(!(name %in% c("Cn70", "Hg70"))){
   plotCut <- plotCut +
     theme(legend.position = "none",
           panel.grid = element_blank(), 
@@ -196,6 +197,7 @@ for(i in 1:nrow(scenariosDF)){
           rect = element_blank(), 
           text = element_blank(), 
           plot.background = element_rect(fill = "transparent", color = "transparent"))
+  # }
   
   ggsave(file = 
            paste0(folderPlot, "/Amjjaso_", name, "_", min(years), "-", max(years), ".png"),
@@ -231,6 +233,7 @@ for(i in 1:nrow(scenariosDF)){
     theme(plot.background  = element_blank(),
           aspect.ratio = 1)
   
+  # if(!(name %in% c("Cn70", "Hg70"))){
   plotCut <- plotCut +
     theme(legend.position = "none",
           panel.grid = element_blank(), 
@@ -238,6 +241,7 @@ for(i in 1:nrow(scenariosDF)){
           rect = element_blank(), 
           text = element_blank(), 
           plot.background = element_rect(fill = "transparent", color = "transparent"))
+  # }
   
   ggsave(file = 
            paste0(folderPlot, "/LAS_", name, "_", min(years), "-", max(years), ".png"),
@@ -296,9 +300,9 @@ for(i in 1:nrow(scenariosDF)){
 
 LTSSecCasedengueMM[which(is.na(LTSSecCasedengueMM))]=0
 
-cutPal = c(21, 14, 7, 3, 0)*7
+cutPal = c(21, 14, 7, 1, 0)*7
 cutPalLab = c("e 21 or more", "d 14 to 21", "c 3 to 7", "b 0 to 3", "a 0")
-colPal<- c("#fcfdbf", "#fc8961", "#b73779", "#51127c", "#000004")
+colPal<- c("#450054", "#3A528A", "#21908C", "#5CC963", "#FCE724")
 
 # Cycle
 
