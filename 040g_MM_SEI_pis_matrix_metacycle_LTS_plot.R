@@ -36,6 +36,7 @@ scenariosDF= data.frame(name = c("Hs99", "Cn35", "Cn55", "Cn70", "Hg35", "Hg55",
 
 AmjjasoMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF))
 LASMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF))
+DayHighestR07MM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF))
 LTSR0dengueMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF))
 LTSSecCasedengueMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF)) # Secondary Cases metamatrix
 
@@ -63,6 +64,7 @@ for(k in 1:nrow(scenariosDF)){
   LASM = matrix(NA, nrow = length(years), ncol = nIDs)
   LTSR0dengueM = matrix(NA, nrow = length(years), ncol = nIDs)
   LTSSecCasedengueM = matrix(NA, nrow = length(years), ncol = nIDs) # Secondary Cases matrix
+  DayHighestR07M = matrix(NA, nrow = length(years), ncol = nIDs)
   
   filesSH <- list.files(paste0(folderSim,"/"), paste0("040e_SH_Drias_SEIS_", name))
   filesAdults <- list.files(paste0(folderSim,"/"), paste0("040e_Adults_Drias_SEIS_", name))
@@ -126,6 +128,10 @@ for(k in 1:nrow(scenariosDF)){
     R0dengueM = (A*phiA)^2*m/(muA+muA^2*EIPdengue)*bV2H*bH2Vdengue*IIPdengue
     LTSR0dengueM[i,] = colSums(R0dengueM>1, na.rm =T)
     
+    R07M = t(sapply(2:nD, function(x){return(colMeans(R0dengueM[max(1,(x-6)):x,], na.rm = T))}))
+    R07M[which(is.na(R07M))] = 0
+    DayHighestR07M[i,] = apply(R07M, 2, which.max)
+    
     # Secondary Cases---- 
     
     SH <- readRDS(paste0(folderSim, "/", fileSH))
@@ -146,6 +152,7 @@ for(k in 1:nrow(scenariosDF)){
   LASMM[k,] <- colMeans(LASM, na.rm =T)
   LTSR0dengueMM[k,] <- colMeans(LTSR0dengueM, na.rm =T)
   LTSSecCasedengueMM[k,] <- colMeans(LTSSecCasedengueM, na.rm =T)
+  DayHighestR07MM[k,] <- colMeans(DayHighestR07M, na.rm =T)
 }
 
 # Save and load----
@@ -153,11 +160,13 @@ saveRDS(AmjjasoMM, file = paste0(folderSim, "/AmjjasoMM.rds"))
 saveRDS(LASMM, file = paste0(folderSim, "/LASMM.rds"))
 saveRDS(LTSR0dengueMM, file = paste0(folderSim, "/LTSR0DengueMM.rds"))
 saveRDS(LTSSecCasedengueMM, file = paste0(folderSim, "/LTSSecCaseDengueMM.rds"))
+saveRDS(DayHighestR07MM, file = paste0(folderSim, "/DayHighestR07MM.rds"))
 
 AmjjasoMM<- readRDS(file = paste0(folderSim, "/AmjjasoMM.rds"))
 LASMM <- readRDS(file = paste0(folderSim, "/LASMM.rds"))
 LTSR0dengueMM <- readRDS(file = paste0(folderSim, "/LTSR0DengueMM.rds"))
 LTSSecCasedengueMM <- readRDS(file = paste0(folderSim, "/LTSSecCaseDengueMM.rds"))
+DayHighestR07MM <- readRDS(file = paste0(folderSim, "/DayHighestR07MM.rds"))
 
 # Plot----
 
@@ -341,38 +350,48 @@ for(i in 1:nrow(scenariosDF)){
   
 }
 
-# ### Secondary cases ----
-# 
-# cutPal = c(20, 5, 1, 0.5, 0.5)
-# cutPalLab = c("e > 20", "d > 5", "c > 1", "b > 0.5", "a < 0.5")
-# colPal<- c("#fcfdbf", "#fc8961", "#b73779", "#51127c", "#000004")
-# 
-# # Cycle
-# 
-# for(i in 1:nrow(scenariosDF)){
-#   name = scenariosDF$name[i]
-#   years = scenariosDF$yearStart[i]:scenariosDF$yearEnd[i]
-#   
-#   LTSSecCaseCut <- case_when(LTSSecCasedengueMM[i,] >= cutPal[1] ~ cutPalLab[1],
-#                           LTSSecCasedengueMM[i,] >= cutPal[2] ~ cutPalLab[2],
-#                           LTSSecCasedengueMM[i,] >= cutPal[3] ~ cutPalLab[3],
-#                           LTSSecCasedengueMM[i,] >= cutPal[4] ~ cutPalLab[4],
-#                           LTSSecCasedengueMM[i,] <= cutPal[4] ~ cutPalLab[5])
-#   
-#   plotCut <- ggplot()+
-#     geom_sf(data = domain, aes(fill = LTSSecCaseCut), colour = NA)+ #
-#     scale_fill_manual(values = colPal)+
-#     ggtitle(paste0("Secondary cases (dengue), scenario: ", name, "; period: ", min(years), "-", max(years)))+
-#     theme(plot.background  = element_blank(),
-#           aspect.ratio = 1)
-#   
-#   if(!(name %in% c("Cn70", "Hg70"))){
-#     plotCut <- plotCut +
-#       theme(legend.position = "none")
-#   }
-#   
-#   ggsave(file = 
-#            paste0(folderPlot, "/LTSSecCase_", name, "_", min(years), "-", max(years), ".png"),
-#          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
-#   
-# }
+
+### Date at highest R0 ----
+
+cutPal = c(366, 244, 244-15, 213, 181, 1)
+cutPalLab = c("a September or later", "b III-IV August", "c I-II August", "d July", "e June or earlier")
+colPal<- c("#ceefd6",  "#4dc2ad", "#347fa4", "#41478b", "#3c3063") #"#140910", "#e5f7ea"
+
+# Cycle
+
+for(i in 1:nrow(scenariosDF)){
+  name = scenariosDF$name[i]
+  years = scenariosDF$yearStart[i]:scenariosDF$yearEnd[i]
+  
+  DayHighestR07Cut <- case_when(DayHighestR07MM[i,] >= cutPal[1] ~ cutPalLab[1],
+                          DayHighestR07MM[i,] >= cutPal[2] ~ cutPalLab[2],
+                          DayHighestR07MM[i,] >= cutPal[3] ~ cutPalLab[3],
+                          DayHighestR07MM[i,] >= cutPal[4] ~ cutPalLab[4],
+                          DayHighestR07MM[i,] <= cutPal[4] ~ cutPalLab[5])
+  
+  plotCut <- ggplot()+
+    geom_sf(data = domain, aes(fill = DayHighestR07Cut), colour = NA)+ #
+    scale_fill_manual(values = colPal)+
+    ggtitle(paste0("Adult density, scenario: ", name, "; period: ", min(years), "-", max(years)))+
+    theme(plot.background  = element_blank(),
+          aspect.ratio = 1)
+  
+  # if(!(name %in% c("Cn70", "Hg70"))){
+  plotCut <- plotCut +
+    theme(legend.position = "none",
+          panel.grid = element_blank(), 
+          line = element_blank(), 
+          rect = element_blank(), 
+          text = element_blank(), 
+          plot.background = element_rect(fill = "transparent", color = "transparent"))
+  # }
+  
+  ggsave(file = 
+           paste0(folderPlot, "/DayHighestR07_", name, "_", min(years), "-", max(years), ".png"),
+         plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
+  
+  cat("name:", name, ", mean(date): ")
+  print(as.Date(round(mean(DayHighestR07MM[i,], na.rm = T)), origin = "2024-12-31"))
+  cat("\n")
+  
+}
