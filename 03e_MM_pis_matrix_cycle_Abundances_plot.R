@@ -93,13 +93,10 @@ for(k in 1:nrow(scenariosDF)){
     
     tas = matrix(WTotDT$tas, nrow = nD)
     
-    # load H (just once) for R0
-    if(!exists("IDsDT")){
-      IDsDT <- WTotDT %>%
-        distinct(ID, .keep_all = TRUE) %>%
-        dplyr::select(c("ID", "pop")) %>%
-        filter(ID %in% IDsSubSet)
-    }
+    IDsDT <- WTotDT %>%
+      distinct(ID, .keep_all = TRUE) %>%
+      dplyr::select(c("ID", "pop")) %>%
+      filter(ID %in% IDsSubSet)
     
     H = matrix(rep(IDsDT$pop, nD), nrow = nD, byrow = T )
     
