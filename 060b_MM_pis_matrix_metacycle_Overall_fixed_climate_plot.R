@@ -3,6 +3,8 @@
 # Inspired by 
 # ModelMetelmann_pis_matrix_EOBS_cycle_plot.R
 
+#FIXED CLIMATE
+
 library(ggplot2)
 library(reshape2) 
 library(dplyr)
@@ -103,7 +105,7 @@ for(k in 1:nrow(scenariosDF)){
            paste0(folderPlot, "/E0_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
   
-  cat("name:", name, ", E0>1: ", round(100*sum(E0Sel>1, na.rm = T)/8981, 0), ", nas:", sum(is.nan(E0Sel)),"\n")
+  cat("name:", name, ", E0>1: ", round(100*sum(E0Sel>1, na.rm = T)/8981, 1), ", nas:", sum(is.nan(E0Sel)),"\n")
   
 }
 
@@ -175,18 +177,18 @@ for(k in 1:nrow(scenariosDF)){
     
     # load weather for R0
     
-    WTotDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", year, ".rds")) %>%
+    # beware: load weather from HISTORICAL
+    WTotDT <- readRDS(paste0(folderDrias, "/Drias_Hs99_", 1985+i, ".rds")) %>%
       filter(ID %in% IDsSubSet) 
     
     tas = matrix(WTotDT$tas, nrow = nD)
     
-    # load H (just once) for R0
-    if(!exists("IDsDT")){
-      IDsDT <- WTotDT %>%
-        distinct(ID, .keep_all = TRUE) %>%
-        dplyr::select(c("ID", "pop", "surfHa")) %>%
-        filter(ID %in% IDsSubSet)
-    }
+    # load H at every time
+    
+    IDsDT <- WTotDT %>%
+      distinct(ID, .keep_all = TRUE) %>%
+      dplyr::select(c("ID", "pop", "surfHa")) %>%
+      filter(ID %in% IDsSubSet)
     
     #reshape human matrix
     H = matrix(rep(IDsDT$pop, nD), nrow = nD, byrow = T )
