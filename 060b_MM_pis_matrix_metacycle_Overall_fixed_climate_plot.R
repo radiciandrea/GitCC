@@ -21,6 +21,11 @@ folderShape = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/S
 
 dir.create(folderPlot)
 
+# scenarios
+scenariosDF= data.frame(name = c("Cn35", "Cn55", "Cn70", "Hg35", "Hg55", "Hg70"),
+                        yearStart = c(2026, 2046, 2066, 2026, 2046, 2066),
+                        yearEnd = c(2026, 2046, 2066, 2026, 2046, 2066)+19)
+
 files = list.files(paste0(folderSim,"/"), pattern = "020_")
 
 namesAll = substring(files, nchar(files)-12, nchar(files)-9)
@@ -43,12 +48,6 @@ domain <- st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Da
 #simplified palette
 colPal= c("#384AB4", "#8EB0FE", "#F29878",  "#B00026")
 cutPal = c(0, 10^(-1:1), 10^10)
-
-# scenarios
-scenariosDF= data.frame(name = c("Cn35", "Cn55", "Cn70", "Hg35", "Hg55", "Hg70"),
-                        yearStart = c(2026, 2046, 2066, 2026, 2046, 2066),
-                        yearEnd = c(2026, 2046, 2066, 2026, 2046, 2066)+19)
-
 
 E0MM <-  matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF))
 
