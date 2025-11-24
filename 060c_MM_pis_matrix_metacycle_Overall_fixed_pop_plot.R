@@ -3,6 +3,8 @@
 # Inspired by 
 # ModelMetelmann_pis_matrix_EOBS_cycle_plot.R
 
+#FIXED POPULATION
+
 library(ggplot2)
 library(reshape2) 
 library(dplyr)
