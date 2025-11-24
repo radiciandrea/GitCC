@@ -10,15 +10,18 @@ library(metR)
 library(ggrepel)
 library(ggpubr)
 
-folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
-folderSim = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Synthetic_Exposure_Space"
+mod = ""
 
-# # we choose places with ~ inhabitants
-# # scenarios <- c("Cn70", "Cn55", "Cn35", "Hs99", "Hg35", "Hg55", "Hg70")
-# scenarios <- c("Cn70", "Hs99","Hg70")
-# cities <- c("Montpellier", "Nantes", "Rennes", "Lille", "Paris-est", "Lyon", "Grenoble", "Bordeaux", "Toulouse", "Marseille", "Nice")
-# IDsSubSet <- c(1040, 5243, 6482, 8915, 7542, 3500, 2936, 2472, 929, 642, 1249)
-# 
+folderDrias = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod,"_elab")
+folderSim = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod,"_sim_05")
+folderPlot = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/DRIAS", mod,"_sim_05")
+
+# we choose places with ~ inhabitants
+# scenarios <- c("Cn70", "Cn55", "Cn35", "Hs99", "Hg35", "Hg55", "Hg70")
+scenarios <- c("Cn70", "Hs99","Hg70")
+cities <- c("Montpellier", "Nantes", "Rennes", "Lille", "Paris-est", "Lyon", "Grenoble", "Bordeaux", "Toulouse", "Marseille", "Nice")
+IDsSubSet <- c(1040, 5243, 6482, 8915, 7542, 3500, 2936, 2472, 929, 642, 1249)
+
 # MapDT <- data.table(city = rep(cities, length(scenarios)),
 #                     ID = rep(IDsSubSet, length(scenarios)),
 #                     scenario = rep(scenarios,length(cities)),
@@ -26,28 +29,28 @@ folderSim = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Syn
 #                     tasMinWin = 0) #average minimal in J
 # 
 # for(k in 1:length(scenarios)){
-#   
+# 
 #   scenariox = scenarios[k]
 #   files = list.files(paste0(folderDrias,"/"), paste0("Drias_", scenariox))
-#   
+# 
 #   for(i in  1:length(files)){
-#     
+# 
 #     file = files[i]
 #     year <- substr(file, nchar(file)-7, nchar(file)-4)
-#     
+# 
 #     WTotDT <- readRDS(paste0(folderDrias, "/Drias_", scenariox, "_", year, ".rds")) %>%
 #       filter(ID %in% IDsSubSet)
-#     
+# 
 #     for(j in 1:length(IDsSubSet)){
-#       
+# 
 #       IDx = IDsSubSet[j]
 #       WTotDTtemp = WTotDT %>% filter(ID == IDx)
-#       
+# 
 #       MapDT[scenario == scenariox & ID == IDx, tasAvgYea := (tasAvgYea*(j-1)+mean(WTotDTtemp[,tas]))/j]
 #       MapDT[scenario == scenariox & ID == IDx, tasMinWin := (tasMinWin*(j-1)+mean(WTotDTtemp[DOS <= 31, tasMin]))/j]
 #       cat(mean(WTotDTtemp$tas), "\n")
 #     }
-#     
+# 
 #   }
 # }
 # 
@@ -138,106 +141,99 @@ IndDT$A0[is.nan(A0)] = 10^-8
 IndDT$A0[A0<10^-8] = 10^-8
 IndDT$A0[A0>10^8] = 10^8
 
-IndDT <- IndDT %>%
-  mutate(status = case_when(
-    (E0 > 1)&(LTS > 360) ~ "8) Suitable, homodynamic trnamission",
-    (E0 > 1)&(LTS > 270) ~ "7) Suitable, < 12 months of transmission",
-    (E0 > 1)&(LTS > 180) ~ "6) Suitable, < 9 m of transmission",
-    (E0 > 1)&(LTS > 90) ~ "5) Suitable, < 6 m of transmission",
-    (E0 > 1)&(LTS > 30) ~ "4) Suitable, < 3 m of transmission",
-    (E0 > 1)&(LTS > 1) ~ "3) Suitable, < 1 m of transmission",
-    (E0 > 1)&(LTS < 1) ~ "2) Suitable, no transmission",
-    (E0 < 1) ~ "1) Unsuitable"))
+# MapDT
+
+MapDTtemp <- MapDT%>%
+  filter(city %in% c("Bordeaux", "Grenoble", "Montpellier", "Lille", "Rennes"))
 
 IndDT <- IndDT %>%
   mutate(statusSuitability = case_when(
-    (E0 > 1)&(A0 > 1) ~ 5,
-    (E0 > 1)&(A0 > 0.1) ~ 4,
-    (E0 > 1)&(A0 < 0.1) ~ 3,
-    (E0 > 0.1)&(A0 < 0.1) ~ 2,
-    (E0 < 0.1)&(A0 < 0.1) ~ 1))
+    (E0 > 10)&(A0 > 10) ~ "7", # Stronguitability of homodynamic population
+    (E0 > 10)&(A0 > 1) ~ "6", # Suitability of homodynamic population
+    (E0 > 10)&(A0 > 0.1) ~ "5", # Weak suitability of homodynamic population
+    (E0 > 10)&(A0 < 0.1) ~ "4", # strong suitability of diapausing population
+    (E0 > 1)&(A0 > 0.1) ~ "5", # Weak suitability of homodynamic population
+    (E0 > 1)&(A0 < 0.1) ~ "3", # Suitability of diapausing population
+    (E0 > 0.1)&(A0 < 0.1) ~ "2", # Weak suitability of diapausing population
+    (E0 < 0.1)&(A0 < 0.1) ~ "1")) # Strong unsuitability for Aedes albopictus
 
-IndDT <- IndDT %>%
-  mutate(status = case_when(
-    (E0 > 1)&(LTS > 360) ~ 8,
-    (E0 > 1)&(LTS > 270) ~ 7,
-    (E0 > 1)&(LTS > 180) ~ 6,
-    (E0 > 1)&(LTS > 90) ~ 5,
-    (E0 > 1)&(LTS > 30) ~ 4,
-    (E0 > 1)&(LTS > 1) ~ 3,
-    (E0 > 1)&(LTS < 1) ~ 2,
-    (E0 < 1) ~ 1))
+IndDT$statusSuitability <- as.factor(IndDT$statusSuitability)
 
+colPal= c("#384AB4", "#8EB0FE", "#F29878",  "#B00026", "#AD5CFF", "#5200A3", "#0D001A")
 
-ggplot() +
-  geom_contour_fill(
+plotCut <- ggplot() +
+  geom_tile( #contour_fill
     data = IndDT,
-    aes(x = tasAvgYea, y = tasMinWin, z = log(E0)) #
-  ) +
-  ggtitle("Suitability")+ #Suitability
-  geom_contour(
-    data = IndDT,
-    aes(x = tasAvgYea, y = tasMinWin, z = log(E0)),
-    color = "black", breaks = c(1))+
-  theme_test()+
-  geom_path(data = MapDT, aes(x = tasAvgYea, y = tasMinWin, group = city)) + # , color= "white"
-  geom_point(data = MapDT, aes(x = tasAvgYea, y = tasMinWin, shape = scenario), size = 2) + #, color= "white", #shape = MapDT$pointShape, 
-  guides(size = "legend", colour = "none")+
-  scale_color_grey()+
-  geom_label_repel(data = MapDT ,
-                   aes(x = tasAvgYea, y = tasMinWin, label = cityLabel),
-                   label.padding = 0.15, segment.color = NA, size = 3) #size = 4
-
-ggplot() +
-  geom_contour_fill(
-    data = IndDT,
-    aes(x = tasAvgYea, y = tasMinWin, z = log(A0)) #
-  ) +
-  ggtitle("Suitability of a non-diapausing population")+ #Suitability
-  geom_contour(
-    data = IndDT,
-    aes(x = tasAvgYea, y = tasMinWin, z = log(A0)),
-    color = "black", breaks = c(1))+
-  theme_test()+
-  geom_path(data = MapDT, aes(x = tasAvgYea, y = tasMinWin, group = city)) + # , color= "white"
-  geom_point(data = MapDT, aes(x = tasAvgYea, y = tasMinWin, shape = scenario), size = 2) + #, color= "white", #shape = MapDT$pointShape, 
-  guides(size = "legend", colour = "none")+
-  scale_color_grey()+
-  geom_label_repel(data = MapDT ,
-                   aes(x = tasAvgYea, y = tasMinWin, label = cityLabel),
-                   label.padding = 0.15, segment.color = NA, size = 3) #size = 4
-
-
-ggplot() +
-  geom_contour_fill(
-    data = IndDT,
-    aes(x = tasAvgYea, y = tasMinWin, z = LTS) #
-  ) +
-  ggtitle("LTS")+ #Suitability
-  geom_contour(
-    data = IndDT,
-    aes(x = tasAvgYea, y = tasMinWin, z =  LTS),
-    color = "black", breaks = c(1))+
-  theme_test()+
-  geom_path(data = MapDT, aes(x = tasAvgYea, y = tasMinWin, group = city)) + # , color= "white"
-  geom_point(data = MapDT, aes(x = tasAvgYea, y = tasMinWin, shape = scenario), size = 2) + #, color= "white", #shape = MapDT$pointShape, 
-  guides(size = "legend", colour = "none")+
-  scale_color_grey()+
-  geom_label_repel(data = MapDT ,
-                   aes(x = tasAvgYea, y = tasMinWin, label = cityLabel),
-                   label.padding = 0.15, segment.color = NA, size = 3) #size = 4
-
-ggplot() +
-  geom_contour_fill(
-    data = IndDT,
-    aes(x = tasAvgYea, y = tasMinWin, z = statusSuitability) #
+    aes(x = tasAvgYea, y = tasMinWin, fill = statusSuitability) # z
   ) +
   ggtitle("Suitability status")+
+  scale_fill_manual(values = colPal)+
   theme_test()+
-  geom_path(data = MapDT, aes(x = tasAvgYea, y = tasMinWin, group = city)) + # , color= "white"
-  geom_point(data = MapDT, aes(x = tasAvgYea, y = tasMinWin, shape = scenario), size = 2) + #, color= "white", #shape = MapDT$pointShape, 
+  geom_path(data = MapDTtemp, aes(x = tasAvgYea, y = tasMinWin, group = city),
+            arrow = arrow(ends = "both", type = "closed", length = unit(0.05, "inches")), color = "grey70") + # , color= "white"
+  geom_point(data = MapDTtemp, aes(x = tasAvgYea, y = tasMinWin, shape = scenario), size = 1) + #, color= "white", #shape = MapDT$pointShape, 
   guides(size = "legend", colour = "none")+
-  scale_color_grey()+
-  geom_label_repel(data = MapDT ,
+  scale_color_grey()
+
+plotCut+
+  geom_label_repel(data = MapDTtemp,
                    aes(x = tasAvgYea, y = tasMinWin, label = cityLabel),
-                   label.padding = 0.15, segment.color = NA, size = 3) #size = 4
+                   label.padding = 0.15, segment.color = NA, size = 4) #size = 4
+
+plotCut <- plotCut +
+  theme(legend.position = "none",
+        panel.grid = element_blank(), 
+        line = element_blank(), 
+        rect = element_blank(), 
+        text = element_blank(), 
+        plot.background = element_rect(fill = "transparent", color = "transparent"))
+
+
+ggsave(file = 
+         paste0(folderPlot, "/SuitabilityStatus.png"),
+       plot= plotCut, units="cm", height=5.2, width = 8.2, dpi=300) #units="in", height=4,
+
+
+IndDT <- IndDT %>%
+  mutate(statusDengue = case_when(
+    (E0 > 1)&(LTS > 161) ~ "6",
+    (E0 > 1)&(LTS > 105) ~ "5",
+    (E0 > 1)&(LTS > 56) ~ "4",
+    (E0 > 1)&(LTS > 21) ~ "3",
+    (E0 > 1)&(LTS > 1) ~ "2",
+    (E0 > 1)&(LTS < 1) ~ "1",
+    (E0 < 1) ~ "0"))
+
+
+colPal<- c("#0D001A", "#450054", "#3A528A", "#21908C", "#5CC963", "#FCE724", "#F7f5bc")
+
+plotCut <- ggplot() +
+  geom_tile(
+    data = IndDT,
+    aes(x = tasAvgYea, y = tasMinWin, fill = statusDengue) #
+  ) +
+  ggtitle("Suitability for Dengue")+ #Suitability
+  scale_fill_manual(values = colPal)+
+  theme_test()+
+  geom_path(data = MapDTtemp, aes(x = tasAvgYea, y = tasMinWin, group = city),
+            arrow = arrow(ends = "both", type = "closed", length = unit(0.05, "inches")), color= "grey50") + # , color= "white"
+   geom_point(data = MapDTtemp, aes(x = tasAvgYea, y = tasMinWin, shape = scenario), color= "red", size = 1) + #, color= "white", #shape = MapDT$pointShape, 
+  guides(size = "legend", colour = "none")+
+  scale_color_grey()
+
+plotCut <- plotCut +
+  theme(legend.position = "none",
+        panel.grid = element_blank(), 
+        line = element_blank(), 
+        rect = element_blank(), 
+        text = element_blank(), 
+        plot.background = element_rect(fill = "transparent", color = "transparent"))
+
+ggsave(file = 
+         paste0(folderPlot, "/DengueStatus.png"),
+       plot= plotCut, units="cm", height=5.2, width = 8.2, dpi=300) #units="in", height=4,
+
+# +
+#   geom_label_repel(data = MapDTtemp,
+#                    aes(x = tasAvgYea, y = tasMinWin, label = cityLabel),
+#                    label.padding = 0.15, segment.color = NA, size = 3) #size = 4
