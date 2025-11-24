@@ -1,5 +1,5 @@
 # Model by Metelmann 2019 ----
-# to simulate secondary cases within a month
+# to simulate secondary cases from the 1st of August
 
 # Running on SAFRAN
 
@@ -49,7 +49,7 @@ if(!exists("NIntro")){
 }
 
 if(!exists("IntroMonthCalendar")){
-  IntroMonthCalendar = 1:12 # imported case: one for each month
+  IntroMonthCalendar = 8 # imported case: one for each month
 }
 
 if(!exists("mod")){
