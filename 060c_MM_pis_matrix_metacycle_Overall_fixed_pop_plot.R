@@ -125,7 +125,7 @@ IDsSubSet = IDs
 # create meta matrices for each scenario (hist, ssp2, ssp5) for both adults and MTS for dengue
 
 AmjjasoMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF))
-LTSdengueMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF))
+LTSR0dengueMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF))
 SecCaseMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF)) # Secondary Cases metamatrix
 PrevMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF)) # prevalence metamatrix
 
@@ -230,19 +230,19 @@ for(k in 1:nrow(scenariosDF)){
   rm(IDsDT)
   
   AmjjasoMM[k,] <- colMeans(AmjjasoM, na.rm =T)
-  LTSdengueMM[k,] <- colMeans(LTSdengueM, na.rm =T)
+  LTSR0dengueMM[k,] <- colMeans(LTSdengueM, na.rm =T)
   SecCaseMM[k,] <- colMeans(SecCaseM, na.rm =T)
   PrevMM[k,] <- colMeans(PrevM, na.rm =T)
 }
 
 # Save and load----
 saveRDS(AmjjasoMM, file = paste0(folderSim, "/AmjjasoMM.rds"))
-saveRDS(LTSdengueMM, file = paste0(folderSim, "/LTSdengueMM.rds"))
+saveRDS(LTSR0dengueMM, file = paste0(folderSim, "/LTSR0dengueMM.rds"))
 saveRDS(SecCaseMM, file = paste0(folderSim, "/SecCaseMM.rds"))
 saveRDS(PrevMM, file = paste0(folderSim, "/PrevMM.rds"))
 
 AmjjasoMM <- readRDS(file = paste0(folderSim, "/AmjjasoMM.rds"))
-LTSdengueMM <- readRDS(file = paste0(folderSim, "/LTSdengueMM.rds"))
+LTSR0dengueMM <- readRDS(file = paste0(folderSim, "/LTSR0dengueMM.rds"))
 SecCaseMM <- readRDS(file = paste0(folderSim, "/SecCaseMM.rds"))
 PrevMM <- readRDS(file = paste0(folderSim, "/PrevMM.rds"))
 
