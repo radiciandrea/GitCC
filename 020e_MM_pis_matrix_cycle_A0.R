@@ -54,10 +54,10 @@ if(!exists("mod")){
 
 if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
   folderDrias = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS",mod,"_elab")
-  folderOut = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS",mod,"_sim_020")
+  folderOut = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS",mod,"_sim_020e")
 } else {
   folderDrias = paste0("DRIAS",mod,"_elab")
-  folderOut = paste0("DRIAS",mod,"_sim_020")
+  folderOut = paste0("DRIAS",mod,"_sim_020e")
 }
 
 
