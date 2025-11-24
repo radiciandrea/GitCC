@@ -352,9 +352,11 @@ for(i in 1:nrow(scenariosDF)){
 
 
 ### Date at highest R0 ----
+# Min. 1st Qu. Median    Mean   3rd Qu.    Max. 
+# 10    218     225      225     233      249
 
-cutPal = c(366, 244, 244-15, 213, 181, 1)
-cutPalLab = c("a September or later", "b III-IV August", "c I-II August", "d July", "e June or earlier")
+cutPal = c(235, 227, 220, 213, 1)
+cutPalLab = c("a Later than the 23 august", "b 15 - 22 August", "c 8 - 14 August", "d 1 - 7 August", "e Before the 1st of August")
 colPal<- c("#ceefd6",  "#4dc2ad", "#347fa4", "#41478b", "#3c3063") #"#140910", "#e5f7ea"
 
 # Cycle
@@ -363,11 +365,14 @@ for(i in 1:nrow(scenariosDF)){
   name = scenariosDF$name[i]
   years = scenariosDF$yearStart[i]:scenariosDF$yearEnd[i]
   
-  DayHighestR07Cut <- case_when(DayHighestR07MM[i,] >= cutPal[1] ~ cutPalLab[1],
-                          DayHighestR07MM[i,] >= cutPal[2] ~ cutPalLab[2],
-                          DayHighestR07MM[i,] >= cutPal[3] ~ cutPalLab[3],
-                          DayHighestR07MM[i,] >= cutPal[4] ~ cutPalLab[4],
-                          DayHighestR07MM[i,] <= cutPal[4] ~ cutPalLab[5])
+  DayHighestR07Cut <- case_when(DayHighestR07MM[i,] > cutPal[1] ~ cutPalLab[1],
+                          DayHighestR07MM[i,] > cutPal[2] ~ cutPalLab[2],
+                          DayHighestR07MM[i,] > cutPal[3] ~ cutPalLab[3],
+                          DayHighestR07MM[i,] > cutPal[4] ~ cutPalLab[4],
+                          DayHighestR07MM[i,] > cutPal[5] ~ cutPalLab[5],
+                          .default = NA)
+  
+  length(table(DayHighestR07Cut))
   
   plotCut <- ggplot()+
     geom_sf(data = domain, aes(fill = DayHighestR07Cut), colour = NA)+ #
