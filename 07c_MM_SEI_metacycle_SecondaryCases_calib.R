@@ -5,6 +5,8 @@ library(dplyr)
 
 rm(list = ls())
 
+
+#### folders ----
 # folder names
 if(!exists("folderOut")){
   if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
@@ -35,13 +37,15 @@ dfCities = data.frame(name = c("LA CRAU", "SAINTE CECILE LES VIGNES", "FREJUS", 
                        popKm2 = c(513, 133, 572, 2163),
                        surfHa = c(3787, 1982, 10227, 1304))
 
-# expH= 0.9 # to saturate, values between 
+# expH= 0.85 # to saturate, values between 
 
 dfSim = data.frame(expH = c(seq(0, 0.78, length.out = 40), seq(0.8, 1, length.out = 50), seq(1.05, 2, length.out = 20)),
                        simLaCrau = NA,
                        simSCeclie = NA,
                        simFrejus = NA,
                        simVallauris = NA)
+
+#### cycle ----
 
 for(j in 1:nrow(dfSim)){
   # foreach(i = 1:nrow(dfCities)) %do% { # dopar
@@ -67,11 +71,15 @@ for(j in 1:nrow(dfSim)){
   }
 }
 
+#### save and load ----
+
 saveRDS(dfSim, file = paste0(folderOut,"/dfSim.rds"))
 
 ### Part 2
 
 dfSim <- readRDS(paste0(folderOut,"/dfSim.rds"))
+
+# as matrix
 mSim <- cbind(dfSim %>% pull(simLaCrau),
                dfSim %>% pull(simSCeclie),
                dfSim %>% pull(simFrejus),
@@ -115,3 +123,22 @@ for(i in 1:nrow(dfCities)) { # dopar
   plot((max(SH) - SH)*IDsDT$surfHa, main = name)
   lines(rep(dfCities$cases[i], times = length(SH)), col = 'blue')
 }
+
+# save comparison df
+
+c(dfSim[which(dfSim$expH == minExpHRMSLE),1 +1:4])
+
+dfCases =dfCities%>%
+  select(c("name", "dep", "IntroCalendar", "OutroCalendar", "cases")) %>%
+  mutate(casesSimOldK = as.numeric(c(dfSim[which(dfSim$expH == 1),1 +1:4]))) %>%
+  mutate(casesSimNewK = as.numeric(c(dfSim[which(dfSim$expH == minExpHRMSLE),1 +1:4]))) %>%
+  mutate(set = "calib")
+
+saveRDS(dfCases, file = paste0(folderOut,"/dfCasesCalib.rds"))
+
+
+ggplot() +
+  geom_point(data = dfCases, aes(x = cases, y = casesSimNewK, shape = name, size = ENewK), color = 'lightblue') +
+  geom_point(data = dfCases, aes(x = cases, y = casesSimOldK, shape = name, size = EOldK), color = 'lightblue')
+  
+  
