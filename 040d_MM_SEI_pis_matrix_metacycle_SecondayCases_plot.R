@@ -17,6 +17,11 @@ folderPlot = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/
 folderDrias = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod, "_elab")
 folderShape = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab"
 
+# scenarios
+scenariosDF= data.frame(name = c("Hs99", "Cn35", "Cn55", "Cn70", "Hg35", "Hg55", "Hg70"),
+                        yearStart = c(1986, 2026, 2046, 2066, 2026, 2046, 2066),
+                        yearEnd = c(1986, 2026, 2046, 2066, 2026, 2046, 2066)+19)
+
 ## initial settings----
 
 # load 1 for dimension
@@ -33,12 +38,6 @@ IDsSubSet = IDs
 #   DomainSf <- st_read(paste0(folderShape, "/SafranDensOmphale.shp"))
 #   AreaKm2 = DomainSf$surf_ha/100 # approximate surface of each cell (max rel error: 0.44%)
 # }
-
-# scenarios
-
-scenariosDF= data.frame(name = c("Hs99", "Cn35", "Cn55", "Cn70", "Hg35", "Hg55", "Hg70"),
-                        yearStart = c(1986, 2026, 2046, 2066, 2026, 2046, 2066),
-                        yearEnd = c(1986, 2026, 2046, 2066, 2026, 2046, 2066)+19)
 
 # create meta matrices for each scenario (hist, ssp2, ssp5) for both adults and MTS for dengue
 
@@ -63,8 +62,8 @@ for(k in 1:nrow(scenariosDF)){
   name = scenariosDF$name[k]
   years = scenariosDF$yearStart[k]:scenariosDF$yearEnd[k]
   
-  filesSH <- list.files(paste0(folderSim,"/"), paste0("04a_SH_Drias_SEIS_", name))
-  filesAdults <- list.files(paste0(folderSim,"/"), paste0("04a_Adults_Drias_SEIS_", name))
+  filesSH <- list.files(paste0(folderSim,"/"), paste0("040a_SH_Drias_SEIS_", name))
+  filesAdults <- list.files(paste0(folderSim,"/"), paste0("040a_Adults_Drias_SEIS_", name))
   
   # matrices of indicators
   
@@ -189,10 +188,15 @@ for(i in 1:nrow(scenariosDF)){
     theme(plot.background  = element_blank(),
           aspect.ratio = 1)
   
-  if(!(name %in% c("Cn70", "Hg70"))){
-    plotCut <- plotCut +
-      theme(legend.position = "none")
-  }
+  # if(!(name %in% c("Cn70", "Hg70"))){
+  plotCut <- plotCut +
+    theme(legend.position = "none",
+          panel.grid = element_blank(), 
+          line = element_blank(), 
+          rect = element_blank(), 
+          text = element_blank(), 
+          plot.background = element_rect(fill = "transparent", color = "transparent"))
+  # }
   
   ggsave(file = 
            paste0(folderPlot, "/Amjjaso_", name, "_", min(years), "-", max(years), ".png"),
@@ -223,14 +227,19 @@ for(i in 1:nrow(scenariosDF)){
   plotCut <- ggplot()+
     geom_sf(data = domain, aes(fill = LTSSelCut), colour = NA)+ #
     scale_fill_manual(values = colPal)+
-    ggtitle(paste0("LTS (dengue), scenario: ", name, "; period: ", min(years), "-", max(years)))+
+    ggtitle(paste0("LTS, scenario: ", name, "; period: ", min(years), "-", max(years)))+
     theme(plot.background  = element_blank(),
           aspect.ratio = 1)
   
-  if(!(name %in% c("Cn70", "Hg70"))){
-    plotCut <- plotCut +
-      theme(legend.position = "none")
-  }
+  # if(!(name %in% c("Cn70", "Hg70"))){
+  plotCut <- plotCut +
+    theme(legend.position = "none",
+          panel.grid = element_blank(), 
+          line = element_blank(), 
+          rect = element_blank(), 
+          text = element_blank(), 
+          plot.background = element_rect(fill = "transparent", color = "transparent"))
+  # }
   
   ggsave(file = 
            paste0(folderPlot, "/LTS_dengue_", name, "_", min(years), "-", max(years), ".png"),
@@ -242,8 +251,8 @@ for(i in 1:nrow(scenariosDF)){
 
 ### Secondary cases ----
 
-cutPal = c(20, 5, 1, 0.5, 0.5)
-cutPalLab = c("e > 20", "d > 5", "c > 1", "b > 0.5", "a < 0.5")
+cutPal = c(50, 20, 5, 1, 1)
+cutPalLab = c("e > 50", "d > 20", "c > 5", "b > 1", "a < 1")
 colPal<- c("#fcfdbf", "#fc8961", "#b73779", "#51127c", "#000004")
 
 # Cycle
@@ -261,18 +270,25 @@ for(i in 1:nrow(scenariosDF)){
   plotCut <- ggplot()+
     geom_sf(data = domain, aes(fill = SecCaseCut), colour = NA)+ #
     scale_fill_manual(values = colPal)+
-    ggtitle(paste0("Secondary cases (dengue), scenario: ", name, "; period: ", min(years), "-", max(years)))+
+    ggtitle(paste0("Secondary cases, scenario: ", name, "; period: ", min(years), "-", max(years)))+
     theme(plot.background  = element_blank(),
           aspect.ratio = 1)
   
-  if(!(name %in% c("Cn70", "Hg70"))){
-    plotCut <- plotCut +
-      theme(legend.position = "none")
-  }
+  # if(!(name %in% c("Cn70", "Hg70"))){
+  plotCut <- plotCut +
+    theme(legend.position = "none",
+          panel.grid = element_blank(), 
+          line = element_blank(), 
+          rect = element_blank(), 
+          text = element_blank(), 
+          plot.background = element_rect(fill = "transparent", color = "transparent"))
+  # }
   
   ggsave(file = 
            paste0(folderPlot, "/SecCase_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
+  
+  cat("name:", name, ", SC>1: ", round(100*sum(SecCaseMM[i,]>1, na.rm = T)/8981, 0), "\n")
   
 }
 
@@ -297,14 +313,19 @@ for(i in 1:nrow(scenariosDF)){
   plotCut <- ggplot()+
     geom_sf(data = domain, aes(fill = PrevSelCut), colour = NA)+ #
     scale_fill_manual(values = colPal)+
-    ggtitle(paste0("Prev (dengue), scenario: ", name, "; period: ", min(years), "-", max(years)))+
+    ggtitle(paste0("Prevalence, scenario: ", name, "; period: ", min(years), "-", max(years)))+
     theme(plot.background  = element_blank(),
           aspect.ratio = 1)
   
-  if(!(name %in% c("Cn70", "Hg70"))){
-    plotCut <- plotCut +
-      theme(legend.position = "none")
-  }
+  # if(!(name %in% c("Cn70", "Hg70"))){
+  plotCut <- plotCut +
+    theme(legend.position = "none",
+          panel.grid = element_blank(), 
+          line = element_blank(), 
+          rect = element_blank(), 
+          text = element_blank(), 
+          plot.background = element_rect(fill = "transparent", color = "transparent"))
+  # }
   
   ggsave(file = 
            paste0(folderPlot, "/Prev_dengue_", name, "_", min(years), "-", max(years), ".png"),
