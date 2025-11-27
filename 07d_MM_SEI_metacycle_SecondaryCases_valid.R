@@ -4,6 +4,7 @@
 
 library(foreach)
 library(dplyr)
+library(reshape2)
 
 rm(list = ls())
 
@@ -108,3 +109,44 @@ sqrt(mean((log(1+dfCities$simCases1)-log(1+dfCities$cases))^2))
 
 
 points(dfCities$cases, dfCities$simCases1, xlim = c(0,60), ylim = c(0,60), col = 'red')
+
+
+dfCases =dfCities%>%
+  select(c("name", "dep", "IntroCalendar", "OutroCalendar", "cases")) %>%
+  mutate(casesSimOldK = dfCities$simCases1) %>%
+  mutate(casesSimNewK = dfCities$simCasesexpH) %>%
+  mutate(set = "valid")
+
+saveRDS(dfCases, file = paste0(folderOut,"/dfCasesValid.rds"))
+
+## plot Valid and Calib
+
+dfCases = rbind(readRDS(paste0(folderOut,"/dfCasesCalib.rds")), readRDS(paste0(folderOut,"/dfCasesValid.rds")))
+
+dfCases <- dfCases %>%
+  mutate(ENewK = abs(casesSimNewK - cases)) %>%
+  mutate(EOldK = abs(casesSimOldK - cases))
+
+
+# plot histogram with
+# + plot 
+
+dflCases = reshape2::melt(dfCases, measure.vars = c("ENewK", "EOldK"))
+
+plot1 = ggplot(data = dflCases, aes(x = name, y = value, group = variable, fill = set)) +
+  geom_bar(stat="identity", position=position_dodge())
+
+
+plot1 = ggplot() +
+  geom_point(data = dfCases, aes(x = cases, y = ENewK, size = ENewK, color = set)) +
+  geom_point(data = dfCases, aes(x = cases, y = EOldK, size = EOldK, color = set)) +
+  xlim(c(0, 60))
+
+
+plot1 <- plot1 +
+  theme(aspect.ratio = 1,
+        legend.position = "none",
+        plot.background  = element_blank(),
+        rect = element_blank())
+
+plot1 
