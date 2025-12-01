@@ -7,10 +7,12 @@ library(reshape2)
 library(suncalc)
 library(pracma)
 
+mod = ""
+
 if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
-  folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Synthetic_Exposure_Space"
+  folderOut = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod,"_sim_050")
 } else {
-  folderOut = "Synthetic_Exposure_Space"
+  folderOut = paste0("DRIAS", mod,"_sim_050")
 }
 
 dir.create(folderOut)
@@ -18,27 +20,38 @@ dir.create(folderOut)
 mintasMinWin = -2
 maxtasMinWin = 14
 
-mintasAvgYea = 9
-maxtasAvgYea = 25
+# change: max summer temperature
+mintasMaxSum = 16
+maxtasMaxSum = 42
+
+# mintasAvgYea = 9
+# maxtasAvgYea = 25
 
 step = 0.2
 
-tasAvgYeaV = seq(mintasAvgYea, maxtasAvgYea, by = step)
+# tasAvgYeaV = seq(mintasAvgYea, maxtasAvgYea, by = step)
+tasMaxSumV = seq(mintasMaxSum, maxtasMaxSum, by = step)
 tasMinWinV = seq(mintasMinWin, maxtasMinWin, by = step)
 
 
 #DF with indicators
+# IndDT = data.table(ID =NA,
+#                    tasAvgYea = rep(tasAvgYeaV, each = length(tasMinWinV)),
+#                    tasMinWin = rep(tasMinWinV, times = length(tasAvgYeaV)))
+
 IndDT = data.table(ID =NA,
-                   tasAvgYea = rep(tasAvgYeaV, each = length(tasMinWinV)),
-                   tasMinWin = rep(tasMinWinV, times = length(tasAvgYeaV)))
+                   tasMaxSum = rep(tasMaxSumV, each = length(tasMinWinV)),
+                   tasMinWin = rep(tasMinWinV, times = length(tasMaxSumV)))
 
 # in this DT there are (few) places hotter in the winter than in the summer: remove impossible climates
-IndDT <- IndDT %>%
-  filter(tasAvgYea > tasMinWin)
+# IndDT <- IndDT %>%
+#   filter(tasAvgYea > tasMinWin)
 
-IndDT$ID = paste0(IndDT$tasAvgYea, "_", IndDT$tasMinWin)
+# IndDT$ID = paste0(IndDT$tasAvgYea, "_", IndDT$tasMinWin)
 
-saveRDS(IndDT, file = paste0(folderOut, "/IndDT.rds"))
+IndDT$ID = paste0(IndDT$tasMaxSum, "_", IndDT$tasMinWin)
+
+saveRDS(IndDT, file = paste0(folderOut, "/IndDTMaxMin.rds"))
   
 lat = 46
 lon = 3
@@ -58,10 +71,13 @@ WList <- vector(mode = "list", nrow(IndDT))
 
 for(id in IndDT$ID){
   
-  tasAvgYea = IndDT %>% filter(ID == id) %>% pull(tasAvgYea)
+  # tasAvgYea = IndDT %>% filter(ID == id) %>% pull(tasAvgYea)
+  tasMaxSum = IndDT %>% filter(ID == id) %>% pull(tasMaxSum)
   tasMinWin  = IndDT %>% filter(ID == id) %>% pull(tasMinWin)
   
-  deltaTasYea = 2*(tasAvgYea - tasMinWin)
+  # deltaTasYea = 2*(tasAvgYea - tasMinWin)
+  deltaTasYea = tasMaxSum - tasMinWin
+  tasAvgYea = 0.5*(tasMaxSum + tasMinWin)
     
   tas = tasAvgYea-deltaTasYea*cos((DOS-cDY)*2*pi/365)/2
   tasMin = tas - DTR/2
@@ -84,7 +100,7 @@ for(id in IndDT$ID){
 
 WTotDT <- data.table::rbindlist(WList)
 
-saveRDS(WTotDT, file = paste0(folderOut, "/WTotDT.rds"))
+saveRDS(WTotDT, file = paste0(folderOut, "/WTotDTMaxMin.rds"))
 
 #### common code for suitability and concat simulations ----
 
@@ -272,7 +288,7 @@ E0v = pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 0)/Ed_0
 
 ## Save results
 
-saveRDS(E0v, file = paste0(folderOut, "/020_E0_synthetic.rds"))
+saveRDS(E0v, file = paste0(folderOut, "/020_E0_syntheticMaxMin.rds"))
 
 cat("UPDATE\nAverage E0:", mean(E0v), "\n")
 
@@ -303,7 +319,7 @@ AE0 = rep(0, nIDs) # exposed vectors
 AI0 = rep(0, nIDs) # infected vectors
 
 NIntro = 1
-IntroCalendar = "01-01"
+IntroCalendar = "01-08" # one intro in August
 
 ## System initialization
 
@@ -425,8 +441,8 @@ for (y in fyears){
 }
 
 ## Save results
-saveRDS(Adults, file = paste0(folderOut, "/040e_Adults_SEIS.rds"))
-saveRDS(SH, file = paste0(folderOut, "/040e_SH_SEIS.rds"))
+saveRDS(Adults, file = paste0(folderOut, "/040e_Adults_SEIS_MaxMin.rds"))
+saveRDS(SH, file = paste0(folderOut, "/040e_SH_SEIS_MaxMin.rds"))
 
 ### A0: suitability of a non-diapausing population ----
 
@@ -512,5 +528,5 @@ A0v = pmax(Sim[nrow(Sim), 1+(nIDs*3+1):(nIDs*4)], 0)/A0
 
 ## Save results 
 
-saveRDS(A0v, file = paste0(folderOut, "/020_A0_synthetic.rds"))
+saveRDS(A0v, file = paste0(folderOut, "/020_A0_synthetic_MaxMin.rds"))
 
