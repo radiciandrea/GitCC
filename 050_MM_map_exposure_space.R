@@ -11,9 +11,11 @@ library(ggrepel)
 library(ggpubr)
 
 mod = ""
+sim = "AvgMin"
 
 folderDrias = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod,"_elab")
-folderSim = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod,"_sim_05")
+folderSim = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod,"_sim_050")
+folderSimSin = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_050")
 folderPlot = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/DRIAS", mod,"_sim_05")
 
 # we choose places with ~ inhabitants
@@ -64,20 +66,20 @@ IDsSubSet <- c(1040, 5243, 6482, 8915, 7542, 3500, 2936, 2472, 929, 642, 1249)
 # 
 # # Save and Load
 # 
-# saveRDS(MapDT, file = paste0(folderSim, "/MapDT.rds"))
+# saveRDS(MapDT, file = paste0(folderSim, "/MapDT", sim, ".rds"))
 
-MapDT <- readRDS(paste0(folderSim, "/MapDT.rds"))
+MapDT <- readRDS(paste0(folderSim, "/MapDT", sim, ".rds"))
 
 # load background Indicators
 
-IndDT <- readRDS(paste0(folderSim, "/IndDT.rds"))
+IndDT <- readRDS(paste0(folderSim, "/IndDT", sim, ".rds"))
 
 # load simulations
-Adults <- readRDS(file = paste0(folderSim, "/040e_Adults_SEIS.rds"))
-SH <- readRDS(file = paste0(folderSim, "/040e_SH_SEIS.rds"))
-WTotDT <- readRDS(paste0(folderSim, "/WTotDT.rds"))
-E0 <- readRDS(file = paste0(folderSim, "/020_E0_synthetic.rds"))
-A0 <- readRDS(file = paste0(folderSim, "/020_A0_synthetic.rds"))
+Adults <- readRDS(file = paste0(folderSimSin, "/040e_Adults_SEIS", sim, ".rds"))
+SH <- readRDS(file = paste0(folderSimSin, "/040e_SH_SEIS", sim, ".rds"))
+WTotDT <- readRDS(paste0(folderSimSin, "/WTotDT", sim, ".rds"))
+E0 <- readRDS(file = paste0(folderSimSin, "/020_E0_synthetic", sim, ".rds"))
+A0 <- readRDS(file = paste0(folderSimSin, "/020_A0_synthetic", sim, ".rds"))
 
 #recalulcate, for each month, the lowest temperature
 tasMinWinPostDT = WTotDT%>%
