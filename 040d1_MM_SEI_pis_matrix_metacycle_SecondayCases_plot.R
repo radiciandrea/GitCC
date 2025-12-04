@@ -41,7 +41,18 @@ IDsSubSet = IDs
 
 # create meta matrices for each scenario (hist, ssp2, ssp5) for both adults and MTS for dengue
 
-SecCaseMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF)) # Secondary Cases metamatrix
+SecCaseJanMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF)) # Secondary Cases metamatrix
+SecCaseFebMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF)) # Secondary Cases metamatrix
+SecCaseMarMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF)) # Secondary Cases metamatrix
+SecCaseAprMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF)) # Secondary Cases metamatrix
+SecCaseMayMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF)) # Secondary Cases metamatrix
+SecCaseJunMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF)) # Secondary Cases metamatrix
+SecCaseJulMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF)) # Secondary Cases metamatrix
+SecCaseAugMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF)) # Secondary Cases metamatrix
+SecCaseSepMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF)) # Secondary Cases metamatrix
+SecCaseOctMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF)) # Secondary Cases metamatrix
+SecCaseNovMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF)) # Secondary Cases metamatrix
+SecCaseDecMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF)) # Secondary Cases metamatrix
 
 #host preference
 phiAU = 0.9 #human biting preference (urban)
@@ -60,34 +71,31 @@ for(k in 1:nrow(scenariosDF)){
   years = scenariosDF$yearStart[k]:scenariosDF$yearEnd[k]
   
   filesSH <- list.files(paste0(folderSim,"/"), paste0("040a_SH_Drias_SEIS_", name))
-  filesAdults <- list.files(paste0(folderSim,"/"), paste0("040a_Adults_Drias_SEIS_", name))
   
   # matrices of indicators
   SecCaseM = matrix(NA, nrow = length(years), ncol = nIDs) # Secondary Cases matrix
   
+  SecCaseJanM <- matrix(NA, nrow = length(years), ncol = nIDs) # Secondary Cases matrix
+  SecCaseFebM <- matrix(NA, nrow = length(years), ncol = nIDs) # Secondary Cases matrix
+  SecCaseMarM <- matrix(NA, nrow = length(years), ncol = nIDs) # Secondary Cases matrix
+  SecCaseAprM <- matrix(NA, nrow = length(years), ncol = nIDs) # Secondary Cases matrix
+  SecCaseMayM <- matrix(NA, nrow = length(years), ncol = nIDs) # Secondary Cases matrix
+  SecCaseJunM <- matrix(NA, nrow = length(years), ncol = nIDs) # Secondary Cases matrix
+  SecCaseJulM <- matrix(NA, nrow = length(years), ncol = nIDs) # Secondary Cases matrix
+  SecCaseAugM <- matrix(NA, nrow = length(years), ncol = nIDs) # Secondary Cases matrix
+  SecCaseSepM <- matrix(NA, nrow = length(years), ncol = nIDs) # Secondary Cases matrix
+  SecCaseOctM <- matrix(NA, nrow = length(years), ncol = nIDs) # Secondary Cases matrix
+  SecCaseNovM <- matrix(NA, nrow = length(years), ncol = nIDs) # Secondary Cases matrix
+  SecCaseDecM <- matrix(NA, nrow = length(years), ncol = nIDs) # Secondary Cases matrix
+  
   for(i in  1:length(years)){
     
-    fileAdults = filesAdults[i]
     fileSH = filesSH[i]
     
-    Adults <- readRDS(paste0(folderSim, "/", fileAdults))
     year <- years[i] # substr(file, nchar(file)-7, nchar(file)-4)
-    
-    #determine mjjaso
-    nD <- nrow(Adults)
-    FMay <- yday(as.Date(paste0(year, "-05-01"))) 
-    LOct <- yday(as.Date(paste0(year, "-10-31"))) 
-    
-    ### Adults ----
-    Amjjaso <- colMeans(Adults[FMay:LOct,], na.rm =T)
-    AmjjasoM[i, ] <- Amjjaso
-    
-    # load weather for R0
     
     WTotDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", year, ".rds")) %>%
       filter(ID %in% IDsSubSet) 
-    
-    tas = matrix(WTotDT$tas, nrow = nD)
     
     IDsDT <- WTotDT %>%
       distinct(ID, .keep_all = TRUE) %>%
@@ -100,49 +108,88 @@ for(k in 1:nrow(scenariosDF)){
     #area as (km²)
     AreaKm2 = IDsDT$surfHa*10^-2
     
-    #vector to host ratio
-    m = Adults*100/H
-    
-    #demographic parameters
-    muA = -log(0.677 * exp(-0.5*((tas-20.9)/13.2)^6)*tas^0.1) # adult mortality rate
-    muA[which(tas<=0)] = -log(0.677 * exp(-0.5*((tas[which(tas<=0)]-20.9)/13.2)^6))  #correct the problems due to negative values from SI
-    
-    #epidemiological parameters
-    A = (0.0043*tas + 0.0943)/2  #biting rate (Zanardini et al., Caminade 2016, Blagrove 2020)
-    phiA = phiAU*(H>RTh)+phiAR*(H<=RTh)
-    
-    EIPdengue = 1.03*(4*exp(5.15 - 0.123*tas)) #Metelmann 2021
-    
-    ## LTS----
-    R0dengueM = (A*phiA)^2*m/(muA+muA^2*EIPdengue)*bV2H*bH2Vdengue*IIPdengue
-    LTSdengueM[i,] = colSums(R0dengueM>1, na.rm =T)
-    
-    # Secondary Cases and Prevalence: one introduction per month---- 
+    # Secondary Cases one introduction per month---- 
     # let's take "the worst"
     
     SH <- readRDS(paste0(folderSim, "/", fileSH))
     
     MaxSH <-sapply(1:ncol(SH), function(x){max(SH[,x])})
-    MinSH <-sapply(1:ncol(SH), function(x){min(SH[,x])})
     
-    MaxSecondayCases = 100*(MaxSH - MinSH)*AreaKm2 # 100 per ha
-    SecCaseM[i, ] <- MaxSecondayCases
+    MinSHJan <-sapply(1:ncol(SH), function(x){min(SH[,x])})
+    MinSHFeb <-sapply(1:ncol(SH), function(x){min(SH[,x])})
+    MinSHMar <-sapply(1:ncol(SH), function(x){min(SH[,x])})
+    MinSHApr <-sapply(1:ncol(SH), function(x){min(SH[,x])})
+    MinSHMay <-sapply(1:ncol(SH), function(x){min(SH[,x])})
+    MinSHJun <-sapply(1:ncol(SH), function(x){min(SH[,x])})
+    MinSHJul <-sapply(1:ncol(SH), function(x){min(SH[,x])})
+    MinSHAug <-sapply(1:ncol(SH), function(x){min(SH[,x])})
+    MinSHSep <-sapply(1:ncol(SH), function(x){min(SH[,x])})
+    MinSHOct <-sapply(1:ncol(SH), function(x){min(SH[,x])})
+    MinSHNov <-sapply(1:ncol(SH), function(x){min(SH[,x])})
+    MinSHDec <-sapply(1:ncol(SH), function(x){min(SH[,x])})
     
-    MaxPrevHost = 100*(1 - MinSH/MaxSH)
-    PrevM[i,] = MaxPrevHost
+    MaxSecondayCasesJan = 100*(MaxSH - MinSHJan)*AreaKm2 # 100 per ha
+    MaxSecondayCasesFeb = 100*(MaxSH - MinSHFeb)*AreaKm2 # 100 per ha
+    MaxSecondayCasesMar = 100*(MaxSH - MinSHMar)*AreaKm2 # 100 per ha
+    MaxSecondayCasesApr = 100*(MaxSH - MinSHApr)*AreaKm2 # 100 per ha
+    MaxSecondayCasesMay = 100*(MaxSH - MinSHMay)*AreaKm2 # 100 per ha
+    MaxSecondayCasesJun = 100*(MaxSH - MinSHJun)*AreaKm2 # 100 per ha
+    MaxSecondayCasesJul = 100*(MaxSH - MinSHJul)*AreaKm2 # 100 per ha
+    MaxSecondayCasesAug = 100*(MaxSH - MinSHAug)*AreaKm2 # 100 per ha
+    MaxSecondayCasesSep = 100*(MaxSH - MinSHSep)*AreaKm2 # 100 per ha
+    MaxSecondayCasesOct = 100*(MaxSH - MinSHOct)*AreaKm2 # 100 per ha
+    MaxSecondayCasesNov = 100*(MaxSH - MinSHNov)*AreaKm2 # 100 per ha
+    MaxSecondayCasesDec = 100*(MaxSH - MinSHDec)*AreaKm2 # 100 per ha
+    
+    
+    SecCaseJanM[i, ] <- MaxSecondayCasesJan
+    SecCaseFebM[i, ] <- MaxSecondayCasesFeb
+    SecCaseMarM[i, ] <- MaxSecondayCasesMar
+    SecCaseAprM[i, ] <- MaxSecondayCasesApr
+    SecCaseMayM[i, ] <- MaxSecondayCasesMay
+    SecCaseJunM[i, ] <- MaxSecondayCasesJun
+    SecCaseJulM[i, ] <- MaxSecondayCasesJul
+    SecCaseAugM[i, ] <- MaxSecondayCasesAug
+    SecCaseSepM[i, ] <- MaxSecondayCasesSep
+    SecCaseOctM[i, ] <- MaxSecondayCasesOct
+    SecCaseNovM[i, ] <- MaxSecondayCasesNov
+    SecCaseDecM[i, ] <- MaxSecondayCasesDec
+    
   }
   
   rm(IDsDT)
   
-  SecCaseMM[k,] <- colMeans(SecCaseM, na.rm =T)
-
+  SecCaseJanMM[k,] <- colMeans(SecCaseJanM, na.rm =T)
+  SecCaseFebMM[k,] <- colMeans(SecCaseFebM, na.rm =T)
+  SecCaseMarMM[k,] <- colMeans(SecCaseMarM, na.rm =T)
+  SecCaseAprMM[k,] <- colMeans(SecCaseAprM, na.rm =T)
+  SecCaseMayMM[k,] <- colMeans(SecCaseMayM, na.rm =T)
+  SecCaseJunMM[k,] <- colMeans(SecCaseJunM, na.rm =T)
+  SecCaseJulMM[k,] <- colMeans(SecCaseJulM, na.rm =T)
+  SecCaseAugMM[k,] <- colMeans(SecCaseAugM, na.rm =T)
+  SecCaseSepMM[k,] <- colMeans(SecCaseSepM, na.rm =T)
+  SecCaseOctMM[k,] <- colMeans(SecCaseOctM, na.rm =T)
+  SecCaseNovMM[k,] <- colMeans(SecCaseNovM, na.rm =T)
+  SecCaseDecMM[k,] <- colMeans(SecCaseDecM, na.rm =T)
+  
 }
 
+SecCaseList = list(SecCaseJanMM,
+                   SecCaseFebMM,
+                   SecCaseMarMM,
+                   SecCaseAprMM,
+                   SecCaseMayMM,
+                   SecCaseJunMM,
+                   SecCaseJulMM,
+                   SecCaseAugMM,
+                   SecCaseSepMM,
+                   SecCaseOctMM,
+                   SecCaseNovMM,
+                   SecCaseDecMM)
 # Save and load----
-saveRDS(SecCaseMM, file = paste0(folderSim, "/SecCaseMM.rds"))
+saveRDS(SecCaseList, file = paste0(folderSim, "/SecCaseList.rds"))
 
-SecCaseMM <- readRDS(file = paste0(folderSim, "/SecCaseMM.rds"))
-
+SecCaseList <- readRDS(file = paste0(folderSim, "/SecCaseList.rds"))
 
 # Plot----
 
@@ -155,39 +202,47 @@ cutPal = c(50, 20, 5, 1, 1)
 cutPalLab = c("e > 50", "d > 20", "c > 5", "b > 1", "a < 1")
 colPal<- c("#fcfdbf", "#fc8961", "#b73779", "#51127c", "#000004")
 
-# Cycle
+mont_v = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
-for(i in 1:nrow(scenariosDF)){
-  name = scenariosDF$name[i]
-  years = scenariosDF$yearStart[i]:scenariosDF$yearEnd[i]
+# Cycle
+for(j in 1:length(SecCaseList)){
+  SecCaseMM <- SecCaseList[[j]]
   
-  SecCaseCut <- case_when(SecCaseMM[i,] >= cutPal[1] ~ cutPalLab[1],
-                          SecCaseMM[i,] >= cutPal[2] ~ cutPalLab[2],
-                          SecCaseMM[i,] >= cutPal[3] ~ cutPalLab[3],
-                          SecCaseMM[i,] >= cutPal[4] ~ cutPalLab[4],
-                          SecCaseMM[i,] <= cutPal[4] ~ cutPalLab[5])
+  mont_j = mont_v[j]
   
-  plotCut <- ggplot()+
-    geom_sf(data = domain, aes(fill = SecCaseCut), colour = NA)+ #
-    scale_fill_manual(values = colPal)+
-    ggtitle(paste0("Secondary cases, scenario: ", name, "; period: ", min(years), "-", max(years)))+
-    theme(plot.background  = element_blank(),
-          aspect.ratio = 1)
-  
-  # if(!(name %in% c("Cn70", "Hg70"))){
-  plotCut <- plotCut +
-    theme(legend.position = "none",
-          panel.grid = element_blank(), 
-          line = element_blank(), 
-          rect = element_blank(), 
-          text = element_blank(), 
-          plot.background = element_rect(fill = "transparent", color = "transparent"))
-  # }
-  
-  ggsave(file = 
-           paste0(folderPlot, "/SecCase_", name, "_", min(years), "-", max(years), ".png"),
-         plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
-  
-  cat("name:", name, ", SC>1: ", round(100*sum(SecCaseMM[i,]>1, na.rm = T)/8981, 0), "\n")
-  
+  for(i in 1:nrow(scenariosDF)){
+    name = scenariosDF$name[i]
+    years = scenariosDF$yearStart[i]:scenariosDF$yearEnd[i]
+    
+    SecCaseCut <- case_when(SecCaseMM[i,] >= cutPal[1] ~ cutPalLab[1],
+                            SecCaseMM[i,] >= cutPal[2] ~ cutPalLab[2],
+                            SecCaseMM[i,] >= cutPal[3] ~ cutPalLab[3],
+                            SecCaseMM[i,] >= cutPal[4] ~ cutPalLab[4],
+                            SecCaseMM[i,] <= cutPal[4] ~ cutPalLab[5])
+    
+    plotCut <- ggplot()+
+      geom_sf(data = domain, aes(fill = SecCaseCut), colour = NA)+ #
+      scale_fill_manual(values = colPal)+
+      ggtitle(paste0("Secondary cases, scenario: ", name, "; period: ", min(years), "-", max(years)))+
+      theme(plot.background  = element_blank(),
+            aspect.ratio = 1)
+    
+    # if(!(name %in% c("Cn70", "Hg70"))){
+    plotCut <- plotCut +
+      theme(legend.position = "none",
+            panel.grid = element_blank(), 
+            line = element_blank(), 
+            rect = element_blank(), 
+            text = element_blank(), 
+            plot.background = element_rect(fill = "transparent", color = "transparent"))
+    # }
+    
+    ggsave(file = 
+             paste0(folderPlot, "/SecCase_", name, "_", min(years), "-", max(years), "_", mont_j, ".png"),
+           plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
+    
+    cat("name:", name, ", month:", mont_j, "SC>1: ", round(100*sum(SecCaseMM[i,]>1, na.rm = T)/8981, 0), "\n")
+    
+  }
 }
+
