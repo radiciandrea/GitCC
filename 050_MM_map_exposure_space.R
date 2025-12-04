@@ -19,12 +19,12 @@ folderSim = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/D
 folderSimSin = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_050")
 folderPlot = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/DRIAS", mod,"_sim_050")
 
-# we choose places with ~ inhabitants
+# we choose places with 3000-5500 inhabitants
 # scenarios <- c("Cn70", "Cn55", "Cn35", "Hs99", "Hg35", "Hg55", "Hg70")
 scenarios <- c("Cn70", "Hs99","Hg70")
-cities <- c("Montpellier", "Nantes", "Rennes", "Lille", "Paris-est", "Lyon", "Grenoble", "Bordeaux", "Toulouse", "Marseille", "Nice")
-IDsSubSet <- c(1040, 5243, 6482, 8915, 7542, 3500, 2936, 2472, 929, 642, 1249)
-# 
+cities <- c("Montpellier", "Nantes", "Rennes", "Lille", "Paris-est", "Lyon", "Grenoble", "Bordeaux", "Toulouse", "Marseille", "Nice", "Strasbourg", "Clermont-Ferrand")
+IDsSubSet <- c(1040, 5243, 6482, 8915, 7542, 3500, 2936, 2472, 929, 642, 1249, 7379, 3564)
+
 # MapDT <- data.table(city = rep(cities, length(scenarios)),
 #                     ID = rep(IDsSubSet, length(scenarios)),
 #                     scenario = rep(scenarios,length(cities)),
