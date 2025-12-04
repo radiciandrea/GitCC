@@ -21,7 +21,7 @@ mintasMinWin = 0
 maxtasMinWin = 13
 
 # change: max summer temperature
-mintasMaxSum = 17
+mintasMaxSum = 14
 maxtasMaxSum = 32
 
 # mintasAvgYea = 9
