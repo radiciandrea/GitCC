@@ -11,24 +11,26 @@ library(ggrepel)
 library(ggpubr)
 
 mod = ""
-sim = "AvgMin"
+# sim = "AvgMin"
+sim = "MaxMin"
 
 folderDrias = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod,"_elab")
 folderSim = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod,"_sim_050")
 folderSimSin = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_050")
-folderPlot = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/DRIAS", mod,"_sim_05")
+folderPlot = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/DRIAS", mod,"_sim_050")
 
 # we choose places with ~ inhabitants
 # scenarios <- c("Cn70", "Cn55", "Cn35", "Hs99", "Hg35", "Hg55", "Hg70")
 scenarios <- c("Cn70", "Hs99","Hg70")
 cities <- c("Montpellier", "Nantes", "Rennes", "Lille", "Paris-est", "Lyon", "Grenoble", "Bordeaux", "Toulouse", "Marseille", "Nice")
 IDsSubSet <- c(1040, 5243, 6482, 8915, 7542, 3500, 2936, 2472, 929, 642, 1249)
-
+# 
 # MapDT <- data.table(city = rep(cities, length(scenarios)),
 #                     ID = rep(IDsSubSet, length(scenarios)),
 #                     scenario = rep(scenarios,length(cities)),
 #                     tasAvgYea = 0, #average annual T
-#                     tasMinWin = 0) #average minimal in J
+#                     tasMinWin = 0, #average in January
+#                     tasMaxSum = 0) #average in July
 # 
 # for(k in 1:length(scenarios)){
 # 
@@ -49,7 +51,8 @@ IDsSubSet <- c(1040, 5243, 6482, 8915, 7542, 3500, 2936, 2472, 929, 642, 1249)
 #       WTotDTtemp = WTotDT %>% filter(ID == IDx)
 # 
 #       MapDT[scenario == scenariox & ID == IDx, tasAvgYea := (tasAvgYea*(j-1)+mean(WTotDTtemp[,tas]))/j]
-#       MapDT[scenario == scenariox & ID == IDx, tasMinWin := (tasMinWin*(j-1)+mean(WTotDTtemp[DOS <= 31, tasMin]))/j]
+#       MapDT[scenario == scenariox & ID == IDx, tasMinWin := (tasMinWin*(j-1)+mean(WTotDTtemp[DOS <= 31, tas]))/j]
+#       MapDT[scenario == scenariox & ID == IDx, tasMaxSum := (tasMaxSum*(j-1)+mean(WTotDTtemp[DOS %in% 182:212, tas]))/j]
 #       cat(mean(WTotDTtemp$tas), "\n")
 #     }
 # 
@@ -66,32 +69,42 @@ IDsSubSet <- c(1040, 5243, 6482, 8915, 7542, 3500, 2936, 2472, 929, 642, 1249)
 # 
 # # Save and Load
 # 
-# saveRDS(MapDT, file = paste0(folderSim, "/MapDT", sim, ".rds"))
+# saveRDS(MapDT, file = paste0(folderSim, "/MapDT.rds"))
 
-MapDT <- readRDS(paste0(folderSim, "/MapDT", sim, ".rds"))
+MapDT <- readRDS(paste0(folderSim, "/MapDT.rds"))
 
 # load background Indicators
 
-IndDT <- readRDS(paste0(folderSim, "/IndDT", sim, ".rds"))
+IndDT <- readRDS(paste0(folderSimSin, "/IndDT", sim, ".rds"))
 
 # load simulations
-Adults <- readRDS(file = paste0(folderSimSin, "/040e_Adults_SEIS", sim, ".rds"))
-SH <- readRDS(file = paste0(folderSimSin, "/040e_SH_SEIS", sim, ".rds"))
+Adults <- readRDS(file = paste0(folderSimSin, "/040e_Adults_SEIS_", sim, ".rds"))
+SH <- readRDS(file = paste0(folderSimSin, "/040e_SH_SEIS_", sim, ".rds"))
 WTotDT <- readRDS(paste0(folderSimSin, "/WTotDT", sim, ".rds"))
-E0 <- readRDS(file = paste0(folderSimSin, "/020_E0_synthetic", sim, ".rds"))
-A0 <- readRDS(file = paste0(folderSimSin, "/020_A0_synthetic", sim, ".rds"))
+E0 <- readRDS(file = paste0(folderSimSin, "/020_E0_synthetic_", sim, ".rds"))
+A0 <- readRDS(file = paste0(folderSimSin, "/020_A0_synthetic_", sim, ".rds"))
 
-#recalulcate, for each month, the lowest temperature
-tasMinWinPostDT = WTotDT%>%
+year = year(WTotDT$date[1])
+
+#recalulate, for each month, the lowest and the highest temperature
+tasMinWiPostDT = WTotDT%>%
   select(c(ID, tas, date))%>%
   filter(date < as.Date("2026-02-01"))%>%
   group_by(ID)%>%
   summarise(tasMinWinPost = mean(tas))%>%
   ungroup()
 
-# we correct tasMinWin with tasMinWinPost (so that the deviation in 0)
-IndDT <- left_join(IndDT, tasMinWinPostDT)%>%
-  mutate(tasMinWin = tasMinWin + mean(tasMinWinPost- tasMinWin))
+tasMaxSumPostDT = WTotDT%>%
+  select(c(ID, tas, date))%>%
+  filter(date %in% (as.Date("2026-07-01")+0:30))%>%
+  group_by(ID)%>%
+  summarise(tasMaxSumPost = mean(tas))%>%
+  ungroup()
+
+# we correct tasMinWin with tasMinWinPost (so that the deviation in 0), same for tasMasx
+IndDT <- left_join(left_join(IndDT, tasMinWiPostDT), tasMaxSumPostDT)%>%
+  mutate(tasMinWinCor = tasMinWin + mean(tasMinWinPost- tasMinWin))%>%
+  mutate(tasMaxSumCor = tasMaxSum + mean(tasMaxSumPost- tasMaxSum))
 
 #epidem parameters
 phiAU = 0.9 #human biting preference (urban)
@@ -166,20 +179,20 @@ colPal= c("#384AB4", "#8EB0FE", "#F29878",  "#B00026", "#AD5CFF", "#5200A3", "#0
 plotCut <- ggplot() +
   geom_tile( #contour_fill
     data = IndDT,
-    aes(x = tasAvgYea, y = tasMinWin, fill = statusSuitability) # z
+    aes(x = tasMaxSumCor, y = tasMinWinCor, fill = statusSuitability) #  tasAvgYeaCor
   ) +
   ggtitle("Suitability status")+
   scale_fill_manual(values = colPal)+
   theme_test()+
-  geom_path(data = MapDTtemp, aes(x = tasAvgYea, y = tasMinWin, group = city),
+  geom_path(data = MapDTtemp, aes(x = tasMaxSum, y = tasMinWin, group = city), #AvgYea
             arrow = arrow(ends = "both", type = "closed", length = unit(0.05, "inches")), color = "grey70") + # , color= "white"
-  geom_point(data = MapDTtemp, aes(x = tasAvgYea, y = tasMinWin, shape = scenario), size = 1) + #, color= "white", #shape = MapDT$pointShape, 
+  geom_point(data = MapDTtemp, aes(x =tasMaxSum, y = tasMinWin, shape = scenario), size = 1) + #, color= "white", #shape = MapDT$pointShape, 
   guides(size = "legend", colour = "none")+
   scale_color_grey()
 
 plotCut+
   geom_label_repel(data = MapDTtemp,
-                   aes(x = tasAvgYea, y = tasMinWin, label = cityLabel),
+                   aes(x = tasMaxSum, y = tasMinWin, label = cityLabel),
                    label.padding = 0.15, segment.color = NA, size = 4) #size = 4
 
 plotCut <- plotCut +
@@ -212,14 +225,14 @@ colPal<- c("#0D001A", "#450054", "#3A528A", "#21908C", "#5CC963", "#FCE724", "#F
 plotCut <- ggplot() +
   geom_tile(
     data = IndDT,
-    aes(x = tasAvgYea, y = tasMinWin, fill = statusDengue) #
+    aes(x = tasMaxSumCor, y = tasMinWinCor, fill = statusDengue) #
   ) +
   ggtitle("Suitability for Dengue")+ #Suitability
   scale_fill_manual(values = colPal)+
   theme_test()+
-  geom_path(data = MapDTtemp, aes(x = tasAvgYea, y = tasMinWin, group = city),
+  geom_path(data = MapDTtemp, aes(x = tasMaxSum, y = tasMinWin, group = city),
             arrow = arrow(ends = "both", type = "closed", length = unit(0.05, "inches")), color= "grey50") + # , color= "white"
-   geom_point(data = MapDTtemp, aes(x = tasAvgYea, y = tasMinWin, shape = scenario), color= "red", size = 1) + #, color= "white", #shape = MapDT$pointShape, 
+   geom_point(data = MapDTtemp, aes(x = tasMaxSum, y = tasMinWin, shape = scenario), color= "red", size = 1) + #, color= "white", #shape = MapDT$pointShape, 
   guides(size = "legend", colour = "none")+
   scale_color_grey()
 
