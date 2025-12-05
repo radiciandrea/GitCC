@@ -11,18 +11,20 @@ mod = ""
 
 if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
   folderOut = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod,"_sim_050")
+  folderData = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod, "_elab")
 } else {
   folderOut = paste0("DRIAS", mod,"_sim_050")
+  folderData = paste0("DRIAS", mod, "_elab")
 }
 
 dir.create(folderOut)
 
-mintasMinWin = 0
-maxtasMinWin = 13
+mintasMinWin = -1
+maxtasMinWin = 14
 
 # change: max summer temperature
-mintasMaxSum = 14
-maxtasMaxSum = 32
+mintasMaxSum = 13
+maxtasMaxSum = 33
 
 # mintasAvgYea = 9
 # maxtasAvgYea = 25
@@ -55,19 +57,65 @@ saveRDS(IndDT, file = paste0(folderOut, "/IndDTMaxMin.rds"))
   
 lat = 46
 lon = 3
-pop = 5000 
+pop = 3500 
 surfHa = 6360
-precTot = 750
 rainyDays = 1/5
 DOS = 1:365
 year = 2025
 date = as.Date(paste0(year, "-12-31")) + DOS
-DTR = 14
-prec = ((DOS %% rainyDays^(-1))==0)*precTot/rainyDays/365
-cDY = 15
 
-# + BIWEEKLY TREND
-deltaTasBW = 12
+# Shape of the average annual mmean, max, min, prec temperatures
+
+mod = ""
+nameSc = "Hs99"
+
+scenarios <- c("Hs99")
+cities <- c("Montpellier", "Nantes", "Rennes", "Lille", "Paris-est", "Lyon", "Grenoble", "Bordeaux", "Toulouse", "Marseille", "Nice", "Strasbourg", "Clermont-Ferrand")
+IDsSubSet <- c(1040, 5243, 6482, 8915, 7542, 3500, 2936, 2472, 929, 642, 1249, 7379, 3564)
+
+filesW= list.files(paste0(folderData,"/"), pattern = paste0("Drias_", nameSc))
+
+tasAvM = matrix(NA, nrow = 365, ncol = length(filesW))
+tasMaxAvM = matrix(NA, nrow = 365, ncol = length(filesW))
+tasMinAvM = matrix(NA, nrow = 365, ncol = length(filesW))
+prAvM = matrix(NA, nrow = 365, ncol = length(filesW))
+
+
+for(i in 1:length(filesW)){
+  
+  WTotDT = readRDS(paste0(folderData, "/", filesW[i])) %>% filter(ID %in% IDsSubSet) %>%
+    filter(DOS < 366)
+  
+  nD = nrow(WTotDT)/length(IDsSubSet)
+  
+  tas = matrix(WTotDT$tas, nrow = nD)
+  tasMax = matrix(WTotDT$tasMax, nrow = nD)
+  tasMin = matrix(WTotDT$tasMin, nrow = nD)
+  pr = matrix(WTotDT$pr, nrow = nD)
+  
+  tasAv = rowMeans(tas)
+  tasMaxAv = rowMeans(tasMax)
+  tasMinAv = rowMeans(tasMin)
+  prAv = sapply(1:365, function(t){sample(pr[t,], 1)})
+  
+  tasAvM[,i] = tasAv
+  tasMaxAvM[,i] = tasMaxAv
+  tasMinAvM[,i] = tasMinAv
+  prAvM[,i] = prAv
+  
+}
+
+tasAv = rowMeans(tasAvM)
+tasMaxAv = rowMeans(tasMaxAvM)
+tasMinAv = rowMeans(tasMinAvM)
+prAv = sapply(1:365, function(t){sample(prAvM[t,], 1)})
+
+tasMaxAvDelta = tasMaxAv - tasAv
+tasMinAvDelta = tasMinAv - tasAv
+
+tasNorm = (tasAv-min(tasAv))/(max(tasAv)-min(tasAv))
+
+# Create list
 
 WList <- vector(mode = "list", nrow(IndDT))
 
@@ -78,12 +126,11 @@ for(id in IndDT$ID){
   tasMinWin  = IndDT %>% filter(ID == id) %>% pull(tasMinWin)
   
   # deltaTasYea = 2*(tasAvgYea - tasMinWin)
-  deltaTasYea = tasMaxSum - tasMinWin
-  tasAvgYea = 0.5*(tasMaxSum + tasMinWin)
-    
-  tas = tasAvgYea-deltaTasYea*cos((DOS-cDY)*2*pi/365)/2 +deltaTasBW*cos(DOS*2*pi*52/(4*365))/2
-  tasMin = tas - DTR/2
-  tasMax = tas + DTR/2
+  
+  tas = tasMinWin +(tasMaxSum-tasMinWin)*tasNorm 
+  tasMin = tas + tasMinAvDelta
+  tasMax = tas + tasMaxAvDelta
+  prec = prAv
   
   WDT = data.table(ID = id,
                    lat = lat,
@@ -296,155 +343,155 @@ cat("UPDATE\nAverage E0:", mean(E0v), "\n")
 
 toc()
 
-#### Adults, LTS and so on (FROM 04 or 06) ----
-
-### Epidemic parameters
-
-# Epidemic parameters 1
-bH2v = 0.31 # beta Mtl 2021 (dengue)
-bv2H = 0.5 # b Blagrove 2020
-phiAU = 0.9 # vector preference (urban)
-phiAR = 0.5 # vector preference (rural) #Caminade 2016
-RTh = 50 # threshold, in term of people density, to distinguish rural and urban
-
-deltaM = 4.5 #ind/ha max number of mosquito bitten for (goniotrophic cycle)
-DHV = 5 # 1/host recovery rate, duration of hte host viremia days (Benkimoun)
-
-# Epidemic sysem initialization
-
-# E0 = rep(0, nIDs)
-# J0 = rep(0, nIDs)
-# I0 = rep(0, nIDs)
-# A0 = rep(0, nIDs)
-Ed_0 = 10^4*rep(1, nIDs) # at 1st of January (10^6)
-AE0 = rep(0, nIDs) # exposed vectors
-AI0 = rep(0, nIDs) # infected vectors
-
-NIntro = 1
-IntroCalendar = "01-08" # one intro in August
-
-## System initialization
-
-# and select subset:
-
-X0 = c(E0,
-       J0,
-       I0,
-       A0,
-       Ed_0,
-       AE0,
-       AI0) # per ha
-
-#integration step during inactivity period(should be 1/100) (I)
-iSI = 1/4
-#integration step during diapause beginning and ending (D)
-iSD = 1/120
-#integration step during activty period (should be 1/100) (A)
-iSA = 1/72
-
-fyears= 1:10
-
-## Call integration fucntion
-source("04b_MM_SEI_integration_functions.R")
-
-#reshape area matrix (km²)
-AreaKm2 = matrix(rep(IDsDT$surfHa*10^-2, nD), nrow = nD, byrow = T )
-
-## Compute epidemic parameters
-A = (0.0043*tas + 0.0943)/2 #biting rate
-EIP = 1.03*(4*exp(5.15 - 0.123*tas)) #Metelmann 2021 (Dengue)
-ni = 1/EIP #of the vector
-phiA = phiAU*(H>RTh)+phiAR*(H<=RTh) #vector preference
-
-#Epidemic scenario (as a matrix)
-InfectedHosts <- rep(NIntro, nD)  #hab
-InfectedHostDensityM = matrix(rep(InfectedHosts, nIDs), ncol = nIDs)/AreaKm2
-InfectedHostPrevalenceM = InfectedHostDensityM/H
-
-IntroDates <- yday(as.Date(paste0(year, "-", IntroCalendar)))
-
-SH0 = H[1,]/100 # susceptible hosts per ha
-
-parms = list(omega = omega,
-             h = h,
-             K = K/10^4,
-             muA = muA,
-             deltaE = deltaE,
-             sigma = sigma,
-             gamma = gamma,
-             tasMax = tasMax,
-             tasMin = tasMin,
-             nIDs = nIDs,
-             tSr = tSr,
-             A = A,
-             phiA = phiA,
-             bH2v = bH2v,
-             bv2H = bv2H,
-             deltaM = deltaM,
-             ni = ni,
-             iCm = InfectedHostPrevalenceM,
-             SH0 = SH0)
-
-# define finer integration grid during diapause haching
-tbDH = which(rowSums(sigma)>0)[1]-1
-tfDH = which(rowSums(sigma)== max(rowSums(sigma)))[1]+1
-
-# define finer integration grid during diapause enterin
-tbDE = which(rowSums(omega)>0)[1]-1
-tfDE = which(rowSums(omega)== max(rowSums(omega)))[1]+1
-
-# cbind integration grid
-DOSiS = c(seq(tS, tbDH-iSI, by = iSI),
-          seq(tbDH, tfDH-iSD, by = iSD),
-          seq(tfDH, tbDE-iSA, by = iSA),
-          seq(tbDE, tfDE-iSD, by = iSD),
-          seq(tfDE, tEnd, by = iSI))
-
-tic()
-for (y in fyears){
-
-  X0 = c(X0, SH0) # included in the system
-
-  #transform into log+1 AND giving names
-  X0m2 <- X0/10^4 #per m2
-  X0log1 = log(X0m2+1)
-
-  names(X0log1) =as.character(1:(length(X0)))
-
-  ## Integration
-  SimLog1DOSiS<- deSolve::ode(y = X0log1,
-                              times = DOSiS,
-                              func = dfLogSEI,
-                              parms = parms,
-                              method = "rk4",
-                              events = list(data = eventZeroEd1))
-
-  # extract values from finer grid
-  whichDOSiS = which((DOSiS %% 1)==0)
-  SimLog1 <-SimLog1DOSiS[whichDOSiS,]
-
-  # untransform variables and transform to ha
-  Sim = cbind(SimLog1[,1], 10^4*(exp(SimLog1[, 1+1:(nIDs*8)])-1))
-
-  # update X0 ((E0 are AT LEAST 1)) conserve # adults
-  X0 = c(pmax(Sim[nrow(Sim), 1+1:(nIDs*5)], 1), rep(0, 2*nIDs))
-  X0[which(is.na(X0))] = 1
-
-  AI <- Sim[,1+(nIDs*6+1):(nIDs*7)]
-  AE <- Sim[,1+(nIDs*5+1):(nIDs*6)]
-  AS <- Sim[,1+(nIDs*3+1):(nIDs*4)]
-  Adults <- AS + AE + AI
-
-  #and SH
-  SH <- Sim[,1+7*nIDs + 1:nIDs]
-
-  cat("UPDATE\nYear:", y, "\n")
-  toc()
-}
-
-## Save results
-saveRDS(Adults, file = paste0(folderOut, "/040e_Adults_SEIS_MaxMin.rds"))
-saveRDS(SH, file = paste0(folderOut, "/040e_SH_SEIS_MaxMin.rds"))
+# #### Adults, LTS and so on (FROM 04 or 06) ----
+# 
+# ### Epidemic parameters
+# 
+# # Epidemic parameters 1
+# bH2v = 0.31 # beta Mtl 2021 (dengue)
+# bv2H = 0.5 # b Blagrove 2020
+# phiAU = 0.9 # vector preference (urban)
+# phiAR = 0.5 # vector preference (rural) #Caminade 2016
+# RTh = 50 # threshold, in term of people density, to distinguish rural and urban
+# 
+# deltaM = 4.5 #ind/ha max number of mosquito bitten for (goniotrophic cycle)
+# DHV = 5 # 1/host recovery rate, duration of hte host viremia days (Benkimoun)
+# 
+# # Epidemic sysem initialization
+# 
+# # E0 = rep(0, nIDs)
+# # J0 = rep(0, nIDs)
+# # I0 = rep(0, nIDs)
+# # A0 = rep(0, nIDs)
+# Ed_0 = 10^4*rep(1, nIDs) # at 1st of January (10^6)
+# AE0 = rep(0, nIDs) # exposed vectors
+# AI0 = rep(0, nIDs) # infected vectors
+# 
+# NIntro = 1
+# IntroCalendar = "01-08" # one intro in August
+# 
+# ## System initialization
+# 
+# # and select subset:
+# 
+# X0 = c(E0,
+#        J0,
+#        I0,
+#        A0,
+#        Ed_0,
+#        AE0,
+#        AI0) # per ha
+# 
+# #integration step during inactivity period(should be 1/100) (I)
+# iSI = 1/4
+# #integration step during diapause beginning and ending (D)
+# iSD = 1/120
+# #integration step during activty period (should be 1/100) (A)
+# iSA = 1/72
+# 
+# fyears= 1:10
+# 
+# ## Call integration fucntion
+# source("04b_MM_SEI_integration_functions.R")
+# 
+# #reshape area matrix (km²)
+# AreaKm2 = matrix(rep(IDsDT$surfHa*10^-2, nD), nrow = nD, byrow = T )
+# 
+# ## Compute epidemic parameters
+# A = (0.0043*tas + 0.0943)/2 #biting rate
+# EIP = 1.03*(4*exp(5.15 - 0.123*tas)) #Metelmann 2021 (Dengue)
+# ni = 1/EIP #of the vector
+# phiA = phiAU*(H>RTh)+phiAR*(H<=RTh) #vector preference
+# 
+# #Epidemic scenario (as a matrix)
+# InfectedHosts <- rep(NIntro, nD)  #hab
+# InfectedHostDensityM = matrix(rep(InfectedHosts, nIDs), ncol = nIDs)/AreaKm2
+# InfectedHostPrevalenceM = InfectedHostDensityM/H
+# 
+# IntroDates <- yday(as.Date(paste0(year, "-", IntroCalendar)))
+# 
+# SH0 = H[1,]/100 # susceptible hosts per ha
+# 
+# parms = list(omega = omega,
+#              h = h,
+#              K = K/10^4,
+#              muA = muA,
+#              deltaE = deltaE,
+#              sigma = sigma,
+#              gamma = gamma,
+#              tasMax = tasMax,
+#              tasMin = tasMin,
+#              nIDs = nIDs,
+#              tSr = tSr,
+#              A = A,
+#              phiA = phiA,
+#              bH2v = bH2v,
+#              bv2H = bv2H,
+#              deltaM = deltaM,
+#              ni = ni,
+#              iCm = InfectedHostPrevalenceM,
+#              SH0 = SH0)
+# 
+# # define finer integration grid during diapause haching
+# tbDH = which(rowSums(sigma)>0)[1]-1
+# tfDH = which(rowSums(sigma)== max(rowSums(sigma)))[1]+1
+# 
+# # define finer integration grid during diapause enterin
+# tbDE = which(rowSums(omega)>0)[1]-1
+# tfDE = which(rowSums(omega)== max(rowSums(omega)))[1]+1
+# 
+# # cbind integration grid
+# DOSiS = c(seq(tS, tbDH-iSI, by = iSI),
+#           seq(tbDH, tfDH-iSD, by = iSD),
+#           seq(tfDH, tbDE-iSA, by = iSA),
+#           seq(tbDE, tfDE-iSD, by = iSD),
+#           seq(tfDE, tEnd, by = iSI))
+# 
+# tic()
+# for (y in fyears){
+# 
+#   X0 = c(X0, SH0) # included in the system
+# 
+#   #transform into log+1 AND giving names
+#   X0m2 <- X0/10^4 #per m2
+#   X0log1 = log(X0m2+1)
+# 
+#   names(X0log1) =as.character(1:(length(X0)))
+# 
+#   ## Integration
+#   SimLog1DOSiS<- deSolve::ode(y = X0log1,
+#                               times = DOSiS,
+#                               func = dfLogSEI,
+#                               parms = parms,
+#                               method = "rk4",
+#                               events = list(data = eventZeroEd1))
+# 
+#   # extract values from finer grid
+#   whichDOSiS = which((DOSiS %% 1)==0)
+#   SimLog1 <-SimLog1DOSiS[whichDOSiS,]
+# 
+#   # untransform variables and transform to ha
+#   Sim = cbind(SimLog1[,1], 10^4*(exp(SimLog1[, 1+1:(nIDs*8)])-1))
+# 
+#   # update X0 ((E0 are AT LEAST 1)) conserve # adults
+#   X0 = c(pmax(Sim[nrow(Sim), 1+1:(nIDs*5)], 1), rep(0, 2*nIDs))
+#   X0[which(is.na(X0))] = 1
+# 
+#   AI <- Sim[,1+(nIDs*6+1):(nIDs*7)]
+#   AE <- Sim[,1+(nIDs*5+1):(nIDs*6)]
+#   AS <- Sim[,1+(nIDs*3+1):(nIDs*4)]
+#   Adults <- AS + AE + AI
+# 
+#   #and SH
+#   SH <- Sim[,1+7*nIDs + 1:nIDs]
+# 
+#   cat("UPDATE\nYear:", y, "\n")
+#   toc()
+# }
+# 
+# ## Save results
+# saveRDS(Adults, file = paste0(folderOut, "/040e_Adults_SEIS_MaxMin.rds"))
+# saveRDS(SH, file = paste0(folderOut, "/040e_SH_SEIS_MaxMin.rds"))
 
 ### A0: suitability of a non-diapausing population ----
 
