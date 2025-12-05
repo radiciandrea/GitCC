@@ -86,10 +86,10 @@ A0 <- readRDS(file = paste0(folderSimSin, "/020_A0_synthetic_", sim, ".rds"))
 
 year = year(WTotDT$date[1])
 
-#recalulate, for each month, the lowest and the highest temperature
+#recalulate, for each month, the lowest and the highest temperature 
 tasMinWiPostDT = WTotDT%>%
   select(c(ID, tas, date))%>%
-  filter(date < as.Date("2026-02-01"))%>%
+  filter(date %in% (as.Date("2026-01-01")+0:30))%>%
   group_by(ID)%>%
   summarise(tasMinWinPost = mean(tas))%>%
   ungroup()
@@ -157,13 +157,15 @@ IndDT$A0[A0<10^-8] = 10^-8
 IndDT$A0[A0>10^8] = 10^8
 
 # MapDT
+# 
+# MapDTtemp <- MapDT%>%
+#   filter(city %in% c("Bordeaux", "Grenoble", "Montpellier", "Lille", "Rennes"))
 
-MapDTtemp <- MapDT%>%
-  filter(city %in% c("Bordeaux", "Grenoble", "Montpellier", "Lille", "Rennes"))
+MapDTtemp <- MapDT
 
 IndDT <- IndDT %>%
   mutate(statusSuitability = case_when(
-    (E0 > 10)&(A0 > 10) ~ "7", # Stronguitability of homodynamic population
+    (E0 > 10)&(A0 > 10) ~ "7", # Strong suitability of homodynamic population
     (E0 > 10)&(A0 > 1) ~ "6", # Suitability of homodynamic population
     (E0 > 10)&(A0 > 0.1) ~ "5", # Weak suitability of homodynamic population
     (E0 > 10)&(A0 < 0.1) ~ "4", # strong suitability of diapausing population
