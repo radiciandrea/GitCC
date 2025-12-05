@@ -18,17 +18,19 @@ library(sf)
 library(data.table)
 library(stats)
 
-# plot diapausing and homodynamic trajectories for Montpellier
-
-# high + rcp 8.5 2066-2085
-
-nameSc = "Hg70"
-mod = ""
+# folders
 
 folderSim = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod, "_sim_030")
 folderData = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod, "_elab")
 folderPlot = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/DRIAS", mod, "_sim_0340")
 
+## 1: diapausing and homodynamic Adults----
+# plot diapausing and homodynamic trajectories for Montpellier
+
+
+# high + rcp 8.5 2066-2085
+nameSc = "Hg70"
+mod = ""
 fileAdults= list.files(paste0(folderSim,"/"), pattern = paste0("030a_Adults_Drias_", nameSc))
 
 ID = 1040 #Montpellier
@@ -60,6 +62,7 @@ ggplot(data = trajAdDF)+
   geom_ribbon(aes(x = day, ymin=IQ, ymax=IIIQ, fill = type), alpha = 0.2)
 
 
+## 1: R0 at different scenarios----
 ##  load for another city (Lyon?) also data to plot R0
 
 # epidemic parameters
@@ -82,6 +85,7 @@ IDsSubSet <- c(1040, 5243, 6482, 8915, 7542, 3500, 2936, 2472, 929, 642, 1249, 7
 
 for(IDx in IDsSubSet){
   
+  cityx = cities[which(IDsSubSet == IDx)]
   
   trajR0DF = data.frame(day = rep(1:365, times = length(Scenarios)),
                         nameSc = rep(Scenarios, each = 365),
@@ -117,12 +121,12 @@ for(IDx in IDsSubSet){
       
       EIPdengue = 1.03*(4*exp(5.15 - 0.123*tas)) #Metelmann 2021
       
-      ## LTS----
+      # LTS
       R0dengueM[,i] = ((A*phiA)^2*m/(muA+muA^2*EIPdengue)*bV2H*bH2Vdengue*IIPdengue)[1:365]
       
     }
     
-    cat(nameSc, ": ", sum(R0dengueM>1)/length(fileAdults))
+    cat(cityx, ", ", nameSc, ": ", sum(R0dengueM>1)/length(fileAdults))
     
     #smoothing
     R0dengueMAM <- R0dengueM # stats::filter(R0dengueM, rep(1 / 1, 1), sides = 2)
@@ -160,7 +164,7 @@ for(IDx in IDsSubSet){
   plotCut
   
   ggsave(file = 
-           paste0(folderPlot, "/ROtraj", IDx, ".png"),
+           paste0(folderPlot, "/R0traj_", cityx, ".png"),
          plot= plotCut, units="cm", height=5.2, width = 8.2, dpi=300) #units="in", height=4,
   
 }
