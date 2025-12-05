@@ -21,8 +21,16 @@ library(stats)
 # folders
 
 folderSim = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod, "_sim_030")
+folderSimNoDiap = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod, "_sim_030f")
 folderData = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod, "_elab")
 folderPlot = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Esperimenti/Outputs/Scenari climatici/DRIAS", mod, "_sim_0340")
+
+# scenarios and cities
+
+scenarios <- c("Cn70", "Hs99","Hg70")
+cities <- c("Montpellier", "Nantes", "Rennes", "Lille", "Paris-est", "Lyon", "Grenoble", "Bordeaux", "Toulouse", "Marseille", "Nice", "Strasbourg", "Clermont-Ferrand")
+IDsSubSet <- c(1040, 5243, 6482, 8915, 7542, 3500, 2936, 2472, 929, 642, 1249, 7379, 3564)
+
 
 ## 1: diapausing and homodynamic Adults----
 # plot diapausing and homodynamic trajectories for Montpellier
@@ -31,36 +39,84 @@ folderPlot = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/
 # high + rcp 8.5 2066-2085
 nameSc = "Hg70"
 mod = ""
-fileAdults= list.files(paste0(folderSim,"/"), pattern = paste0("030a_Adults_Drias_", nameSc))
 
-ID = 1040 #Montpellier
+IDx = 3500 #Lyon
+IDx = 1040 #Montpellier
 
-diapausingAdultsM = matrix(NA, nrow = 365, ncol = length(fileAdults))
+colPalette <- c( "#B00026", "#5200A3")
 
-for(i in 1:length(fileAdults)){
-  diapausingAdultsM[,i] = readRDS(paste0(folderSim, "/", fileAdults[i]))[1:365, ID]
+for(IDx in IDsSubSet){
+  
+  cityx = cities[which(IDsSubSet == IDx)]
+  
+  fileDAdults= list.files(paste0(folderSim,"/"), pattern = paste0("030a_Adults_Drias_", nameSc))
+  fileHAdults= list.files(paste0(folderSimNoDiap,"/"), pattern = paste0("030f_Adults_Drias_", nameSc))
+  
+  DAdultsM = matrix(NA, nrow = 365, ncol = length(fileDAdults))
+  HAdultsM = matrix(NA, nrow = 365, ncol = length(fileDAdults))
+  
+  trajAdDF = data.frame(day = rep(1:365, 2),
+                        type =rep(c("D", "H"), each = 365),
+                        meanDensity = NA,
+                        IQ = NA,
+                        IIIQ = NA)
+  
+  
+  for(i in 1:length(fileAdults)){
+    DAdultsM[,i] = readRDS(paste0(folderSim, "/", fileDAdults[i]))[1:365, IDx]
+  }
+  
+  for(i in 1:length(fileHAdults)){
+    HAdultsM[,i] = readRDS(paste0(folderSimNoDiap, "/", fileHAdults[i]))[1:365, IDx]
+  }
+  
+  #smoothing D
+  DAdultsMAM <- stats::filter(DAdultsM, rep(1 / 3, 4), sides = 2)
+  DAdultsMAM[is.na(DAdultsMAM)]=0
+  
+  trajIQ = sapply(1:365, function(t){quantile(DAdultsMAM[t,], 0.25)})
+  trajMean = rowMeans(DAdultsMAM)
+  trajIIIQ = sapply(1:365, function(t){quantile(DAdultsMAM[t,], 0.75)})
+  
+  trajAdDF$meanDensity[which(trajAdDF$type == "D")]= trajMean
+  trajAdDF$IQ[which(trajAdDF$type == "D")]= trajIQ
+  trajAdDF$IIIQ[which(trajAdDF$type == "D")]= trajIIIQ
+  
+  #smoothing H
+  HAdultsMAM <- stats::filter(HAdultsM, rep(1 / 3, 3), sides = 2)
+  HAdultsMAM[is.na(HAdultsMAM)]=0
+  
+  trajIQ = sapply(1:365, function(t){quantile(HAdultsMAM[t,], 0.25)})
+  trajMean = rowMeans(HAdultsMAM)
+  trajIIIQ = sapply(1:365, function(t){quantile(HAdultsMAM[t,], 0.75)})
+  
+  trajAdDF$meanDensity[which(trajAdDF$type == "H")]= trajMean
+  trajAdDF$IQ[which(trajAdDF$type == "H")]= trajIQ
+  trajAdDF$IIIQ[which(trajAdDF$type == "H")]= trajIIIQ
+  
+  # plot
+  
+  plotCut <-ggplot(data = trajAdDF)+
+    geom_line(aes(x = day, y = log(meanDensity+1), color = type), linewidth = 0.8)+
+    geom_ribbon(aes(x = day, ymin=log(IQ+1), ymax=log(IIIQ+1), fill = type), alpha = 0.2)+
+    scale_fill_discrete(palette = colPalette)+
+    scale_color_discrete(palette = colPalette)+
+    geom_hline(aes(yintercept = log(2)),linetype = 2)+
+    ylim(c(0,9.5))
+  
+  plotCut <- plotCut +
+    theme(legend.position = "none",
+          panel.grid = element_blank(), 
+          line = element_blank(), 
+          rect = element_blank(), 
+          text = element_blank(), 
+          plot.background = element_rect(fill = "transparent", color = "transparent"))
+  
+  ggsave(file = 
+           paste0(folderPlot, "/PoPtraj_", cityx, ".png"),
+         plot= plotCut, units="cm", height=5.2, width = 8.2, dpi=300) #units="in", height=4,
+  
 }
-
-#smoothing
-diapausingAdultsMAM <- stats::filter(diapausingAdultsM, rep(1 / 3, 3), sides = 2)
-diapausingAdultsMAM[is.na(diapausingAdultsMAM)]=0
-
-trajIQ = sapply(1:365, function(t){quantile(diapausingAdultsMAM[t,], 0.25)})
-trajMean = rowMeans(diapausingAdultsMAM)
-trajIIIQ = sapply(1:365, function(t){quantile(diapausingAdultsMAM[t,], 0.75)})
-
-trajAdDF = data.frame(day = 1:365,
-                    type ="diapausing",
-                    medianDensity = trajMean,
-                    IQ = trajIQ,
-                    IIIQ = trajIIIQ)
-
-# plot
-
-ggplot(data = trajAdDF)+
-  geom_line(aes(x = day, y = medianDensity, color = type))+
-  geom_ribbon(aes(x = day, ymin=IQ, ymax=IIIQ, fill = type), alpha = 0.2)
-
 
 ## 2: R0 at different scenarios----
 ##  load for another city (Lyon?) also data to plot R0
@@ -89,7 +145,7 @@ for(IDx in IDsSubSet){
   
   trajR0DF = data.frame(day = rep(1:365, times = length(scenarios)),
                         nameSc = rep(scenarios, each = 365),
-                        medianDensity = NA,
+                        meanR0 = NA,
                         IQ = NA,
                         IIIQ = NA)
   
@@ -126,8 +182,6 @@ for(IDx in IDsSubSet){
       
     }
     
-    cat(cityx, ", ", nameSc, ": ", sum(R0dengueM>1)/length(fileAdults))
-    
     #smoothing
     R0dengueMAM <- R0dengueM # stats::filter(R0dengueM, rep(1 / 1, 1), sides = 2)
     R0dengueMAM[is.na(R0dengueMAM)]=0
@@ -135,6 +189,8 @@ for(IDx in IDsSubSet){
     trajIQ = sapply(1:365, function(t){quantile(R0dengueMAM[t,], 0.25)})
     trajMean = rowMeans(R0dengueMAM)
     trajIIIQ = sapply(1:365, function(t){quantile(R0dengueMAM[t,], 0.75)})
+    
+    cat(cityx, " - ", nameSc, ": ", sum(trajMean>1), "\n")
     
     trajR0DF$meanR0[which(trajR0DF$nameSc == nameSc)]= trajMean
     trajR0DF$IQ[which(trajR0DF$nameSc == nameSc)]= trajIQ
@@ -151,7 +207,7 @@ for(IDx in IDsSubSet){
     scale_fill_discrete(palette = colPalette)+
     scale_color_discrete(palette = colPalette)+
     geom_hline(aes(yintercept = 1),linetype = 2)+
-    ylim(c(0,4))
+    ylim(c(0,7))
   
   plotCut <- plotCut +
     theme(legend.position = "none",
