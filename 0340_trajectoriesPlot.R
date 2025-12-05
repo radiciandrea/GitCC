@@ -62,7 +62,7 @@ ggplot(data = trajAdDF)+
   geom_ribbon(aes(x = day, ymin=IQ, ymax=IIIQ, fill = type), alpha = 0.2)
 
 
-## 1: R0 at different scenarios----
+## 2: R0 at different scenarios----
 ##  load for another city (Lyon?) also data to plot R0
 
 # epidemic parameters
@@ -87,16 +87,16 @@ for(IDx in IDsSubSet){
   
   cityx = cities[which(IDsSubSet == IDx)]
   
-  trajR0DF = data.frame(day = rep(1:365, times = length(Scenarios)),
-                        nameSc = rep(Scenarios, each = 365),
+  trajR0DF = data.frame(day = rep(1:365, times = length(scenarios)),
+                        nameSc = rep(scenarios, each = 365),
                         medianDensity = NA,
                         IQ = NA,
                         IIIQ = NA)
   
   tic()
-  for(j in 1:length(Scenarios)){
+  for(j in 1:length(scenarios)){
     
-    nameSc = Scenarios[j]
+    nameSc = scenarios[j]
     ##
     filesW= list.files(paste0(folderData,"/"), pattern = paste0("Drias_", nameSc))
     fileAdults= list.files(paste0(folderSim,"/"), pattern = paste0("030a_Adults_Drias_", nameSc))
