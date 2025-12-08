@@ -18,6 +18,8 @@ library(sf)
 library(data.table)
 library(stats)
 
+mod = ""
+
 # folders
 
 folderSim = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod, "_sim_030")
@@ -58,11 +60,12 @@ for(IDx in IDsSubSet){
   trajAdDF = data.frame(day = rep(1:365, 2),
                         type =rep(c("D", "H"), each = 365),
                         meanDensity = NA,
+                        medianDensity = NA,
                         IQ = NA,
                         IIIQ = NA)
   
   
-  for(i in 1:length(fileAdults)){
+  for(i in 1:length(fileDAdults)){
     DAdultsM[,i] = readRDS(paste0(folderSim, "/", fileDAdults[i]))[1:365, IDx]
   }
   
@@ -70,34 +73,41 @@ for(IDx in IDsSubSet){
     HAdultsM[,i] = readRDS(paste0(folderSimNoDiap, "/", fileHAdults[i]))[1:365, IDx]
   }
   
-  #smoothing D
-  DAdultsMAM <- stats::filter(DAdultsM, rep(1 / 3, 4), sides = 2)
-  DAdultsMAM[is.na(DAdultsMAM)]=0
+  # #smoothing D
+  # DAdultsMAM <- stats::filter(DAdultsM, rep(1 / 3, 4), sides = 2)
+  # DAdultsMAM[is.na(DAdultsMAM)]=0
+  DAdultsMAM <- DAdultsM
   
   trajIQ = sapply(1:365, function(t){quantile(DAdultsMAM[t,], 0.25)})
   trajMean = rowMeans(DAdultsMAM)
+  trajMedian = sapply(1:365, function(t){quantile(DAdultsMAM[t,], 0.5)})
   trajIIIQ = sapply(1:365, function(t){quantile(DAdultsMAM[t,], 0.75)})
   
   trajAdDF$meanDensity[which(trajAdDF$type == "D")]= trajMean
+  trajAdDF$medianDensity[which(trajAdDF$type == "D")]= trajMedian
   trajAdDF$IQ[which(trajAdDF$type == "D")]= trajIQ
   trajAdDF$IIIQ[which(trajAdDF$type == "D")]= trajIIIQ
   
-  #smoothing H
-  HAdultsMAM <- stats::filter(HAdultsM, rep(1 / 3, 3), sides = 2)
-  HAdultsMAM[is.na(HAdultsMAM)]=0
+  # #smoothing H
+  # HAdultsMAM <- stats::filter(HAdultsM, rep(1 / 3, 3), sides = 2)
+  # HAdultsMAM[is.na(HAdultsMAM)]=0
+  
+  HAdultsMAM <- HAdultsM
   
   trajIQ = sapply(1:365, function(t){quantile(HAdultsMAM[t,], 0.25)})
   trajMean = rowMeans(HAdultsMAM)
+  trajMedian = sapply(1:365, function(t){quantile(HAdultsMAM[t,], 0.5)})
   trajIIIQ = sapply(1:365, function(t){quantile(HAdultsMAM[t,], 0.75)})
   
   trajAdDF$meanDensity[which(trajAdDF$type == "H")]= trajMean
+  trajAdDF$medianDensity[which(trajAdDF$type == "H")]= trajMedian
   trajAdDF$IQ[which(trajAdDF$type == "H")]= trajIQ
   trajAdDF$IIIQ[which(trajAdDF$type == "H")]= trajIIIQ
   
   # plot
   
   plotCut <-ggplot(data = trajAdDF)+
-    geom_line(aes(x = day, y = log(meanDensity+1), color = type), linewidth = 0.8)+
+    geom_line(aes(x = day, y = log(medianDensity+1), color = type), linewidth = 0.8)+
     geom_ribbon(aes(x = day, ymin=log(IQ+1), ymax=log(IIIQ+1), fill = type), alpha = 0.2)+
     scale_fill_discrete(palette = colPalette)+
     scale_color_discrete(palette = colPalette)+
@@ -146,6 +156,7 @@ for(IDx in IDsSubSet){
   trajR0DF = data.frame(day = rep(1:365, times = length(scenarios)),
                         nameSc = rep(scenarios, each = 365),
                         meanR0 = NA,
+                        medianR0 = NA,
                         IQ = NA,
                         IIIQ = NA)
   
@@ -188,11 +199,13 @@ for(IDx in IDsSubSet){
     
     trajIQ = sapply(1:365, function(t){quantile(R0dengueMAM[t,], 0.25)})
     trajMean = rowMeans(R0dengueMAM)
+    trajMedian = sapply(1:365, function(t){quantile(R0dengueMAM[t,], 0.5)})
     trajIIIQ = sapply(1:365, function(t){quantile(R0dengueMAM[t,], 0.75)})
     
     cat(cityx, " - ", nameSc, ": ", sum(trajMean>1), "\n")
     
     trajR0DF$meanR0[which(trajR0DF$nameSc == nameSc)]= trajMean
+    trajR0DF$medianR0[which(trajR0DF$nameSc == nameSc)]= trajMedian
     trajR0DF$IQ[which(trajR0DF$nameSc == nameSc)]= trajIQ
     trajR0DF$IIIQ[which(trajR0DF$nameSc == nameSc)]= trajIIIQ
     
@@ -202,7 +215,7 @@ for(IDx in IDsSubSet){
   colPalette <- c( "#21908C", "#FCE724", "#3A528A")
   
   plotCut <- ggplot(data = trajR0DF)+
-    geom_line(aes(x = day, y = meanR0, color = nameSc), linewidth = 0.8)+
+    geom_line(aes(x = day, y = medianR0, color = nameSc), linewidth = 0.8)+
     geom_ribbon(aes(x = day, ymin=IQ, ymax=IIIQ, fill = nameSc), alpha = 0.2)+
     scale_fill_discrete(palette = colPalette)+
     scale_color_discrete(palette = colPalette)+
