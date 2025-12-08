@@ -276,8 +276,8 @@ for (year in years){
   # update X0 (E0 are AT LEAST 1)
   
   X0 = SimRev[nrow(SimRev),2:ncol(SimRev)]
-  X0[4] = pmax(1,X0[4])
-  X0[which(is.na(X0))] = 1
+  X0[which(is.na(X0))] = 10^-4
+  X0[which(X0<10-4)] = 10^-4
   
   # rev Sim
   Sim = SimRev[c(FoJul:nD, 1:(FoJul-1)),, drop = FALSE]

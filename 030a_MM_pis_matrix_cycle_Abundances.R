@@ -44,17 +44,20 @@ if(!exists("IDsSubSet")){
   IDsSubSet = 1:8981 # put to compute only a subset of cells (8981 in total)
 }
 
+if(!exists("mod")){
+  mod = ""
+}
+
 # folder names
-if(!exists("folderOut")){
-  if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
-    folderDrias = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_elab"
-    folderX0 = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim"
-    folderOut = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS_sim_030"
-  } else {
-    folderDrias = "DRIAS_elab"
-    folderX0 = "DRIAS_sim"
-    folderOut = "DRIAS_sim_030"
-  }
+
+if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codice/local.R")){
+  folderDrias = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS",mod,"_elab")
+  folderX0 = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS",mod,"_sim")
+  folderOut = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS",mod,"_sim_030")
+} else {
+  folderDrias = paste0("DRIAS",mod,"_elab")
+  folderX0 = paste0("DRIAS",mod,"_sim")
+  folderOut = paste0("DRIAS",mod,"_sim_030") 
 }
 
 if(!exists("IDsDT")){
@@ -264,8 +267,9 @@ for (year in years){
   Sim = cbind(SimLog1[,1], 10^4*(exp(SimLog1[, 1+1:(nIDs*5)])-1))
   
   # update X0 (E0 are AT LEAST 1)
-  X0 = c(rep(0, 4*nIDs), pmax(Sim[nrow(Sim), 1+(nIDs*4+1):(nIDs*5)], 1))
-  X0[which(is.na(X0))] = 1
+  X0 = Sim[nrow(Sim),2:ncol(Sim)]
+  X0[which(is.na(X0))] = 10^-4
+  X0[which(X0<10-4)] = 10^-4
   
   # Compute betaApprox
   betaApprox = (33.2*exp(-0.5*((tas-70.3)/14.1)^2)*(38.8 - tas)^1.5)*(tas<= 38.8) #fertility rate
