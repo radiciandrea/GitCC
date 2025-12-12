@@ -119,7 +119,7 @@ for(k in 1:nrow(scenariosDF)){
     A = (0.0043*tas + 0.0943)/2  #biting rate (Zanardini et al., Caminade 2016, Blagrove 2020)
     phiA = phiAU*(H>RTh)+phiAR*(H<=RTh)
     
-    EIPdengue = 1.03*(4*exp(5.15 - 0.123*tas)) #Metelmann 2021
+    EIPdengue = 1.03*(4+exp(5.15 - 0.123*tas)) #Metelmann 2021
     
     ## LTSR0----
     R0dengueM = (A*phiA)^2*m/(muA+muA^2*EIPdengue)*bV2H*bH2Vdengue*IIPdengue

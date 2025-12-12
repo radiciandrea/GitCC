@@ -243,7 +243,7 @@ for (year in years){
   
   ## Compute epidemic parameters ----
   A = (0.0043*tas + 0.0943)/2 #biting rate
-  EIP = 1.03*(4*exp(5.15 - 0.123*tas)) #Metelmann 2021 (Dengue)
+  EIP = 1.03*(4+exp(5.15 - 0.123*tas)) #Metelmann 2021 (Dengue)
   ni = 1/EIP #of the vector
   phiA = phiAU*(H>RTh)+phiAR*(H<=RTh) #vector preference
   

@@ -39,9 +39,9 @@ dfCities = data.frame(name = c("LA CRAU", "SAINTE CECILE LES VIGNES", "FREJUS", 
 
 # expH= 0.85 # to saturate, values between 
 
-dfSim = data.frame(expH = c(seq(0, 0.78, length.out = 40), seq(0.8, 1, length.out = 50), seq(1.05, 2, length.out = 20)),
+dfSim = data.frame(expH = seq(0.01, 1, by = 0.01),
                        simLaCrau = NA,
-                       simSCeclie = NA,
+                       simSCecile = NA,
                        simFrejus = NA,
                        simVallauris = NA)
 
@@ -60,8 +60,8 @@ for(j in 1:nrow(dfSim)){
     X0_E0 = (dfCities$X0_E0[i])^expH
     
     source("07b_MM_SEI_SecondaryCases.R")
-    plot((max(SH) - SH)*IDsDT$surfHa, main = name)
-    lines(rep(dfCities$cases[i], times = length(SH)), col = 'blue')
+    # plot((max(SH) - SH)*IDsDT$surfHa, main = name)
+    # lines(rep(dfCities$cases[i], times = length(SH)), col = 'blue')
     
     dfCities$simCases[i] = (max(SH) - min(SH))*IDsDT$surfHa
     
@@ -81,7 +81,7 @@ dfSim <- readRDS(paste0(folderOut,"/dfSim.rds"))
 
 # as matrix
 mSim <- cbind(dfSim %>% pull(simLaCrau),
-               dfSim %>% pull(simSCeclie),
+               dfSim %>% pull(simSCecile),
                dfSim %>% pull(simFrejus),
                dfSim %>% pull(simVallauris))
 
@@ -92,7 +92,7 @@ dfSim$RMSLE = sqrt(rowMeans((log(1+mSim)-log(1+mCases))^2))
 
 
 # by city
-plot(dfSim$expH, dfSim$RMSLE, ylim = c(0,1))
+plot(dfSim$expH, dfSim$RMSLE, ylim = c(0,3))
 colv = c('darkorange', 'darkgreen', 'darkblue', 'brown')
 for(i in 1:nrow(dfCities)) {
   y = sqrt((log(1+mSim[,i])-log(1+mCases[,i]))^2)
