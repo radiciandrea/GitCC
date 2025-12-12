@@ -40,91 +40,105 @@ IDsSubSet <- c(1040, 5243, 6482, 8915, 7542, 3500, 2936, 2472, 929, 642, 1249, 7
 
 # high + rcp 8.5 2066-2085
 nameSc = "Hg70"
-mod = ""
-
 IDx = 3500 #Lyon
 IDx = 1040 #Montpellier
 
-colPalette <- c( "#B00026", "#5200A3")
+colPalette <- c("#D04B45", "#5200A3")
 
 for(IDx in IDsSubSet){
   
   cityx = cities[which(IDsSubSet == IDx)]
   
-  fileDAdults= list.files(paste0(folderSim,"/"), pattern = paste0("030a_Adults_Drias_", nameSc))
-  fileHAdults= list.files(paste0(folderSimNoDiap,"/"), pattern = paste0("030f_Adults_Drias_", nameSc))
-  
-  DAdultsM = matrix(NA, nrow = 365, ncol = length(fileDAdults))
-  HAdultsM = matrix(NA, nrow = 365, ncol = length(fileDAdults))
-  
-  trajAdDF = data.frame(day = rep(1:365, 2),
-                        type =rep(c("D", "H"), each = 365),
+  trajAdDF = data.frame(day = rep(1:365, 2*length(scenarios)),
+                        type =rep(c("D", "H"), each = 365*length(scenarios)),
+                        nameSc = rep(rep(scenarios, each = 365), times = 2),
                         meanDensity = NA,
                         medianDensity = NA,
                         IQ = NA,
                         IIIQ = NA)
   
-  
-  for(i in 1:length(fileDAdults)){
-    DAdultsM[,i] = readRDS(paste0(folderSim, "/", fileDAdults[i]))[1:365, IDx]
+  for(nameSc in scenarios){
+    
+    
+    fileDAdults= list.files(paste0(folderSim,"/"), pattern = paste0("030a_Adults_Drias_", nameSc))
+    fileHAdults= list.files(paste0(folderSimNoDiap,"/"), pattern = paste0("030f_Adults_Drias_", nameSc))
+    
+    DAdultsM = matrix(NA, nrow = 365, ncol = length(fileDAdults))
+    HAdultsM = matrix(NA, nrow = 365, ncol = length(fileDAdults))
+    
+    for(i in 1:length(fileDAdults)){
+      DAdultsM[,i] = readRDS(paste0(folderSim, "/", fileDAdults[i]))[1:365, IDx]
+    }
+    
+    for(i in 1:length(fileHAdults)){
+      HAdultsM[,i] = readRDS(paste0(folderSimNoDiap, "/", fileHAdults[i]))[1:365, IDx]
+    }
+    
+    #smoothing D
+    DAdultsMAM <- stats::filter(DAdultsM, rep(1 / 3, 3), sides = 2)
+    DAdultsMAM[is.na(DAdultsMAM)]=0
+    
+    trajIQ = sapply(1:365, function(t){quantile(DAdultsMAM[t,], 0.25, na.rm = T)})
+    trajMean = rowMeans(DAdultsMAM, na.rm = T)
+    trajMedian = sapply(1:365, function(t){quantile(DAdultsMAM[t,], 0.5, na.rm = T)})
+    trajIIIQ = sapply(1:365, function(t){quantile(DAdultsMAM[t,], 0.75, na.rm = T)})
+    
+    trajAdDF$meanDensity[which(trajAdDF$type == "D" & trajAdDF$nameSc == nameSc)]= trajMean
+    trajAdDF$medianDensity[which(trajAdDF$type == "D" & trajAdDF$nameSc == nameSc)]= trajMedian
+    trajAdDF$IQ[which(trajAdDF$type == "D" & trajAdDF$nameSc == nameSc)]= trajIQ
+    trajAdDF$IIIQ[which(trajAdDF$type == "D" & trajAdDF$nameSc == nameSc)]= trajIIIQ
+    
+    #smoothing H
+    HAdultsMAM <- stats::filter(HAdultsM, rep(1 / 3, 3), sides = 2)
+    HAdultsMAM[is.na(HAdultsMAM)]=0
+    
+    trajIQ = sapply(1:365, function(t){quantile(HAdultsMAM[t,], 0.25, na.rm = T)})
+    trajMean = rowMeans(HAdultsMAM, na.rm = T)
+    trajMedian = sapply(1:365, function(t){quantile(HAdultsMAM[t,], 0.5, na.rm = T)})
+    trajIIIQ = sapply(1:365, function(t){quantile(HAdultsMAM[t,], 0.75, na.rm = T)})
+    
+    # if(nameSc == "Hg70"){
+      trajAdDF$meanDensity[which(trajAdDF$type == "H" & trajAdDF$nameSc == nameSc)]= trajMean
+      trajAdDF$medianDensity[which(trajAdDF$type == "H" & trajAdDF$nameSc == nameSc)]= trajMedian
+      trajAdDF$IQ[which(trajAdDF$type == "H" & trajAdDF$nameSc == nameSc)]= trajIQ
+      trajAdDF$IIIQ[which(trajAdDF$type == "H" & trajAdDF$nameSc == nameSc)]= trajIIIQ
+    # }
   }
   
-  for(i in 1:length(fileHAdults)){
-    HAdultsM[,i] = readRDS(paste0(folderSimNoDiap, "/", fileHAdults[i]))[1:365, IDx]
-  }
-  
-  # #smoothing D
-  # DAdultsMAM <- stats::filter(DAdultsM, rep(1 / 3, 4), sides = 2)
-  # DAdultsMAM[is.na(DAdultsMAM)]=0
-  DAdultsMAM <- DAdultsM
-  
-  trajIQ = sapply(1:365, function(t){quantile(DAdultsMAM[t,], 0.25)})
-  trajMean = rowMeans(DAdultsMAM)
-  trajMedian = sapply(1:365, function(t){quantile(DAdultsMAM[t,], 0.5)})
-  trajIIIQ = sapply(1:365, function(t){quantile(DAdultsMAM[t,], 0.75)})
-  
-  trajAdDF$meanDensity[which(trajAdDF$type == "D")]= trajMean
-  trajAdDF$medianDensity[which(trajAdDF$type == "D")]= trajMedian
-  trajAdDF$IQ[which(trajAdDF$type == "D")]= trajIQ
-  trajAdDF$IIIQ[which(trajAdDF$type == "D")]= trajIIIQ
-  
-  # #smoothing H
-  # HAdultsMAM <- stats::filter(HAdultsM, rep(1 / 3, 3), sides = 2)
-  # HAdultsMAM[is.na(HAdultsMAM)]=0
-  
-  HAdultsMAM <- HAdultsM
-  
-  trajIQ = sapply(1:365, function(t){quantile(HAdultsMAM[t,], 0.25)})
-  trajMean = rowMeans(HAdultsMAM)
-  trajMedian = sapply(1:365, function(t){quantile(HAdultsMAM[t,], 0.5)})
-  trajIIIQ = sapply(1:365, function(t){quantile(HAdultsMAM[t,], 0.75)})
-  
-  trajAdDF$meanDensity[which(trajAdDF$type == "H")]= trajMean
-  trajAdDF$medianDensity[which(trajAdDF$type == "H")]= trajMedian
-  trajAdDF$IQ[which(trajAdDF$type == "H")]= trajIQ
-  trajAdDF$IIIQ[which(trajAdDF$type == "H")]= trajIIIQ
+  trajAdDF <- trajAdDF %>%
+    filter(!is.na(medianDensity))
   
   # plot
   
   plotCut <-ggplot(data = trajAdDF)+
-    geom_line(aes(x = day, y = log(medianDensity+1), color = type), linewidth = 0.8)+
-    geom_ribbon(aes(x = day, ymin=log(IQ+1), ymax=log(IIIQ+1), fill = type), alpha = 0.2)+
+    geom_line(aes(x = day, y = log(medianDensity+1), color = type, linetype = nameSc), linewidth = 0.8)+
+    geom_ribbon(aes(x = day, ymin=log(IQ+1), ymax=log(IIIQ+1), fill = type, linetype = nameSc), alpha = 0.2)+
     scale_fill_discrete(palette = colPalette)+
     scale_color_discrete(palette = colPalette)+
     geom_hline(aes(yintercept = log(2)),linetype = 2)+
-    ylim(c(0,9.5))
+    ylim(c(0,9.5))+
+    theme_test()
+  
+  # plotCut <- plotCut +
+  #   theme(legend.position = "none",
+  #         panel.grid = element_blank(), 
+  #         line = element_blank(), 
+  #         rect = element_blank(), 
+  #         text = element_blank(), 
+  #         plot.background = element_rect(fill = "transparent", color = "transparent"))
   
   plotCut <- plotCut +
     theme(legend.position = "none",
           panel.grid = element_blank(), 
-          line = element_blank(), 
-          rect = element_blank(), 
-          text = element_blank(), 
+          axis.title.x = element_blank(),
+          axis.title.y = element_blank(),
+          axis.text.x=element_blank(),
+          axis.text.y=element_blank(),
           plot.background = element_rect(fill = "transparent", color = "transparent"))
   
   ggsave(file = 
            paste0(folderPlot, "/PoPtraj_", cityx, ".png"),
-         plot= plotCut, units="cm", height=5.2, width = 8.2, dpi=300) #units="in", height=4,
+         plot= plotCut, units="cm", height=5.5, width = 8.5, dpi=300) #units="in", height=4,
   
 }
 
@@ -194,13 +208,13 @@ for(IDx in IDsSubSet){
     }
     
     #smoothing
-    R0dengueMAM <- R0dengueM # stats::filter(R0dengueM, rep(1 / 1, 1), sides = 2)
+    R0dengueMAM <- stats::filter(R0dengueM, rep(1 / 1, 1), sides = 2)
     R0dengueMAM[is.na(R0dengueMAM)]=0
     
-    trajIQ = sapply(1:365, function(t){quantile(R0dengueMAM[t,], 0.25)})
-    trajMean = rowMeans(R0dengueMAM)
-    trajMedian = sapply(1:365, function(t){quantile(R0dengueMAM[t,], 0.5)})
-    trajIIIQ = sapply(1:365, function(t){quantile(R0dengueMAM[t,], 0.75)})
+    trajIQ = sapply(1:365, function(t){quantile(R0dengueMAM[t,], 0.25, na.rm = T)})
+    trajMean = rowMeans(R0dengueMAM, na.rm = T)
+    trajMedian = sapply(1:365, function(t){quantile(R0dengueMAM[t,], 0.5, na.rm = T)})
+    trajIIIQ = sapply(1:365, function(t){quantile(R0dengueMAM[t,], 0.75, na.rm = T)})
     
     cat(cityx, " - ", nameSc, ": ", sum(trajMean>1), "\n")
     
@@ -220,21 +234,29 @@ for(IDx in IDsSubSet){
     scale_fill_discrete(palette = colPalette)+
     scale_color_discrete(palette = colPalette)+
     geom_hline(aes(yintercept = 1),linetype = 2)+
-    ylim(c(0,7))
+    ylim(c(0,7))+
+    theme_test()
+  
+  # plotCut <- plotCut +
+  #   theme(legend.position = "none",
+  #         panel.grid = element_blank(), 
+  #         line = element_blank(), 
+  #         rect = element_blank(), 
+  #         text = element_blank(), 
+  #         plot.background = element_rect(fill = "transparent", color = "transparent"))
   
   plotCut <- plotCut +
     theme(legend.position = "none",
           panel.grid = element_blank(), 
-          line = element_blank(), 
-          rect = element_blank(), 
-          text = element_blank(), 
+          axis.title.x = element_blank(),
+          axis.title.y = element_blank(),
+          axis.text.x=element_blank(),
+          axis.text.y=element_blank(),
           plot.background = element_rect(fill = "transparent", color = "transparent"))
-  
-  plotCut
   
   ggsave(file = 
            paste0(folderPlot, "/R0traj_", cityx, ".png"),
-         plot= plotCut, units="cm", height=5.2, width = 8.2, dpi=300) #units="in", height=4,
+         plot= plotCut, units="cm", height=5.5, width = 8.5, dpi=300) #units="in", height=4,
   
 }
 
