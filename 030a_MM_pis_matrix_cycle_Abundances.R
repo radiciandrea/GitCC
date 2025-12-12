@@ -268,8 +268,8 @@ for (year in years){
   
   # update X0 (E0 are AT LEAST 1)
   X0 = Sim[nrow(Sim),2:ncol(Sim)]
-  X0[which(is.na(X0))] = 10^-4
-  X0[which(X0<10-4)] = 10^-4
+  X0[which(is.na(X0))] = 10^-5
+  X0[which(X0<(10^-5))] = 10^-5
   
   # Compute betaApprox
   betaApprox = (33.2*exp(-0.5*((tas-70.3)/14.1)^2)*(38.8 - tas)^1.5)*(tas<= 38.8) #fertility rate
