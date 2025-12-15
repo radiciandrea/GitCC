@@ -58,14 +58,10 @@ if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codi
   folderOut = paste0("DRIAS",mod,"_sim_020")
 }
 
-
-if(!exists("IDsDT")){
-  # get ID, lat, lon
-  IDsDT <- readRDS(paste0(folderDrias, "/Drias_", name, "_", years[1], ".rds")) %>%
-    distinct(ID, .keep_all = TRUE) %>%
-    dplyr::select(c("ID", "lat", "lon", "pop")) %>%
-    filter(ID %in% IDsSubSet)
-}
+IDsDT <- readRDS(paste0(folderDrias, "/Drias_", substr(name, 1,4), "_", years[1], ".rds")) %>%
+  distinct(ID, .keep_all = TRUE) %>%
+  dplyr::select(c("ID", "lat", "lon", "pop", "surfHa")) %>%
+  filter(ID %in% IDsSubSet)
 
 dir.create(folderOut)
 
@@ -92,7 +88,7 @@ alphaRain = 0.00001
 
 #parameters for modified carrying capacity
 lambda = 10^6 # capacity parameter (larvae/day/ha)
-expH = 0.85
+expH = 0.6
 
 epsRat = 0.2
 eps0 = 1.5

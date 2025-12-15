@@ -51,13 +51,10 @@ if(!exists("folderOut")){
   }
 }
 
-if(!exists("IDsDT")){
-  # get ID, lat, lon
-  IDsDT <- readRDS(paste0(folderMF, "/", name, "_", years[1], "_Safran.rds")) %>%
-    distinct(ID, .keep_all = TRUE) %>%
-    dplyr::select(c("ID", "lat", "lon", "pop", "surfHa")) %>%
-    filter(ID %in% IDsSubSet)
-}
+IDsDT <- readRDS(paste0(folderMF, "/", name, "_", years[1], "_Safran.rds")) %>%
+  distinct(ID, .keep_all = TRUE) %>%
+  dplyr::select(c("ID", "lat", "lon", "pop", "surfHa")) %>%
+  filter(ID %in% IDsSubSet)
 
 dir.create(folderOut)
 

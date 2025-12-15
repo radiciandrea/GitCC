@@ -69,13 +69,10 @@ if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codi
   folderOut = paste0("DRIAS",mod,"_sim_040e") 
 }
 
-if(!exists("IDsDT")){
-  # get ID, lat, lon
-  IDsDT <- readRDS(paste0(folderDrias, "/Drias_", substr(name, 1,4), "_", years[1], ".rds")) %>%
-    distinct(ID, .keep_all = TRUE) %>%
-    dplyr::select(c("ID", "lat", "lon", "pop", "surfHa")) %>%
-    filter(ID %in% IDsSubSet)
-}
+IDsDT <- readRDS(paste0(folderDrias, "/Drias_", substr(name, 1,4), "_", years[1], ".rds")) %>%
+  distinct(ID, .keep_all = TRUE) %>%
+  dplyr::select(c("ID", "lat", "lon", "pop", "surfHa")) %>%
+  filter(ID %in% IDsSubSet)
 
 dir.create(folderOut)
 
@@ -96,7 +93,7 @@ deltaE = 1/7.1 #normal egg development rate (1/day)
 
 #parameters for modified carrying capacity
 lambdaM2 = 10^2 # capacity parameter (larvae/day/m2)
-expH = 0.85
+expH = 0.6
 
 # advanced parameter for carrying capacity
 alphaEvap = 0.9

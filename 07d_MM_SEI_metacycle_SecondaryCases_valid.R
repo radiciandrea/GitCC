@@ -54,7 +54,7 @@ dfCities =  data.frame(name = c("ROGNAC", "AUBAGNE"),
 
 #re-simulate
 
-expH = 0.85
+expH = 0.6
 
 for(i in 1:nrow(dfCities)) { # dopar
   name = dfCities$name[i]
