@@ -49,7 +49,7 @@ if(!exists("NIntro")){
 }
 
 if(!exists("IntroMonthCalendar")){
-  IntroMonthCalendar = 8 # imported case: one for each month
+  IntroMonthCalendar = "07-17" # day, month
 }
 
 if(!exists("mod")){
@@ -242,7 +242,7 @@ for (year in years){
   
   #Epidemic scenario (as a matrix)
   InfectedHosts <- rep(0, nD)
-  IntroDates <- yday(as.Date(paste0(year, "-", IntroMonthCalendar, "-01", "%d/%m/%y")))
+  IntroDates <- yday(as.Date(paste0(year, "-", IntroMonthCalendar, "%d/%m/%y")))
   InfectedHostDates <- c(t(sapply(-1+1:DHV, function(x){IntroDates+x}))) # repeat for a duration of DHV
   InfectedHosts[InfectedHostDates] = NIntro #hab
   InfectedHostDensityM = matrix(rep(InfectedHosts, nIDs), ncol = nIDs)/AreaKm2
