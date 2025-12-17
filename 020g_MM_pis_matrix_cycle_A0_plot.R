@@ -110,8 +110,8 @@ for(k in 1:nrow(scenariosDF)){
            paste0(folderPlot, "/A0_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
   
-  cat("name:", name, ", A0>0.1: ", round(100*sum(A0Sel>0.1, na.rm = T)/8981, 1), ", nas:", sum(is.nan(A0Sel)),"\n")
-  
+  cat("name:", name, ", A0>0.1: ", round(100*sum(A0Sel>0.1, na.rm = T)/8981, 2), ", nas:", sum(is.nan(A0Sel)),"\n")
+
 }
 
 saveRDS(A0MM, file = paste0(folderSim, "/A0MM.rds"))
