@@ -21,6 +21,8 @@ if (file.exists("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Codi
 }
 # pop scenarios
 
+dir.create(folderOut)
+
 scenariosDF= data.frame(popScenario = c("Cn35", "Cn55", "Cn70", "Hg35", "Hg55", "Hg70"),
                         yearStart = c(2026, 2046, 2066, 2026, 2046, 2066),
                         yearEnd = c(2026, 2046, 2066, 2026, 2046, 2066)+19)

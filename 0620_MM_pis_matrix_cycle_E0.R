@@ -48,10 +48,6 @@ if(!exists("mod")){
   mod = ""
 }
 
-# folder names
-
-dir.create(folderOut)
-
 nIDs = length(IDsSubSet)
 IDs = IDsSubSet
 
