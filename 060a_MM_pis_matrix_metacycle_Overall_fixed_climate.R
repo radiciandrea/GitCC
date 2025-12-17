@@ -38,8 +38,8 @@ for(k in 1:nrow(scenariosDF)){
   name = paste0("Hs99_pop", popScenario)
   years = 1986:2005 #scenariosDF$yearStart[k]:scenariosDF$yearEnd[k]
   
-  source("020_MM_pis_matrix_cycle_E0.R")
-  source("040a_MM_SEI_pis_matrix_cycle_SecondayCases.R")
+  source("0620_MM_pis_matrix_cycle_E0.R")
+  source("0630a_MM_pis_matrix_cycle_Abundances.R")
   rm(IDsDT)
   
   

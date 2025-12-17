@@ -30,45 +30,45 @@ IDsDT <- readRDS(paste0(folderDrias, "/Drias_Hs99_1986.rds")) %>%
 name = "Cn35"
 years = 2026:2045
 
-source("020_MM_pis_matrix_cycle_E0.R")
-source("040a_MM_SEI_pis_matrix_cycle_SecondayCases.R")
+source("0620_MM_pis_matrix_cycle_E0.R")
+source("0630a_MM_pis_matrix_cycle_Abundances.R")
 
 ## Central RCP 4.5 middle term----
 
 name = "Cn55"
 years = 2046:2065
 
-source("020_MM_pis_matrix_cycle_E0.R")
-source("040a_MM_SEI_pis_matrix_cycle_SecondayCases.R")
+source("0620_MM_pis_matrix_cycle_E0.R")
+source("0630a_MM_pis_matrix_cycle_Abundances.R")
 
 ## Central RCP 4.5 long term----
 
 name = "Cn70"
 years = 2066:2085
 
-source("020_MM_pis_matrix_cycle_E0.R")
-source("040a_MM_SEI_pis_matrix_cycle_SecondayCases.R")
+source("0620_MM_pis_matrix_cycle_E0.R")
+source("0630a_MM_pis_matrix_cycle_Abundances.R")
 
 ## High RCP 8.5 short term----
 
 name = "Hg35"
 years = 2026:2045
 
-source("020_MM_pis_matrix_cycle_E0.R")
-source("040a_MM_SEI_pis_matrix_cycle_SecondayCases.R")
+source("0620_MM_pis_matrix_cycle_E0.R")
+source("0630a_MM_pis_matrix_cycle_Abundances.R")
 
 ## High RCP 8.5 middle term----
 
 name = "Hg55"
 years = 2046:2065
 
-source("020_MM_pis_matrix_cycle_E0.R")
-source("040a_MM_SEI_pis_matrix_cycle_SecondayCases.R")
+source("0620_MM_pis_matrix_cycle_E0.R")
+source("0630a_MM_pis_matrix_cycle_Abundances.R")
 
 ## High RCP 8.5 long term----
 
 name = "Hg70"
 years = 2066:2085
 
-source("020_MM_pis_matrix_cycle_E0.R")
-source("040a_MM_SEI_pis_matrix_cycle_SecondayCases.R")
+source("0620_MM_pis_matrix_cycle_E0.R")
+source("0630a_MM_pis_matrix_cycle_Abundances.R")
