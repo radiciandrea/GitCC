@@ -150,3 +150,15 @@ plot1 <- plot1 +
         rect = element_blank())
 
 plot1 
+
+#### plot 2
+
+level_order <- c("FREJUS", "LA CRAU", "SAINTE CECILE LES VIGNES", "VALLAURIS", "ROGNAC", "AUBAGNE") 
+
+dflCases = reshape2::melt(dfCases, measure.vars = c("cases", "casesSimOldK", "casesSimNewK"))
+
+plot1 = ggplot(data = dflCases, aes(x = factor(name, level = level_order), y = value, group = variable, shape = variable, color = set)) +
+  geom_point(stat="identity", position=position_dodge())+
+  scale_y_log10() 
+
+plot1
