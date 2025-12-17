@@ -139,16 +139,14 @@ AmjjasoMM <- readRDS(file = paste0(folderSim, "/AmjjasoMM.rds"))
 LTSdengueMM <- readRDS(file = paste0(folderSim, "/LTSdengueMM.rds"))
 DayHighestR07MM <- readRDS(file = paste0(folderSim, "/DayHighestR07MM.rds"))
 
-# Plot----
-
 # Load map
 domain <- st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDomain.shp")
 
-## Adults ----
+### Adults ----
 
 cutPal = c(10^3, 10^2, 10^1, 1, 1)
 cutPalLab = c("e > 1000", "d > 100", "c > 10", "b > 1", "a < 1")
-colPal<- c("#feedde", "#fdbe85", "#fd8d3c", "#e6550d", "#a63603")
+colPal<- c("#feedde",  "#fdbe85", "#fd8d3c", "#e6550d", "#a63603")
 
 # Cycle
 
@@ -169,10 +167,15 @@ for(i in 1:nrow(scenariosDF)){
     theme(plot.background  = element_blank(),
           aspect.ratio = 1)
   
-  if(!(name %in% c("Cn70", "Hg70"))){
-    plotCut <- plotCut +
-      theme(legend.position = "none")
-  }
+  # if(!(name %in% c("Cn70", "Hg70"))){
+  plotCut <- plotCut +
+    theme(legend.position = "none",
+          panel.grid = element_blank(), 
+          line = element_blank(), 
+          rect = element_blank(), 
+          text = element_blank(), 
+          plot.background = element_rect(fill = "transparent", color = "transparent"))
+  # }
   
   ggsave(file = 
            paste0(folderPlot, "/Amjjaso_", name, "_", min(years), "-", max(years), ".png"),
@@ -182,7 +185,7 @@ for(i in 1:nrow(scenariosDF)){
   
 }
 
-## R0 ----
+### LTS R0 ----
 
 cutPal = c(105, 56, 21, 1, 0)
 cutPalLab = c("e 15 or more", "d 8 to 15", "c 3 to 8", "b 0 to 3", "a 0")
@@ -194,29 +197,34 @@ for(i in 1:nrow(scenariosDF)){
   name = scenariosDF$name[i]
   years = scenariosDF$yearStart[i]:scenariosDF$yearEnd[i]
   
-  LTSSelCut <- case_when(LTSdengueMM[i,] >= cutPal[1] ~ cutPalLab[1],
-                         LTSdengueMM[i,] >= cutPal[2] ~ cutPalLab[2],
-                         LTSdengueMM[i,] >= cutPal[3] ~ cutPalLab[3],
-                         LTSdengueMM[i,] >= cutPal[4] ~ cutPalLab[4],
-                         LTSdengueMM[i,] <= cutPal[4] ~ cutPalLab[5])
+  LTSR0SelCut <- case_when(LTSdengueMM[i,] >= cutPal[1] ~ cutPalLab[1],
+                           LTSdengueMM[i,] >= cutPal[2] ~ cutPalLab[2],
+                           LTSdengueMM[i,] >= cutPal[3] ~ cutPalLab[3],
+                           LTSdengueMM[i,] >= cutPal[4] ~ cutPalLab[4],
+                           LTSdengueMM[i,] <= cutPal[4] ~ cutPalLab[5])
   
   plotCut <- ggplot()+
-    geom_sf(data = domain, aes(fill = LTSSelCut), colour = NA)+ #
+    geom_sf(data = domain, aes(fill = LTSR0SelCut), colour = NA)+ #
     scale_fill_manual(values = colPal)+
-    ggtitle(paste0("LTS (dengue), scenario: ", name, "; period: ", min(years), "-", max(years)))+
+    ggtitle(paste0("LTSR0 (dengue), scenario: ", name, "; period: ", min(years), "-", max(years)))+
     theme(plot.background  = element_blank(),
           aspect.ratio = 1)
   
-  if(!(name %in% c("Cn70", "Hg70"))){
-    plotCut <- plotCut +
-      theme(legend.position = "none")
-  }
+  # if(!(name %in% c("Cn70", "Hg70"))){
+  plotCut <- plotCut +
+    theme(legend.position = "none",
+          panel.grid = element_blank(), 
+          line = element_blank(), 
+          rect = element_blank(), 
+          text = element_blank(), 
+          plot.background = element_rect(fill = "transparent", color = "transparent"))
+  # }
   
   ggsave(file = 
-           paste0(folderPlot, "/LTS_dengue_", name, "_", min(years), "-", max(years), ".png"),
+           paste0(folderPlot, "/LTSR0_dengue_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
   
-  cat("name:", name, ", LTS>1: ", round(100*sum(LTSdengueMM[i,]>1, na.rm = T)/8981, 0), "\n")
+  cat("name:", name, ", LTSR0>1: ", round(100*sum(LTSdengueMM[i,]>1, na.rm = T)/8981, 0), "\n")
   
 }
 
@@ -266,6 +274,4 @@ for(i in 1:nrow(scenariosDF)){
   
   cat("name:", name, ", mean(date): ")
   print(as.Date(round(mean(DayHighestR07MM[i,], na.rm = T)), origin = "2024-12-31"))
-  cat("\n")
-  
 }
