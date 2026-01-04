@@ -25,7 +25,7 @@ folderPlot = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/
 scenarios <- c("Cn70", "Hs99","Hg70")
 cities <- c("Montpellier", "Nantes", "Rennes", "Lille", "Paris-est", "Lyon", "Grenoble", "Bordeaux", "Toulouse", "Marseille", "Nice", "Strasbourg", "Clermont-Ferrand")
 IDsSubSet <- c(1040, 5243, 6482, 8915, 7542, 3500, 2936, 2472, 929, 642, 1249, 7379, 3564)
-# 
+
 # #### Elab ----
 # 
 # MapDT <- data.table(city = rep(cities, length(scenarios)),
@@ -41,7 +41,7 @@ IDsSubSet <- c(1040, 5243, 6482, 8915, 7542, 3500, 2936, 2472, 929, 642, 1249, 7
 #                     A0 = NA,
 #                     LTS = NA,
 #                     SC = NA) #
-#                     
+# 
 # 
 # for(k in 1:length(scenarios)){
 # 
@@ -94,7 +94,7 @@ IDsSubSet <- c(1040, 5243, 6482, 8915, 7542, 3500, 2936, 2472, 929, 642, 1249, 7
 #                    Hg70 = E0MM[7,])
 # 
 # E0DTsel <- E0DT %>%
-#   filter(ID %in% IDsSubSet) 
+#   filter(ID %in% IDsSubSet)
 # 
 # MapDT$E0 <- c(E0DTsel$Cn70, E0DTsel$Hs99, E0DTsel$Hg70)
 # 
@@ -112,12 +112,12 @@ IDsSubSet <- c(1040, 5243, 6482, 8915, 7542, 3500, 2936, 2472, 929, 642, 1249, 7
 #                    Hg70 = A0MM[7,])
 # 
 # A0DTsel <- A0DT %>%
-#   filter(ID %in% IDsSubSet) 
+#   filter(ID %in% IDsSubSet)
 # 
 # MapDT$A0 <- c(A0DTsel$Cn70, A0DTsel$Hs99, A0DTsel$Hg70)
 # 
 # # load LTS: 040d_MM_SEI_pis_matrix_metacycle_SecondayCases_plot.R
-# folderSimDengue = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod, "_sim_040")
+# folderSimDengue = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/DRIAS", mod, "_sim_030")
 # LTSdengueMM <- readRDS(file = paste0(folderSimDengue, "/LTSdengueMM.rds"))
 # LTSdengueMsel = LTSdengueMM[c(4,1,7), IDsSubSet]
 # LTSDT = data.table(ID = 1:8981,
@@ -130,26 +130,26 @@ IDsSubSet <- c(1040, 5243, 6482, 8915, 7542, 3500, 2936, 2472, 929, 642, 1249, 7
 #                    Hg70 = LTSdengueMM[7,])
 # 
 # LTSDTsel <- LTSDT %>%
-#   filter(ID %in% IDsSubSet) 
+#   filter(ID %in% IDsSubSet)
 # 
 # MapDT$LTS <- c(LTSDTsel$Cn70, LTSDTsel$Hs99, LTSDTsel$Hg70)
 # 
-# # load Secondary cases: 040d_MM_SEI_pis_matrix_metacycle_SecondayCases_plot.R
-# SecCasedengueMM <- readRDS(file = paste0(folderSimDengue, "/SecCaseMM.rds"))
-# SecCasedengueMsel = SecCasedengueMM[c(4,1,7), IDsSubSet]
-# SCDT = data.table(ID = 1:8981,
-#                    Hs99 = SecCasedengueMM[1,],
-#                    Cn35 = SecCasedengueMM[2,],
-#                    Cn55 = SecCasedengueMM[3,],
-#                    Cn70 = SecCasedengueMM[4,],
-#                    Hg35 = SecCasedengueMM[5,],
-#                    Hg55 = SecCasedengueMM[6,],
-#                    Hg70 = SecCasedengueMM[7,])
-# 
-# SCDTsel <- SCDT %>%
-#   filter(ID %in% IDsSubSet) 
-# 
-# MapDT$SC <- c(SCDTsel$Cn70, SCDTsel$Hs99, SCDTsel$Hg70)
+# # # load Secondary cases: 040d_MM_SEI_pis_matrix_metacycle_SecondayCases_plot.R
+# # SecCasedengueMM <- readRDS(file = paste0(folderSimDengue, "/SecCaseMM.rds"))
+# # SecCasedengueMsel = SecCasedengueMM[c(4,1,7), IDsSubSet]
+# # SCDT = data.table(ID = 1:8981,
+# #                    Hs99 = SecCasedengueMM[1,],
+# #                    Cn35 = SecCasedengueMM[2,],
+# #                    Cn55 = SecCasedengueMM[3,],
+# #                    Cn70 = SecCasedengueMM[4,],
+# #                    Hg35 = SecCasedengueMM[5,],
+# #                    Hg55 = SecCasedengueMM[6,],
+# #                    Hg70 = SecCasedengueMM[7,])
+# # 
+# # SCDTsel <- SCDT %>%
+# #   filter(ID %in% IDsSubSet)
+# # 
+# # MapDT$SC <- c(SCDTsel$Cn70, SCDTsel$Hs99, SCDTsel$Hg70)
 # 
 # #### Save and Load ----
 # 
