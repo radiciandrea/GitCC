@@ -48,13 +48,18 @@ if(!exists("NIntro")){
   NIntro = 1 # number of introduced infected people
 }
 
-if(!exists("IntroMonthCalendar")){
-  IntroMonthCalendar = "07-17" # day, month
-}
-
 if(!exists("mod")){
   mod = ""
 }
+
+IntroMonthCalendarDT = data.frame(mods = rep(c("cold", "", "hot"), each = 7),
+                                  names = rep(c("Hs99", "Cn35", "Cn55", "Cn70", "Hg35", "Hg55", "Hg70"), times = 3),
+                                  date = c(c("06-11","08-05","07-26","08-07", "07-31","08-11","08-09"),
+                                           c("07-14","08-11","08-10","08-13", "08-09","08-13","08-13"),
+                                           c("06-17","08-08","08-04","08-06", "07-16","08-06","07-28")))
+
+
+IntroMonthCalendar = IntroMonthCalendarDT %>% filter(mods == mod) %>% filter(names == name) %>% pull(date)
 
 # folder names
 
