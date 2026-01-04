@@ -126,8 +126,6 @@ IDsSubSet = IDs
 
 AmjjasoMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF))
 LTSR0dengueMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF))
-SecCaseMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF)) # Secondary Cases metamatrix
-PrevMM <- matrix(NA, ncol = nIDs, nrow = nrow(scenariosDF)) # prevalence metamatrix
 
 #host preference
 phiAU = 0.9 #human biting preference (urban)
@@ -145,15 +143,12 @@ for(k in 1:nrow(scenariosDF)){
   name = scenariosDF$name[k]
   years = scenariosDF$yearStart[k]:scenariosDF$yearEnd[k]
   
-  filesSH <- list.files(paste0(folderSim,"/"), paste0("040a_SH_Drias_SEIS_", name))
-  filesAdults <- list.files(paste0(folderSim,"/"), paste0("040a_Adults_Drias_SEIS_", name))
+  filesAdults <- list.files(paste0(folderSim,"/"), paste0("030a_Adults_Drias_", name))
   
   # matrices of indicators
   
   AmjjasoM = matrix(NA, nrow = length(years), ncol = nIDs)
   LTSdengueM = matrix(NA, nrow = length(years), ncol = nIDs)
-  SecCaseM = matrix(NA, nrow = length(years), ncol = nIDs) # Secondary Cases matrix
-  PrevM = matrix(NA, nrow = length(years), ncol = nIDs)  # prevalence matrix
   
   for(i in  1:length(years)){
     
@@ -214,37 +209,21 @@ for(k in 1:nrow(scenariosDF)){
     
     # Secondary Cases and Prevalence: one introduction per month---- 
     # let's take "the worst"
-    
-    SH <- readRDS(paste0(folderSim, "/", fileSH))
-    
-    MaxSH <-sapply(1:ncol(SH), function(x){max(SH[,x])})
-    MinSH <-sapply(1:ncol(SH), function(x){min(SH[,x])})
-    
-    MaxSecondayCases = 100*(MaxSH - MinSH)*AreaKm2 # 100 per ha
-    SecCaseM[i, ] <- MaxSecondayCases
-    
-    MaxPrevHost = 100*(1 - MinSH/MaxSH)
-    PrevM[i,] = MaxPrevHost
+  
   }
   
   rm(IDsDT)
   
   AmjjasoMM[k,] <- colMeans(AmjjasoM, na.rm =T)
   LTSR0dengueMM[k,] <- colMeans(LTSdengueM, na.rm =T)
-  SecCaseMM[k,] <- colMeans(SecCaseM, na.rm =T)
-  PrevMM[k,] <- colMeans(PrevM, na.rm =T)
 }
 
 # Save and load----
 saveRDS(AmjjasoMM, file = paste0(folderSim, "/AmjjasoMM.rds"))
 saveRDS(LTSR0dengueMM, file = paste0(folderSim, "/LTSR0dengueMM.rds"))
-saveRDS(SecCaseMM, file = paste0(folderSim, "/SecCaseMM.rds"))
-saveRDS(PrevMM, file = paste0(folderSim, "/PrevMM.rds"))
 
 AmjjasoMM <- readRDS(file = paste0(folderSim, "/AmjjasoMM.rds"))
 LTSR0dengueMM <- readRDS(file = paste0(folderSim, "/LTSR0dengueMM.rds"))
-SecCaseMM <- readRDS(file = paste0(folderSim, "/SecCaseMM.rds"))
-PrevMM <- readRDS(file = paste0(folderSim, "/PrevMM.rds"))
 
 # Plot----
 
@@ -331,77 +310,3 @@ for(i in 1:nrow(scenariosDF)){
   cat("name:", name, ", LTSR0>1: ", round(100*sum(LTSR0dengueMM[i,]>1, na.rm = T)/8981, 0), "\n")
   
 }
-
-### Secondary cases ----
-
-cutPal = c(20, 5, 1, 0.5, 0.5)
-cutPalLab = c("e > 20", "d > 5", "c > 1", "b > 0.5", "a < 0.5")
-colPal<- c("#fcfdbf", "#fc8961", "#b73779", "#51127c", "#000004")
-
-# Cycle
-
-for(i in 1:nrow(scenariosDF)){
-  name = scenariosDF$name[i]
-  years = scenariosDF$yearStart[i]:scenariosDF$yearEnd[i]
-  
-  SecCaseCut <- case_when(SecCaseMM[i,] >= cutPal[1] ~ cutPalLab[1],
-                          SecCaseMM[i,] >= cutPal[2] ~ cutPalLab[2],
-                          SecCaseMM[i,] >= cutPal[3] ~ cutPalLab[3],
-                          SecCaseMM[i,] >= cutPal[4] ~ cutPalLab[4],
-                          SecCaseMM[i,] <= cutPal[4] ~ cutPalLab[5])
-  
-  plotCut <- ggplot()+
-    geom_sf(data = domain, aes(fill = SecCaseCut), colour = NA)+ #
-    scale_fill_manual(values = colPal)+
-    ggtitle(paste0("Secondary cases (dengue), scenario: ", name, "; period: ", min(years), "-", max(years)))+
-    theme(plot.background  = element_blank(),
-          aspect.ratio = 1)
-  
-  if(!(name %in% c("Cn70", "Hg70"))){
-    plotCut <- plotCut +
-      theme(legend.position = "none")
-  }
-  
-  ggsave(file = 
-           paste0(folderPlot, "/SecCase_", name, "_", min(years), "-", max(years), ".png"),
-         plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
-  
-}
-
-### Prevalence ----
-
-cutPal = c(20, 5, 1, 0.1, 0.1)
-cutPalLab = c("e > 20 %", "d > 5 %", "c > 1 %", "b > 0.1 %", "a  < 0.1 %")
-colPal<- c("#0d0887", "#7e03a8", "#cc4778", "#f89540", "#f0f921")
-
-# Cycle
-
-for(i in 1:nrow(scenariosDF)){
-  name = scenariosDF$name[i]
-  years = scenariosDF$yearStart[i]:scenariosDF$yearEnd[i]
-  
-  PrevSelCut <- case_when(PrevMM[i,] >= cutPal[1] ~ cutPalLab[1],
-                          PrevMM[i,] >= cutPal[2] ~ cutPalLab[2],
-                          PrevMM[i,] >= cutPal[3] ~ cutPalLab[3],
-                          PrevMM[i,] >= cutPal[4] ~ cutPalLab[4],
-                          PrevMM[i,] <= cutPal[4] ~ cutPalLab[5])
-  
-  plotCut <- ggplot()+
-    geom_sf(data = domain, aes(fill = PrevSelCut), colour = NA)+ #
-    scale_fill_manual(values = colPal)+
-    ggtitle(paste0("Prev (dengue), scenario: ", name, "; period: ", min(years), "-", max(years)))+
-    theme(plot.background  = element_blank(),
-          aspect.ratio = 1)
-  
-  if(!(name %in% c("Cn70", "Hg70"))){
-    plotCut <- plotCut +
-      theme(legend.position = "none")
-  }
-  
-  ggsave(file = 
-           paste0(folderPlot, "/Prev_dengue_", name, "_", min(years), "-", max(years), ".png"),
-         plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
-  
-  
-}
-
