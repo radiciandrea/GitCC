@@ -9,6 +9,8 @@ library(dplyr)
 library(pracma)
 library(sf)
 library(data.table)
+library(spatialEco)
+library(ggpattern)
 
 mod = "" # "" = CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63, cold = MPI-M-MPI-ESM-LR_MPI-CSC-REMO2009, hot = MOHC-HadGEM2-ES_CLMcom-CCLM4-8-17
 
@@ -249,11 +251,29 @@ for(i in 1:nrow(scenariosDF)){
                                 DayHighestR07MM[i,] > cutPal[5] ~ cutPalLab[5],
                                 .default = NA)
   
+  domainTemp = domain %>%
+    mutate(transmission = LTSdengueMM[i,]>1) %>%
+    filter(transmission == 0) %>%
+    sf_dissolve() %>%
+    mutate(transmission = 0)
+
+  
   length(table(DayHighestR07Cut))
   
   plotCut <- ggplot()+
     geom_sf(data = domain, aes(fill = DayHighestR07Cut), colour = NA)+ #
     scale_fill_manual(values = colPal)+
+    geom_sf_pattern(
+      data = domainTemp,
+      pattern_fill = "white",
+      pattern = "stripe",        
+      pattern_angle = 45,
+      pattern_color = NA,
+      pattern_density = 0.2,
+      pattern_spacing = 0.01,
+      color = NA,
+      fill = NA
+    ) +
     ggtitle(paste0("Adult density, scenario: ", name, "; period: ", min(years), "-", max(years)))+
     theme(plot.background  = element_blank(),
           aspect.ratio = 1)
@@ -272,6 +292,6 @@ for(i in 1:nrow(scenariosDF)){
            paste0(folderPlot, "/DayHighestR07_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
   
-  cat("name:", name, ", mean(date): ")
-  print(as.Date(round(mean(DayHighestR07MM[i,], na.rm = T)), origin = "2024-12-31"))
+  cat("name:", name, ", median(date): ")
+  print(as.Date(round(median(DayHighestR07MM[i,], na.rm = T)), origin = "2024-12-31"))
 }
