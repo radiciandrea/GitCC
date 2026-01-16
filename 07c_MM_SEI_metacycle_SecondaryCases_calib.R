@@ -104,6 +104,28 @@ for(i in 1:nrow(dfCities)) {
 minExpHRMSE = dfSim$expH[which(dfSim$RMSE==min(dfSim$RMSE))]
 minExpHRMSLE = dfSim$expH[which(dfSim$RMSLE==min(dfSim$RMSLE))]
 
+
+# Non-parametric bootstrap to estimate uncertainty
+
+repB = 1000000
+nSites = 4
+
+minExpHRMSLEbootstrap = rep(NA, repB)
+
+for(i in 1: repB){
+  
+  sitesB = sample(1:nSites, nSites, replace = T)
+  mSimB = mSim[, sitesB]
+  mCasesB = mCases[, sitesB]
+  
+  RMSLEB = sqrt(rowMeans((log(1+mSimB)-log(1+mCasesB))^2))
+  
+  minExpHRMSLEbootstrap[i] = dfSim$expH[which(RMSLEB==min(RMSLEB))]
+}
+
+summary(minExpHRMSLEbootstrap)
+
+
 #re-simulate
 
 expH = 0.6
