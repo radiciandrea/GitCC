@@ -21,6 +21,9 @@ folderShape = "C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/S
 
 # scenarios
 scenariosDF= data.frame(name = c("Hs99", "Cn35", "Cn55", "Cn70", "Hg35", "Hg55", "Hg70"),
+                        nameArt = c("1986-2005",
+                                    "MP, 2026-45", "MP, 2046-65", "MP, 2066-85",
+                                    "HP, 2026-45", "HP, 2046-65", "HP, 2066-85"),
                         yearStart = c(1986, 2026, 2046, 2066, 2026, 2046, 2066),
                         yearEnd = c(1986, 2026, 2046, 2066, 2026, 2046, 2066)+19)
 
@@ -206,6 +209,23 @@ colPal<- c("#fcfdbf", "#fc8961", "#b73779", "#51127c", "#000004")
 
 mont_v = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
+# plot a first for legend 
+j = 8; i = 7;
+mont_j = mont_v[j]
+SecCaseMM <- SecCaseList[[j]]
+SecCaseCut = case_when(SecCaseMM[i,] >= cutPal[1] ~ cutPalLab[1],
+                       SecCaseMM[i,] >= cutPal[2] ~ cutPalLab[2],
+                       SecCaseMM[i,] >= cutPal[3] ~ cutPalLab[3],
+                       SecCaseMM[i,] >= cutPal[4] ~ cutPalLab[4],
+                       SecCaseMM[i,] <= cutPal[4] ~ cutPalLab[5])
+
+plotCut0 = ggplot()+
+  geom_sf(data = domain, aes(fill = SecCaseCut), colour = NA)+ #
+  scale_fill_manual(values = colPal)+ 
+  guides(fill=guide_legend(title="Secondary cases"))
+
+plotLegend =  as_ggplot(get_legend(plotCut0))
+
 # Cycle
 for(j in 1:length(SecCaseList)){
   SecCaseMM <- SecCaseList[[j]]
@@ -216,7 +236,7 @@ for(j in 1:length(SecCaseList)){
   
   for(i in 1:nrow(scenariosDF)){
   
-    name = scenariosDF$name[i]
+    name = scenariosDF$nameArt[i]
     years = scenariosDF$yearStart[i]:scenariosDF$yearEnd[i]
     
     SecCaseCut = case_when(SecCaseMM[i,] >= cutPal[1] ~ cutPalLab[1],
@@ -225,12 +245,12 @@ for(j in 1:length(SecCaseList)){
                             SecCaseMM[i,] >= cutPal[4] ~ cutPalLab[4],
                             SecCaseMM[i,] <= cutPal[4] ~ cutPalLab[5])
     
-    ind = round(100*sum(SecCaseMM[i,]>1, na.rm = T)/nIDs, 1)
+    ind = round(100*sum(SecCaseMM[i,]>1, na.rm = T)/nIDs, 1*(100*sum(SecCaseMM[i,]>1, na.rm = T)/nIDs<10))
     
     domain_i <- domain                # make a local copy
     domain_i$SecCaseCut <- SecCaseCut # add the correct variable for this iteration
     
-    plotCut <- ggplot()+
+    plotCut0 <- ggplot()+
       geom_sf(data = domain_i, aes(fill = SecCaseCut), colour = NA)+ #
       scale_fill_manual(values = colPal)+
       ggtitle(paste0("Sc: ", name, ",", min(years), "-", max(years)))+
@@ -238,7 +258,7 @@ for(j in 1:length(SecCaseList)){
             aspect.ratio = 1)
     
     # if(!(name %in% c("Cn70", "Hg70"))){
-    plotCut <- plotCut +
+    plotCut <- plotCut0 +
       theme(legend.position = "none",
             panel.grid = element_blank(), 
             line = element_blank(), 
@@ -248,8 +268,8 @@ for(j in 1:length(SecCaseList)){
             axis.text.y = element_blank(),
             axis.ticks = element_blank(),
             plot.background = element_rect(fill = "transparent", color = "transparent"))+
-      annotate(geom="text", x=0, y=42, label=  paste0(name, ";", ind, "%"),
-               color="black")
+      annotate(geom="text", x=1.5, y=41, label=  paste0(name, ": ", ind, "%"),
+               color="black", size = unit(3.1, "pt"))
     # }
     
     plotList[[i]] <-  plotCut
@@ -258,14 +278,15 @@ for(j in 1:length(SecCaseList)){
     
   }
   
-  row1 <- ggarrange( plotList[[1]], ncol = 1)
-  row2 <- ggarrange( plotList[[2]],  plotList[[3]], ncol = 2)
-  row3 <- ggarrange( plotList[[4]],  plotList[[5]], ncol = 2)
-  row4 <- ggarrange( plotList[[6]],  plotList[[7]], ncol = 2)
+  
+  row1 <- ggarrange( plotList[[1]], plotLegend, ncol = 2)
+  row2 <- ggarrange( plotList[[2]],  plotList[[5]], ncol = 2)
+  row3 <- ggarrange( plotList[[3]],  plotList[[6]], ncol = 2)
+  row4 <- ggarrange( plotList[[4]],  plotList[[7]], ncol = 2)
   
   ggCut2 <- ggarrange(row1, row2, row3, row4,
                      ncol = 1,
-                     heights = c(1.2, 1, 1, 1))
+                     heights = c(1, 1, 1, 1))
   
   ggCut3 <- annotate_figure(ggCut2,
                   top =  mont_j)
