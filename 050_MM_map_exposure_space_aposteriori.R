@@ -23,14 +23,55 @@ folderPlot = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/
 # we choose places with 3000-5500 inhabitants
 # scenarios <- c("Cn70", "Cn55", "Cn35", "Hs99", "Hg35", "Hg55", "Hg70")
 scenarios <- c("Cn70", "Hs99","Hg70")
+
+
+domainPop <- st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Dati/Shp_elab/SafranDensOmphale.shp") %>%
+  st_drop_geometry() %>%
+  group_by(ID) %>%
+  summarise(popKmAvg = mean(c(PopKmHs99, PopKmCn35, PopKmCn55, PopKmCn70, PopKmHg35, PopKmHg55, PopKmHg70))) %>%
+  ungroup()
+
+#between 2500 and 5000
 cities <- c("Montpellier", "Nantes", "Rennes", "Lille", "Paris-est", "Lyon", "Grenoble", "Bordeaux", "Toulouse", "Marseille", "Nice", "Strasbourg", "Clermont-Ferrand")
-IDsSubSet <- c(1040, 5243, 6482, 8915, 7542, 3500, 2936, 2472, 929, 642, 1249, 7379, 3564)
+IDs <- c(1040, 5243, 6482, 8915, 7542, 3500, 2936, 2472, 929, 642, 1249, 7379, 3564)
+
+# between 50 and 100 hab
+citiesCountryside <- c("Montpellier (Montarnaud)",
+                       "Nantes (Saint-Philbert-de-Grand-Lieu)",
+                       "Rennes (Janzé)",
+                       "Lille (Esquelbecq)", 
+                       "Paris-est (Crisenoy)", 
+                       "Lyon (Savigneux)", 
+                       "Grenoble (La Motte d'Aveillans)",
+                       "Bordeaux (Tizac de Courton)",
+                       "Toulouse (Lavalette)",
+                       "Marseille (Le Tholonet)",
+                       "Nice (Sospel)",
+                       "Strasbourg (Epfig)",
+                       "Clermont-Ferrand (Bassinet)")
+IDsCountryside <- c(1038, 4984, 6256, 8966, 7285, 3823, 2699, 2475, 1017, 971, 1521, 7024, 3646)
+# 
+# cities <- c(cities, "46190 Sousceyrac-en-Quercy (Comiac)")
+# IDs <- c(IDs,2580)
+
+cities <- c(cities, citiesCountryside)
+IDs <- c(IDs,IDsCountryside)
+
+cityDF = data.frame(city = cities,
+                    ID = IDs,
+                    stat = c(rep("city", length(citiesCountryside)), rep("countryside", length(citiesCountryside))))
+
+cityDF <- left_join(cityDF, domainPop) %>%
+  arrange(ID)
+
+IDsSubSet = cityDF$ID
+citiesSubSet = cityDF$city
 
 # #### Elab ----
 # 
-# MapDT <- data.table(city = rep(cities, length(scenarios)),
+# MapDT <- data.table(city = rep(citiesSubSet, length(scenarios)),
 #                     ID = rep(IDsSubSet, length(scenarios)),
-#                     scenario = rep(scenarios,length(cities)),
+#                     scenario = rep(scenarios,length(citiesSubSet)),
 #                     tasAvgYea = 0, #average annual T
 #                     tasMinWin = 0, #average in January
 #                     tasMaxSum = 0, #average in July
@@ -157,10 +198,43 @@ IDsSubSet <- c(1040, 5243, 6482, 8915, 7542, 3500, 2936, 2472, 929, 642, 1249, 7
 
 MapDT <- readRDS(paste0(folderSim, "/MapDTap.rds"))
 
+LocationX = "city" # city or countryside
+
+citySel = c("Montpellier", "Rennes", "Lille", "Paris-est", "Lyon", "Bordeaux", "Nice", "Strasbourg", "Clermont-Ferrand")
+
+citiesCountrysideSel <- c("Montpellier (Montarnaud)",
+                       "Rennes (Janzé)",
+                       "Lille (Esquelbecq)",
+                       "Paris-est (Crisenoy)",
+                       "Lyon (Savigneux)", 
+                       "Bordeaux (Tizac de Courton)",
+                       "Nice (Sospel)",
+                       "Strasbourg (Epfig)",
+                       "Clermont-Ferrand (Bassinet)")
+
+if(LocationX == "city"){
+  MapDT <- MapDT %>% filter(!(city %in% citiesCountryside)) %>%
+    filter(city %in% citySel) # !%in% if city, %in% if countriside
+
+  tasMinWinLim = c(0.5, 12)
+  tasAvgMJJASOLim = c(8, 25)
+  
+} else if (LocationX == "countryside"){
+  MapDT <- MapDT %>% filter(city %in% citiesCountryside) %>%
+    filter(city %in% citiesCountrysideSel) # !%in% if city, %in% if countriside
+
+  tasMinWinLim = c(0.5, 12)
+  tasAvgMJJASOLim = c(8, 25)  
+  
+} else {
+  tasMinWinLim = c(-1,13)
+  tasAvgMJJASOLim = c(8,26)
+}
+
+
 ### Suitability ----
 
 IndDT <- MapDT %>%
-  filter(city %in% c("Montpellier", "Rennes", "Lille", "Paris-est", "Lyon", "Bordeaux", "Nice", "Strasbourg", "Clermont-Ferrand"))%>%
   mutate(statusSuitability = case_when(
     (E0 > 10)&(A0 > 10) ~ "7", # Strong suitability of homodynamic population
     (E0 > 10)&(A0 > 1) ~ "6", # Suitability of homodynamic population
@@ -176,8 +250,7 @@ IndDT$statusSuitability <- as.factor(IndDT$statusSuitability)
 colPal= c("#384AB4", "#8EB0FE", "#F29878",  "#B00026", "#AD5CFF", "#5200A3", "#0D001A")
 
 plotCut <- ggplot() +
- 
-  geom_path(data = IndDT, aes(x = tasAvgMJJASO,
+   geom_path(data = IndDT, aes(x = tasAvgMJJASO,
                               y = tasMinWin,
                               group = city), #AvgYea
             arrow = arrow(ends = "both",
@@ -188,12 +261,12 @@ plotCut <- ggplot() +
                                shape = scenario,
                                color = statusSuitability), size = 2) + #, color= "white", #shape = MapDT$pointShape, 
   scale_color_manual(values = colPal, breaks = as.factor(1:7))+
-  ylim(c(1,13))+
-  xlim(c(12,26))+
+  ylim(tasMinWinLim)+
+  xlim(tasAvgMJJASOLim)+
   theme_test()
 
 plotCut+
-  ggtitle("Suitability")+
+  ggtitle(paste0("Suitability, mod: ", mod, ", location: ", LocationX))+
   geom_label_repel(data = IndDT,
                    aes(x = tasAvgMJJASO, y = tasMinWin, label = cityLabel),
                    label.padding = 0.15, segment.color = NA, size = 4) #size = 4
@@ -209,7 +282,7 @@ plotCut <- plotCut +
 
 
 ggsave(file = 
-         paste0(folderPlot, "/SuitabilityStatusAP.png"),
+         paste0(folderPlot, "/SuitabilityStatusAP_", LocationX, ".png"),
        plot= plotCut, units="cm", height=5.5, width = 8.5, dpi=300) #units="in", height=4,
 
 
@@ -240,12 +313,12 @@ plotCut <- ggplot() +
                                shape = scenario,
                                color = statusLTSDengue), size = 2) + #, color= "white", #shape = MapDT$pointShape, 
   scale_color_manual(values = colPal, breaks = as.factor(-1+1:7))+
-  ylim(c(1,13))+
-  xlim(c(12,26))+
+  ylim(tasMinWinLim)+
+  xlim(tasAvgMJJASOLim)+
   theme_test()
 
 plotCut+
-  ggtitle("LTS")+
+  ggtitle(paste0("LTS, mod: ", mod, ", location: ", LocationX))+
   geom_label_repel(data = IndDT,
                    aes(x = tasAvgMJJASO, y = tasMinWin, label = cityLabel),
                    label.padding = 0.15, segment.color = NA, size = 4) #size = 4
@@ -260,7 +333,7 @@ plotCut <- plotCut +
         plot.background = element_rect(fill = "transparent", color = "transparent"))
 
 ggsave(file = 
-         paste0(folderPlot, "/LTSDengueStatusAP.png"),
+         paste0(folderPlot, "/LTSDengueStatusAP_", LocationX, ".png"),
        plot= plotCut, units="cm", height=5.5, width = 8.5, dpi=300) #units="in", height=4,
 
 # ### Secondary cases ----
