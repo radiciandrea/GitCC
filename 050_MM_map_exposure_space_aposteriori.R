@@ -198,7 +198,7 @@ citiesSubSet = cityDF$city
 
 MapDT <- readRDS(paste0(folderSim, "/MapDTap.rds"))
 
-LocationX = "city" # city or countryside
+LocationX = "countryside" # city or countryside
 
 citySel = c("Montpellier", "Rennes", "Lille", "Paris-est", "Lyon", "Bordeaux", "Nice", "Strasbourg", "Clermont-Ferrand")
 
@@ -215,22 +215,22 @@ citiesCountrysideSel <- c("Montpellier (Montarnaud)",
 if(LocationX == "city"){
   MapDT <- MapDT %>% filter(!(city %in% citiesCountryside)) %>%
     filter(city %in% citySel) # !%in% if city, %in% if countriside
-
-  tasMinWinLim = c(0.5, 12)
-  tasAvgMJJASOLim = c(8, 25)
-  
 } else if (LocationX == "countryside"){
   MapDT <- MapDT %>% filter(city %in% citiesCountryside) %>%
     filter(city %in% citiesCountrysideSel) # !%in% if city, %in% if countriside
+} 
 
-  tasMinWinLim = c(0.5, 12)
-  tasAvgMJJASOLim = c(8, 25)  
+if (mod == ""){
+  
+  tasMinWinLim = c(1, 10)
+  tasAvgMJJASOLim = c(8, 23.5)
   
 } else {
-  tasMinWinLim = c(-1,13)
-  tasAvgMJJASOLim = c(8,26)
+ 
+  tasMinWinLim = c(0.5, 12)
+  tasAvgMJJASOLim = c(8, 25)
+  
 }
-
 
 ### Suitability ----
 
@@ -255,11 +255,11 @@ plotCut <- ggplot() +
                               group = city), #AvgYea
             arrow = arrow(ends = "both",
                           type = "closed",
-                          length = unit(0.05, "inches")), color = "grey70") + # , color= "white"
+                          length = unit(0.0, "inches")), color = "grey70") + # , color= "white"
   geom_point(data = IndDT, aes(x =tasAvgMJJASO,
                                y = tasMinWin,
                                shape = scenario,
-                               color = statusSuitability), size = 2) + #, color= "white", #shape = MapDT$pointShape, 
+                               color = statusSuitability), size = 1.5) + #, color= "white", #shape = MapDT$pointShape, 
   scale_color_manual(values = colPal, breaks = as.factor(1:7))+
   ylim(tasMinWinLim)+
   xlim(tasAvgMJJASOLim)+
@@ -283,7 +283,7 @@ plotCut <- plotCut +
 
 ggsave(file = 
          paste0(folderPlot, "/SuitabilityStatusAP_", LocationX, ".png"),
-       plot= plotCut, units="cm", height=5.5, width = 8.5, dpi=300) #units="in", height=4,
+       plot= plotCut, units="cm", height=6.5, width = 7.5, dpi=300) #units="in", height=4,
 
 
 ### R0 - LTS ----
@@ -307,11 +307,11 @@ plotCut <- ggplot() +
                               group = city), #AvgYea
             arrow = arrow(ends = "both",
                           type = "closed",
-                          length = unit(0.05, "inches")), color = "grey70") + # , color= "white"
+                          length = unit(0.0, "inches")), color = "grey70") + # , color= "white"
   geom_point(data = IndDT, aes(x =tasAvgMJJASO,
                                y = tasMinWin,
                                shape = scenario,
-                               color = statusLTSDengue), size = 2) + #, color= "white", #shape = MapDT$pointShape, 
+                               color = statusLTSDengue), size = 1.5) + #, color= "white", #shape = MapDT$pointShape, 
   scale_color_manual(values = colPal, breaks = as.factor(-1+1:7))+
   ylim(tasMinWinLim)+
   xlim(tasAvgMJJASOLim)+
@@ -334,7 +334,7 @@ plotCut <- plotCut +
 
 ggsave(file = 
          paste0(folderPlot, "/LTSDengueStatusAP_", LocationX, ".png"),
-       plot= plotCut, units="cm", height=5.5, width = 8.5, dpi=300) #units="in", height=4,
+       plot= plotCut, units="cm", height=6.5, width = 7.5, dpi=300) #units="in", height=4,
 
 # ### Secondary cases ----
 # 
