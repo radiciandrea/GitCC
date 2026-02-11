@@ -55,6 +55,7 @@ for(j in 1:nrow(dfSim)){
     name = dfCities$name[i]
     IDsSubSet = dfCities$cell[i]
     IntroCalendar = dfCities$IntroCalendar[i]
+    OutroCalendar = dfCities$OutroCalendar[i]
     
     # let's consider: expH
     X0_E0 = (dfCities$X0_E0[i])^expH
@@ -128,7 +129,7 @@ summary(minExpHRMSLEbootstrap)
 
 #re-simulate
 
-expH = 0.6
+expH = 0.46 #0.6
 
 plot(mCases[1,], dfSim[(dfSim$expH == minExpHRMSLE),1 +1:4], xlim = c(0,30), ylim = c(0,30))
 lines(0:30, 0:30)
