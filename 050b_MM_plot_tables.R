@@ -59,7 +59,7 @@ folderSim = paste0("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/D
 
 MapDTintermediate <- readRDS(paste0(folderSim, "/MapDTap.rds")) %>%
   select(-c("tasAvgYea", "tasMaxSum", "tasAvgNDJFMA", "GDD15", "SC", "cityLabel", "ID")) %>%
-  mutate(Mod = "inter.")
+  mutate(Model = "inter.")
 
 ####
 
@@ -77,15 +77,16 @@ MapDT <- rbind(MapDTcold, MapDTintermediate, MapDTwarm) %>%
                               scenario == "Hg70" ~ "HP, 2066-85",
                               scenario == "Hs99" ~ "1986-2005")) %>%
   arrange(city, scenario) %>%
-  mutate(tasMinWin = scientific(tasMinWin, digits = 3)) %>%
-  mutate(tasAvgMJJASO = scientific(tasAvgMJJASO, digits = 3)) %>%
-  mutate(E0 = scientific(E0, digits = 3)) %>%
-  mutate(A0 = scientific(A0, digits = 3)) %>%
-  mutate(LTS = scientific(LTS, digits = 3)) 
+  mutate(tasMinWin = scientific(tasMinWin, 1)) %>%
+  mutate(tasAvgMJJASO = scientific(tasAvgMJJASO, 1)) %>%
+  mutate(E0 = scientific(E0, digits = 2)) %>%
+  mutate(A0 = scientific(A0, digits = 2)) %>%
+  mutate(LTS = scientific(LTS, digits = 2)) 
   
-names(MapDT) <- c("Site", "Scenario", "T January (°C)", "T May to October (°C)", "E0", "A0", "LTS", "Modl")
+names(MapDT) <- c("Site", "Scenario", "T January (°C)", "T May to October (°C)", "E0", "A0", "LTS", "Model")
 
 #plot in table
 
+set_flextable_defaults(font.size = 7, padding = 0.1)
 MapDT_doc <- flextable::flextable(data = MapDT)
 print(MapDT_doc , preview ="docx")
