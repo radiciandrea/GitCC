@@ -5,6 +5,7 @@ library(pracma)
 library(data.table)
 library(scales)
 library(flextable)
+library(sf)
 
 ### COMMON LOADINGS ----
 
