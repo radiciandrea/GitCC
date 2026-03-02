@@ -9,7 +9,6 @@ library(reshape2)
 library(dplyr)
 library(suncalc)
 library(pracma)
-library(sf)
 library(data.table)
 
 ## Simulation settings ----
@@ -260,7 +259,7 @@ for (year in years){
   InfectedHostDensityM = matrix(rep(InfectedHosts, nIDs), ncol = nIDs)/AreaKm2
   InfectedHostPrevalenceM = InfectedHostDensityM/H
   
-  OutroDates <- yday(as.Date(paste0(year, "-", OutroCalendar, "%d/%m/%y")))
+  OutroDates <- yday(as.Date(paste0(year, "-", OutroCalendar, "%d/%m/%y"))) -7
   
   SH0 = H[1,]/100 # susceptible hosts per ha
   X0 = c(X0, SH0) # included in the system
