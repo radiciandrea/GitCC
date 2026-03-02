@@ -78,13 +78,13 @@ MapDT <- rbind(MapDTcold, MapDTintermediate, MapDTwarm) %>%
                               scenario == "Hg70" ~ "HP, 2066-85",
                               scenario == "Hs99" ~ "1986-2005")) %>%
   arrange(city, scenario) %>%
-  mutate(tasMinWin = scientific(tasMinWin, 1)) %>%
-  mutate(tasAvgMJJASO = scientific(tasAvgMJJASO, 1)) %>%
-  mutate(E0 = scientific(E0, digits = 2)) %>%
-  mutate(A0 = scientific(A0, digits = 2)) %>%
-  mutate(LTS = scientific(LTS, digits = 2)) 
+  mutate(tasMinWin = round(tasMinWin,1)) %>%
+  mutate(tasAvgMJJASO = round(tasAvgMJJASO, 1)) %>%
+  mutate(E0 = scientific(E0, digits = 3)) %>%
+  mutate(A0 = scientific(A0, digits = 3)) %>%
+  mutate(LTS = round(LTS, 1)) 
   
-names(MapDT) <- c("Site", "Scenario", "T January (°C)", "T May to October (°C)", "E0", "A0", "LTS", "Model")
+names(MapDT) <- c("Site", "Scenario", "T January (°C)", "T May to October (°C)", "E0", "A0", "LTS (days)", "Model")
 
 #plot in table
 
