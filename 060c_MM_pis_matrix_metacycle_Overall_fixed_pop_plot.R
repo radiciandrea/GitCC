@@ -281,13 +281,13 @@ for(i in 1:nrow(scenariosDF)){
   name = scenariosDF$name[i]
   years = scenariosDF$yearStart[i]:scenariosDF$yearEnd[i]
   
-  LTSR0SelCut <- case_when(LTSdengueMM[i,] >= cutPal[1] ~ cutPalLab[1],
-                           LTSdengueMM[i,] >= cutPal[2] ~ cutPalLab[2],
-                           LTSdengueMM[i,] >= cutPal[3] ~ cutPalLab[3],
-                           LTSdengueMM[i,] >= cutPal[4] ~ cutPalLab[4],
-                           LTSdengueMM[i,] >= cutPal[5] ~ cutPalLab[5],
-                           LTSdengueMM[i,] >= cutPal[6] ~ cutPalLab[6],
-                           LTSdengueMM[i,] <= cutPal[6] ~ cutPalLab[7])
+  LTSR0SelCut <- case_when(LTSR0dengueMM[i,] >= cutPal[1] ~ cutPalLab[1],
+                           LTSR0dengueMM[i,] >= cutPal[2] ~ cutPalLab[2],
+                           LTSR0dengueMM[i,] >= cutPal[3] ~ cutPalLab[3],
+                           LTSR0dengueMM[i,] >= cutPal[4] ~ cutPalLab[4],
+                           LTSR0dengueMM[i,] >= cutPal[5] ~ cutPalLab[5],
+                           LTSR0dengueMM[i,] >= cutPal[6] ~ cutPalLab[6],
+                           LTSR0dengueMM[i,] <= cutPal[6] ~ cutPalLab[7])
   
   plotCut <- ggplot()+
     geom_sf(data = domain, aes(fill = LTSR0SelCut), colour = NA)+ #
