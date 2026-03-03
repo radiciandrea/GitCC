@@ -11,6 +11,7 @@ library(ggrepel)
 library(ggpubr)
 library(Hmisc)
 library(viridis)
+library(scales)
 
 mod = ""
 # sim = "AvgMin"
@@ -291,10 +292,11 @@ ggsave(file =
 
 IndDT <- IndDT %>%
   mutate(statusLTSDengue = case_when(
-    (E0 > 1)&(LTS > 161) ~ "6",
-    (E0 > 1)&(LTS > 105) ~ "5",
-    (E0 > 1)&(LTS > 56) ~ "4",
-    (E0 > 1)&(LTS > 21) ~ "3",
+    (E0 > 1)&(LTS > 161) ~ "7",
+    (E0 > 1)&(LTS > 105) ~ "6",
+    (E0 > 1)&(LTS > 56) ~ "5",
+    (E0 > 1)&(LTS > 21) ~ "4",
+    (E0 > 1)&(LTS > 7) ~ "3",
     (E0 > 1)&(LTS > 1) ~ "2",
     (E0 > 1)&(LTS < 1) ~ "1",
     (E0 < 1) ~ "0"))
