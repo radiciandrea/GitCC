@@ -208,9 +208,9 @@ for(i in 1:nrow(scenariosDF)){
 
 ### R0 ----
 
-cutPal = c(105, 56, 21, 1, 0)
-cutPalLab = c("e 15 or more", "d 8 to 15", "c 3 to 8", "b 0 to 3", "a 0")
-colPal<- c("#450054", "#3A528A", "#21908C", "#5CC963", "#FCE724")
+cutPal = c(161, 105, 56, 21, 7, 1, 0)
+cutPalLab = c("f 23w or more", "f 15 to 23w", "e 8 to 15w", "d 3 to 8w", "c 1 to 3w", "b 1d to 7d", "a 0 to 1d")
+colPal<- c(viridis(6), "#F7f5bc")
 
 # Cycle
 
@@ -219,10 +219,12 @@ for(i in 1:nrow(scenariosDF)){
   years = scenariosDF$yearStart[i]:scenariosDF$yearEnd[i]
   
   LTSSelCut <- case_when(LTSdengueMM[i,] >= cutPal[1] ~ cutPalLab[1],
-                         LTSdengueMM[i,] >= cutPal[2] ~ cutPalLab[2],
-                         LTSdengueMM[i,] >= cutPal[3] ~ cutPalLab[3],
-                         LTSdengueMM[i,] >= cutPal[4] ~ cutPalLab[4],
-                         LTSdengueMM[i,] <= cutPal[4] ~ cutPalLab[5])
+                           LTSdengueMM[i,] >= cutPal[2] ~ cutPalLab[2],
+                           LTSdengueMM[i,] >= cutPal[3] ~ cutPalLab[3],
+                           LTSdengueMM[i,] >= cutPal[4] ~ cutPalLab[4],
+                           LTSdengueMM[i,] >= cutPal[5] ~ cutPalLab[5],
+                           LTSdengueMM[i,] >= cutPal[6] ~ cutPalLab[6],
+                           LTSdengueMM[i,] <= cutPal[6] ~ cutPalLab[7])
   
   plotCut <- ggplot()+
     geom_sf(data = domain, aes(fill = LTSSelCut), colour = NA)+ #
@@ -245,15 +247,15 @@ for(i in 1:nrow(scenariosDF)){
            paste0(folderPlot, "/LTS_dengue_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
   
-  cat("name:", name, ", LTS>1: ", round(100*sum(LTSdengueMM[i,]>1, na.rm = T)/8981, 0), "\n")
+  cat("name:", name, ", LTS>1: ", round(100*sum(LTSdengueMM[i,]>7, na.rm = T)/8981, 0), "\n")
   
 }
 
 ### Secondary cases ----
 
-cutPal = c(50, 20, 5, 1, 1)
-cutPalLab = c("e > 50", "d > 20", "c > 5", "b > 1", "a < 1")
-colPal<- c("#fcfdbf", "#fc8961", "#b73779", "#51127c", "#000004")
+cutPal = c(100, 50, 20, 5, 1, 1)
+cutPalLab = c("f > 100", "e > 50", "d > 20", "c > 5", "b > 1", "a < 1")
+colPal<- rev(magma(6))
 
 # Cycle
 
@@ -265,7 +267,8 @@ for(i in 1:nrow(scenariosDF)){
                           SecCaseMM[i,] >= cutPal[2] ~ cutPalLab[2],
                           SecCaseMM[i,] >= cutPal[3] ~ cutPalLab[3],
                           SecCaseMM[i,] >= cutPal[4] ~ cutPalLab[4],
-                          SecCaseMM[i,] <= cutPal[4] ~ cutPalLab[5])
+                          SecCaseMM[i,] >= cutPal[5] ~ cutPalLab[5],
+                          SecCaseMM[i,] <= cutPal[5] ~ cutPalLab[6])
   
   plotCut <- ggplot()+
     geom_sf(data = domain, aes(fill = SecCaseCut), colour = NA)+ #

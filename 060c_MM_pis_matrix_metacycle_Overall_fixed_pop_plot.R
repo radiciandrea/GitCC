@@ -270,9 +270,9 @@ for(i in 1:nrow(scenariosDF)){
 
 ### LTS R0 ----
 
-cutPal = c(105, 56, 21, 1, 0)
-cutPalLab = c("e 15 or more", "d 8 to 15", "c 3 to 8", "b 0 to 3", "a 0")
-colPal<- c("#450054", "#3A528A", "#21908C", "#5CC963", "#FCE724")
+cutPal = c(161, 105, 56, 21, 7, 1, 0)
+cutPalLab = c("f 23w or more", "f 15 to 23w", "e 8 to 15w", "d 3 to 8w", "c 1 to 3w", "b 1d to 7d", "a 0 to 1d")
+colPal<- c(viridis(6), "#F7f5bc")
 
 # Cycle
 
@@ -280,11 +280,13 @@ for(i in 1:nrow(scenariosDF)){
   name = scenariosDF$name[i]
   years = scenariosDF$yearStart[i]:scenariosDF$yearEnd[i]
   
-  LTSR0SelCut <- case_when(LTSR0dengueMM[i,] >= cutPal[1] ~ cutPalLab[1],
-                           LTSR0dengueMM[i,] >= cutPal[2] ~ cutPalLab[2],
-                           LTSR0dengueMM[i,] >= cutPal[3] ~ cutPalLab[3],
-                           LTSR0dengueMM[i,] >= cutPal[4] ~ cutPalLab[4],
-                           LTSR0dengueMM[i,] <= cutPal[4] ~ cutPalLab[5])
+  LTSR0SelCut <- case_when(LTSdengueMM[i,] >= cutPal[1] ~ cutPalLab[1],
+                           LTSdengueMM[i,] >= cutPal[2] ~ cutPalLab[2],
+                           LTSdengueMM[i,] >= cutPal[3] ~ cutPalLab[3],
+                           LTSdengueMM[i,] >= cutPal[4] ~ cutPalLab[4],
+                           LTSdengueMM[i,] >= cutPal[5] ~ cutPalLab[5],
+                           LTSdengueMM[i,] >= cutPal[6] ~ cutPalLab[6],
+                           LTSdengueMM[i,] <= cutPal[6] ~ cutPalLab[7])
   
   plotCut <- ggplot()+
     geom_sf(data = domain, aes(fill = LTSR0SelCut), colour = NA)+ #
@@ -307,6 +309,6 @@ for(i in 1:nrow(scenariosDF)){
            paste0(folderPlot, "/LTSR0_dengue_", name, "_", min(years), "-", max(years), ".png"),
          plot= plotCut, units="in", height=3.2, width = 4.2, dpi=300) #units="in", height=4,
   
-  cat("name:", name, ", LTSR0>1: ", round(100*sum(LTSR0dengueMM[i,]>1, na.rm = T)/8981, 0), "\n")
+  cat("name:", name, ", LTSR0>1: ", round(100*sum(LTSR0dengueMM[i,]>7, na.rm = T)/8981, 0), "\n")
   
 }

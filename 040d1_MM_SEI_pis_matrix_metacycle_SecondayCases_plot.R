@@ -203,9 +203,9 @@ domain <- st_read("C:/Users/2024ar003/Desktop/Alcuni file permanenti/Post_doc/Da
 
 ### Secondary cases ----
 
-cutPal = c(50, 20, 5, 1, 1)
-cutPalLab = c("e > 50", "d > 20", "c > 5", "b > 1", "a < 1")
-colPal<- c("#fcfdbf", "#fc8961", "#b73779", "#51127c", "#000004")
+cutPal = c(100, 50, 20, 5, 1, 1)
+cutPalLab = c("f > 100", "e > 50", "d > 20", "c > 5", "b > 1", "a < 1")
+colPal<- rev(magma(6))
 
 mont_v = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
@@ -213,11 +213,12 @@ mont_v = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
 j = 8; i = 7;
 mont_j = mont_v[j]
 SecCaseMM <- SecCaseList[[j]]
-SecCaseCut = case_when(SecCaseMM[i,] >= cutPal[1] ~ cutPalLab[1],
-                       SecCaseMM[i,] >= cutPal[2] ~ cutPalLab[2],
-                       SecCaseMM[i,] >= cutPal[3] ~ cutPalLab[3],
-                       SecCaseMM[i,] >= cutPal[4] ~ cutPalLab[4],
-                       SecCaseMM[i,] <= cutPal[4] ~ cutPalLab[5])
+SecCaseCut <- case_when(SecCaseMM[i,] >= cutPal[1] ~ cutPalLab[1],
+                        SecCaseMM[i,] >= cutPal[2] ~ cutPalLab[2],
+                        SecCaseMM[i,] >= cutPal[3] ~ cutPalLab[3],
+                        SecCaseMM[i,] >= cutPal[4] ~ cutPalLab[4],
+                        SecCaseMM[i,] >= cutPal[5] ~ cutPalLab[5],
+                        SecCaseMM[i,] <= cutPal[5] ~ cutPalLab[6])
 
 plotCut0 = ggplot()+
   geom_sf(data = domain, aes(fill = SecCaseCut), colour = NA)+ #

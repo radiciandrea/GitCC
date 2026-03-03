@@ -299,7 +299,7 @@ IndDT <- IndDT %>%
     (E0 < 1) ~ "0"))
 
 
-colPal<- c("#0D001A", "#450054", "#3A528A", "#21908C", "#5CC963", "#FCE724", "#F7f5bc")
+colPal<- c("#0D001A", viridis(6), "#F7f5bc")
 
 plotCut <- ggplot() +
   geom_path(data = IndDT, aes(x = tasAvgMJJASO,
