@@ -254,8 +254,8 @@ for(i in 1:nrow(scenariosDF)){
 
 ### Secondary cases ----
 
-cutPal = c(100, 50, 20, 5, 1, 1)
-cutPalLab = c("f > 100", "e > 50", "d > 20", "c > 5", "b > 1", "a < 1")
+cutPal = c(200, 50, 20, 5, 1, 1)
+cutPalLab = c("f > 200", "e > 50", "d > 20", "c > 5", "b > 1", "a < 1")
 colPal<- rev(magma(6))
 
 # Cycle
