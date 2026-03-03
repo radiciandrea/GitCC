@@ -5,7 +5,6 @@ library(dplyr)
 
 rm(list = ls())
 
-
 #### folders ----
 # folder names
 if(!exists("folderOut")){
@@ -52,8 +51,13 @@ for(j in 1:nrow(dfSim2024)){
   for(i in 1:nrow(dfCities2024)) { # dopar
     name = dfCities2024$name[i]
     IDsSubSet = dfCities2024$cell[i]
-    IntroCalendar = dfCities2024$IntroCalendar[i] # this will be anticipated by 10 days
-    OutroCalendar = dfCities2024$OutroCalendar[i]
+    IntroCalendar = dfCities$IntroCalendar[i]
+    
+    # intro calendar correction: introduction is done ~ 12 days before
+    IntroCalendarDate = as.Date(paste0(years[length(years)], "-", IntroCalendar, "%d/%m/%y")) -12
+    IntroCalendar = substr(IntroCalendarDate, 6, 10)
+    
+    OutroCalendar = dfCities$OutroCalendar[i]
     
     # let's consider: expH
     X0_E0 = (dfCities2024$X0_E0[i])^expH
@@ -99,8 +103,13 @@ for(j in 1:nrow(dfSim2025)){
   for(i in 1:nrow(dfCities2025)) { # dopar
     name = dfCities2025$name[i]
     IDsSubSet = dfCities2025$cell[i]
-    IntroCalendar = dfCities2025$IntroCalendar[i]
-    OutroCalendar = dfCities2025$OutroCalendar[i]
+    IntroCalendar = dfCities$IntroCalendar[i]
+    
+    # intro calendar correction: introduction is done ~ 12 days before
+    IntroCalendarDate = as.Date(paste0(years[length(years)], "-", IntroCalendar, "%d/%m/%y")) -12
+    IntroCalendar = substr(IntroCalendarDate, 6, 10)
+    
+    OutroCalendar = dfCities$OutroCalendar[i]
     
     # let's consider: expH
     X0_E0 = (dfCities2025$X0_E0[i])^expH
@@ -126,6 +135,8 @@ saveRDS(dfSim, file = paste0(folderOut,"/dfSim2024_5.rds"))
 
 ### Part 2
 
+parSymp = 0.25 # percentage of people experiencing symptoms
+
 dfSim <- readRDS(paste0(folderOut,"/dfSim2024_5.rds"))
 
 # as matrix
@@ -134,7 +145,7 @@ mSim <- cbind(dfSim %>% pull(simLaCrau),
               dfSim %>% pull(simFrejus),
               dfSim %>% pull(simVallauris),
               dfSim %>% pull(simRognac),
-              dfSim %>% pull(simAubagne))
+              dfSim %>% pull(simAubagne))*parSymp
 
 mCases <- matrix(dfCities$cases, nrow = nrow(mSim), ncol = nrow(dfCities), byrow = T) # 4 or the number of cases
 

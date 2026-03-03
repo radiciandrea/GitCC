@@ -253,13 +253,13 @@ for (year in years){
   
   #Epidemic scenario (as a matrix)
   InfectedHosts <- rep(0, nD)
-  IntroDates <- yday(as.Date(paste0(year, "-", IntroCalendar, "%d/%m/%y")))
+  IntroDates <- yday(paste0(year, "-", IntroCalendar))
   InfectedHostDates <- c(t(sapply(-1+1:DHV, function(x){IntroDates+x}))) # repeat for a duration of DHV
   InfectedHosts[InfectedHostDates] = NIntro #hab
   InfectedHostDensityM = matrix(rep(InfectedHosts, nIDs), ncol = nIDs)/AreaKm2
   InfectedHostPrevalenceM = InfectedHostDensityM/H
   
-  OutroDates <- yday(as.Date(paste0(year, "-", OutroCalendar, "%d/%m/%y"))) -7
+  OutroDates <- yday(paste0(year, "-", OutroCalendar))
   
   SH0 = H[1,]/100 # susceptible hosts per ha
   X0 = c(X0, SH0) # included in the system

@@ -5,7 +5,6 @@ library(dplyr)
 
 rm(list = ls())
 
-
 #### folders ----
 # folder names
 if(!exists("folderOut")){
@@ -37,9 +36,8 @@ dfCities = data.frame(name = c("LA CRAU", "SAINTE CECILE LES VIGNES", "FREJUS", 
                        popKm2 = c(513, 133, 572, 2163),
                        surfHa = c(3787, 1982, 10227, 1304))
 
-# expH= 0.85 # to saturate, values between 
 
-dfSim = data.frame(expH = seq(0.01, 1, by = 0.01),
+dfSim = data.frame(expH = seq(0.2, 1, by = 0.01),
                        simLaCrau = NA,
                        simSCecile = NA,
                        simFrejus = NA,
@@ -55,6 +53,11 @@ for(j in 1:nrow(dfSim)){
     name = dfCities$name[i]
     IDsSubSet = dfCities$cell[i]
     IntroCalendar = dfCities$IntroCalendar[i]
+    
+    # intro calendar correction: introduction is done ~ 12 days before
+    IntroCalendarDate = as.Date(paste0(years[length(years)], "-", IntroCalendar, "%d/%m/%y")) -12
+    IntroCalendar = substr(IntroCalendarDate, 6, 10)
+    
     OutroCalendar = dfCities$OutroCalendar[i]
     
     # let's consider: expH
@@ -77,6 +80,9 @@ for(j in 1:nrow(dfSim)){
 saveRDS(dfSim, file = paste0(folderOut,"/dfSim.rds"))
 
 ### Part 2
+# https://travelhealthpro.org.uk/factsheet/13/dengue
+
+parSymp = 0.4 # percentage of people experiencing symptoms
 
 dfSim <- readRDS(paste0(folderOut,"/dfSim.rds"))
 
@@ -84,7 +90,7 @@ dfSim <- readRDS(paste0(folderOut,"/dfSim.rds"))
 mSim <- cbind(dfSim %>% pull(simLaCrau),
                dfSim %>% pull(simSCecile),
                dfSim %>% pull(simFrejus),
-               dfSim %>% pull(simVallauris))
+               dfSim %>% pull(simVallauris))*parSymp
 
 mCases <- matrix(dfCities$cases, nrow = nrow(mSim), ncol = nrow(dfCities), byrow = T) # 4 or the number of cases
 
