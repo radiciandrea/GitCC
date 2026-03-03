@@ -1,5 +1,5 @@
 # Model by Metelmann 2019 ----
-# to simulate secondary cases from the 1st of August
+# to simulate secondary cases from the 1st of any month
 
 # Running on SAFRAN
 
