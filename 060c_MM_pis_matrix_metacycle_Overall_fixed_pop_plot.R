@@ -11,6 +11,7 @@ library(dplyr)
 library(pracma)
 library(sf)
 library(data.table)
+library(viridis)
 
 mod = "" # "" = CNRM-CERFACS-CNRM-CM5_CNRM-ALADIN63, cold = MPI-M-MPI-ESM-LR_MPI-CSC-REMO2009, hot = MOHC-HadGEM2-ES_CLMcom-CCLM4-8-17
 

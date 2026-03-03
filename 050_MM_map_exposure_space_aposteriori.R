@@ -10,6 +10,7 @@ library(metR)
 library(ggrepel)
 library(ggpubr)
 library(Hmisc)
+library(viridis)
 
 mod = ""
 # sim = "AvgMin"
